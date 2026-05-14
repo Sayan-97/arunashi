@@ -50,6 +50,6 @@
 
 @layer components {
   .app_container {
-    @apply max-w-[1440px] w-full lg:px-25 mx-auto;
+    @apply max-w-[1440px] w-full px-4 md:px-12 lg:px-25 mx-auto;
   }
 }

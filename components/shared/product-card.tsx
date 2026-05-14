@@ -20,7 +20,7 @@ export default function ProductCard({
           priority
           placeholder="blur"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover hover:scale-105 transition-transform ease-in-out"
+          className="w-full object-cover hover:scale-105 transition-transform ease-in-out"
         />
       </div>
       <p className="text-2xl text-center">{name}</p>
