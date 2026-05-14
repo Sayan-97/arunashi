@@ -16,9 +16,6 @@ import {
 } from "../ui/sheet";
 
 function HamburgerMenu() {
-  const pathname = usePathname();
-  const onboardingRoutes = ["/login", "/signup"];
-
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -37,6 +34,8 @@ function HamburgerMenu() {
 }
 
 export default function Header() {
+  const pathname = usePathname();
+  const onboardingRoutes = ["/login", "/signup"];
   return (
     <header>
       <div className="h-30.25 bg-secondary">
@@ -54,15 +53,17 @@ export default function Header() {
           <Search className="size-6" />
         </div>
       </div>
-      <div className="max-md:hidden bg-highlight h-12">
-        <nav className="app_container h-full flex items-center justify-between gap-4">
-          {navLinks.map((link) => (
-            <Link key={link.label} href={link.href}>
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-      </div>
+      {!onboardingRoutes.includes(pathname) && (
+        <div className="max-md:hidden bg-highlight h-12">
+          <nav className="app_container h-full flex items-center justify-between gap-4">
+            {navLinks.map((link) => (
+              <Link key={link.label} href={link.href}>
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

@@ -44,7 +44,7 @@
     @apply flex-1;
   }
   h1 {
-    @apply font-fleur;
+    @apply text-[70px] font-fleur;
   }
 }
 
