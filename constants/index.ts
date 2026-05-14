@@ -380,3 +380,44 @@ export const diamonds = [
   { name: "Diamond White" },
   { name: "Diamond Yellow" },
 ];
+
+export const requestedProducts = [
+  {
+    id: 1,
+    name: "Premium emerald inlay seamless ring",
+    itemNo: "2089868976",
+    msrp: "$30,0000",
+    stockStatus: "In Stock",
+    notes:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    image: "/product-img-1.png",
+  },
+  {
+    id: 2,
+    name: "Premium emerald inlay seamless ring",
+    itemNo: "2089868976",
+    msrp: "$30,0000",
+    stockStatus: "In Stock",
+    notes: null,
+    image: "/product-img-1.png",
+  },
+  {
+    id: 3,
+    name: "Premium emerald inlay seamless ring",
+    itemNo: "2089868976",
+    msrp: "$30,0000",
+    stockStatus: "Out of Stock",
+    notes:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    image: "/product-img-1.png",
+  },
+  {
+    id: 4,
+    name: "Premium emerald inlay seamless ring",
+    itemNo: "2089868976",
+    msrp: "$30,0000",
+    stockStatus: "In Stock",
+    notes: null,
+    image: "/product-img-1.png",
+  },
+];
