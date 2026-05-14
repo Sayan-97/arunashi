@@ -1,5 +1,19 @@
 import type { Metadata } from "next";
+import { Nunito } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const fleur = localFont({
+  src: "../public/FleurBold.otf",
+  variable: "--font-fleur",
+});
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  variable: "--font-nunito",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -12,8 +26,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn("antialiased", fleur.variable, nunito.variable)}
+    >
+      {children}
     </html>
   );
 }
