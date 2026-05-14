@@ -3,7 +3,7 @@ import ProductCard from "@/components/shared/product-card";
 import { products } from "@/constants";
 import HeroImg from "@/public/collection-hero-bg.png";
 
-export default function CollectionDetailPage() {
+export default function CollectionProductsPage() {
   return (
     <main className="pb-15 space-y-25">
       <section>

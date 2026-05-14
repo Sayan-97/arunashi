@@ -192,34 +192,42 @@ export const magazines = [
   {
     id: 1,
     image: MagazineImg1,
+    link: "/",
   },
   {
     id: 2,
     image: MagazineImg2,
+    link: "/",
   },
   {
     id: 3,
     image: MagazineImg3,
+    link: "/",
   },
   {
     id: 4,
     image: MagazineImg4,
+    link: "/",
   },
   {
     id: 5,
     image: MagazineImg5,
+    link: "/",
   },
   {
     id: 6,
     image: MagazineImg6,
+    link: "/",
   },
   {
     id: 7,
     image: MagazineImg7,
+    link: "/",
   },
   {
     id: 8,
     image: MagazineImg8,
+    link: "/",
   },
 ];
 
