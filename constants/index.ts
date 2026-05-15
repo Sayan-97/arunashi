@@ -127,6 +127,54 @@ export const collections = [
   },
 ];
 
+export const collectionFilters = [
+  {
+    label: "Metal",
+    options: [
+      { label: "18K Black Gold", count: 19 },
+      { label: "18K White Gold", count: 4 },
+      { label: "18K Yellow Gold", count: 15 },
+      { label: "Carbon Fiber", count: 3 },
+      { label: "Titanium", count: 23 },
+    ],
+  },
+  {
+    label: "Category",
+    options: [
+      { label: "Rings", count: 42 },
+      { label: "Necklaces", count: 28 },
+      { label: "Earrings", count: 35 },
+      { label: "Bracelets", count: 12 },
+    ],
+  },
+  {
+    label: "Gemstone",
+    options: [
+      { label: "Diamond", count: 120 },
+      { label: "Sapphire", count: 45 },
+      { label: "Emerald", count: 32 },
+      { label: "Ruby", count: 21 },
+    ],
+  },
+  {
+    label: "Diamond Shape",
+    options: [
+      { label: "Round", count: 64 },
+      { label: "Oval", count: 32 },
+      { label: "Emerald", count: 18 },
+      { label: "Pear", count: 24 },
+    ],
+  },
+  {
+    label: "Sort",
+    options: [
+      { label: "Newest", count: 0 },
+      { label: "Price: Low to High", count: 0 },
+      { label: "Price: High to Low", count: 0 },
+    ],
+  },
+];
+
 export const products = [
   {
     id: 1,
