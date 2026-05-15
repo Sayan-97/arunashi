@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { footerLinks } from "@/constants";
+import { Button } from "../ui/button";
 
 export default function Footer() {
   return (
@@ -17,6 +18,16 @@ export default function Footer() {
           <i className="fi fi-brands-instagram text-2xl"></i>
           <i className="fi fi-brands-pinterest text-2xl"></i>
         </div>
+      </div>
+      <div className="mt-16 flex flex-col md:flex-row items-center justify-center gap-10">
+        <div className="w-full max-w-[180px]">
+          <input
+            type="email"
+            placeholder="Email Address"
+            className="w-full bg-transparent border-b border-black/60 py-2 outline-none text-center placeholder:text-black/50 font-nunito"
+          />
+        </div>
+        <Button variant="outline">JOIN THE LIST</Button>
       </div>
     </footer>
   );
