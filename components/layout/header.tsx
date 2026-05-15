@@ -18,19 +18,31 @@ import Search from "./search";
 
 function HamburgerMenu() {
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="ghost">
-          <Menu className="size-6" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left">
-        <SheetHeader>
-          <SheetTitle>Hello Word</SheetTitle>
-        </SheetHeader>
-        Hello World
-      </SheetContent>
-    </Sheet>
+    <div className="md:hidden">
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <Menu className="size-6" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+          <SheetHeader className="text-left mb-8 hidden">
+            <SheetTitle className="text-2xl font-fleur uppercase"></SheetTitle>
+          </SheetHeader>
+          <nav className="flex flex-col gap-6 mt-8 ml-4">
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="text-4xl font-fleur font-medium hover:text-gray-600 transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </SheetContent>
+      </Sheet>
+    </div>
   );
 }
 
@@ -47,6 +59,8 @@ export default function Header() {
       <div className="h-30.25 bg-secondary">
         <div className="app_container h-full flex items-center justify-between">
           <HamburgerMenu />
+          {/* Spacer for desktop to keep logo centered */}
+          <div className="hidden md:block w-10" />
           <Link href="/">
             <Image
               src={AppLogo}
