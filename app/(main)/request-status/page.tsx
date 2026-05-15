@@ -1,6 +1,5 @@
 import Image from "next/image";
 import ContactUs from "@/components/layout/contact-us";
-import { Button } from "@/components/ui/button";
 import { requestedProducts } from "@/constants";
 
 export default function RequestStatus() {

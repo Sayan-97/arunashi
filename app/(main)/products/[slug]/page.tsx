@@ -1,20 +1,31 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import ContactUs from "@/components/layout/contact-us";
 import RelatedProducts from "@/components/layout/related-products";
 import ShareProduct from "@/components/layout/share-product";
 import { Button } from "@/components/ui/button";
 import { products } from "@/constants";
-
+import { cn } from "@/lib/utils";
 export default function ProductDetailsPage() {
   const product = products[0];
+  const productImages = [
+    product.image,
+    product.image,
+    product.image,
+    product.image,
+  ];
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
   return (
     <main className="app_container py-15 space-y-25">
       <section className="grid lg:grid-cols-2 gap-19">
         <div className="flex flex-col items-center gap-6">
           <div className="relative w-full h-[320px] md:h-[550px]">
             <Image
-              src={product.image}
+              src={productImages[selectedIndex]}
               alt="Product Images"
               fill
               priority
@@ -23,15 +34,27 @@ export default function ProductDetailsPage() {
             />
           </div>
           <div className="flex items-center gap-2.5">
-            {[1, 2, 3, 4].map((i) => (
-              <Image
-                key={i}
-                src={product.image}
-                alt="Product Images"
-                width={97}
-                height={97}
-                className="max-md:size-20"
-              />
+            {productImages.map((img, i) => (
+              <button
+                // biome-ignore lint/suspicious/noArrayIndexKey: using index for mock placeholder images
+                key={`thumb-${i}`}
+                type="button"
+                onClick={() => setSelectedIndex(i)}
+                className={cn(
+                  "relative border-2 transition-all overflow-hidden",
+                  selectedIndex === i
+                    ? "border-highlight"
+                    : "border-transparent",
+                )}
+              >
+                <Image
+                  src={img}
+                  alt={`Product View ${i + 1}`}
+                  width={97}
+                  height={97}
+                  className="max-md:size-20"
+                />
+              </button>
             ))}
           </div>
         </div>

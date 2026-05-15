@@ -122,6 +122,7 @@ export default function RequestListPage() {
                     </td>
                     <td className="p-6 align-top text-right">
                       <Button
+                        type="button"
                         variant="ghost"
                         size="icon"
                         className="hover:text-red-500 transition-colors"
@@ -249,7 +250,7 @@ function NoteDialog({
   product,
   isMobile,
 }: {
-  product: any;
+  product: (typeof requestedProducts)[0];
   isMobile?: boolean;
 }) {
   return (
