@@ -8,6 +8,7 @@ import CollectionImg5 from "@/public/collection-img-5.png";
 import CollectionImg6 from "@/public/collection-img-6.png";
 import CollectionImg7 from "@/public/collection-img-7.png";
 import CollectionImg8 from "@/public/collection-img-8.png";
+
 import MagazineImg1 from "@/public/magazine-img-1.png";
 import MagazineImg2 from "@/public/magazine-img-2.png";
 import MagazineImg3 from "@/public/magazine-img-3.png";
@@ -16,6 +17,7 @@ import MagazineImg5 from "@/public/magazine-img-5.png";
 import MagazineImg6 from "@/public/magazine-img-6.png";
 import MagazineImg7 from "@/public/magazine-img-7.png";
 import MagazineImg8 from "@/public/magazine-img-8.png";
+
 import ProductImg1 from "@/public/product-img-1.png";
 import ProductImg2 from "@/public/product-img-2.png";
 import ProductImg3 from "@/public/product-img-3.png";
@@ -63,7 +65,7 @@ export const footerLinks = [
   },
   {
     label: "Contact",
-    href: "",
+    href: "/contact-us",
   },
   {
     label: "About Us",
