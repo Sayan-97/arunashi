@@ -7,13 +7,14 @@ import { requestedProducts } from "@/constants";
 export default function RequestStatus() {
   return (
     <main className="py-15 space-y-25">
-      <div className="space-y-10">
-        <section className="app_container space-y-10">
+      <div className="app_container space-y-10">
+        <section className="space-y-10">
           <h1 className="uppercase">Request status</h1>
         </section>
 
-        <section className="app_container">
-          <div className="border border-black/10">
+        <section className="space-y-6 md:space-y-10">
+          {/* Desktop Table View */}
+          <div className="hidden md:block border border-black/10">
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-black/10">
@@ -119,10 +120,62 @@ export default function RequestStatus() {
               </tbody>
             </table>
           </div>
-        </section>
-      </div>
 
-      <ContactUs />
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-6">
+            {requestedProducts.map((product, index) => {
+              const status = index === 2 ? "APPROVED" : "PENDING";
+              return (
+                <div
+                  key={product.id}
+                  className="border border-black/10 p-5 space-y-5"
+                >
+                  <div className="flex gap-5">
+                    <div className="bg-gray-50 p-2 flex items-center justify-center size-36 shrink-0 relative">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-contain p-4"
+                      />
+                    </div>
+                    <div className="space-y-2 pt-1">
+                      <p className="text-gray-900 text-lg font-medium leading-tight">
+                        {product.name}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Item no : {product.itemNo}
+                      </p>
+                      <p className="text-base text-gray-900 font-medium pt-1">
+                        MSRP : {product.msrp}
+                      </p>
+                      <div
+                        className={`inline-block px-4 py-2 text-sm font-medium ${
+                          status === "APPROVED"
+                            ? "bg-green-200/50 text-green-700"
+                            : "bg-[#fff4cc] text-gray-800"
+                        }`}
+                      >
+                        {status}
+                      </div>
+                    </div>
+                  </div>
+
+                  {product.notes && (
+                    <div className="pt-1">
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        Notes: {product.notes}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <ContactUs />
+      </div>
     </main>
   );
 }

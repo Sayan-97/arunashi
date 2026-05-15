@@ -14,15 +14,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { requestedProducts } from "@/constants";
+import { cn } from "@/lib/utils";
 
 export default function RequestListPage() {
   return (
     <main className="py-15 space-y-25">
-      <div className="space-y-10">
-        <section className="app_container space-y-10">
-          <div className="flex items-center justify-between">
-            <h1>Request List</h1>
-            <div className="space-x-6">
+      <div className="app_container space-y-10">
+        <section className="space-y-6 md:space-y-10">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <h1 className="uppercase">Request List</h1>
+            <div className="flex gap-4 md:gap-6">
               <Link href="/request-status">
                 <Button variant="outline" size="lg">
                   Request Status
@@ -33,17 +34,20 @@ export default function RequestListPage() {
               </Button>
             </div>
           </div>
-          <div>
-            <p className="text-2xl font-medium">Requested Products (4)</p>
-            <p className="flex items-center gap-2 text-sm text-yellow-600 mt-3">
-              <AlertCircle className="size-4.5" strokeWidth={1.5} />
+          <div className="space-y-3">
+            <p className="text-xl md:text-2xl font-medium">
+              Requested Products (4)
+            </p>
+            <p className="flex items-center gap-2 text-xs md:text-sm text-yellow-600">
+              <AlertCircle className="size-4 md:size-4.5" strokeWidth={1.5} />
               In-stock pieces may not be immediately available for viewing
             </p>
           </div>
         </section>
 
-        <section className="app_container space-y-10">
-          <div className="border border-black/10">
+        <section className="space-y-6 md:space-y-10">
+          {/* Desktop Table View */}
+          <div className="hidden md:block border border-black/10">
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-black/10">
@@ -112,46 +116,7 @@ export default function RequestListPage() {
                             {product.notes}
                           </p>
                         ) : (
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                className="text-highlight"
-                              >
-                                <PlusCircle
-                                  className="size-5"
-                                  strokeWidth={1.5}
-                                />
-                                <span className="text-sm">Add Notes</span>
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-lg">
-                              <DialogHeader>
-                                <DialogTitle>Add Note</DialogTitle>
-                              </DialogHeader>
-                              <div className="grid gap-4 py-4">
-                                <div className="flex flex-col gap-2">
-                                  <label
-                                    htmlFor={`note-${product.id}`}
-                                    className="text-sm font-medium"
-                                  >
-                                    Note
-                                  </label>
-                                  <textarea
-                                    id={`note-${product.id}`}
-                                    className="min-h-[100px] w-full min-w-0 border border-input bg-input px-3 py-2 text-base transition-colors outline-none placeholder:text-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                                    placeholder="Enter your note here..."
-                                  />
-                                </div>
-                              </div>
-                              <DialogFooter className="border-t-0 bg-transparent">
-                                <DialogClose asChild>
-                                  <Button variant="outline">Cancel</Button>
-                                </DialogClose>
-                                <Button>Add</Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
+                          <NoteDialog product={product} />
                         )}
                       </div>
                     </td>
@@ -170,13 +135,79 @@ export default function RequestListPage() {
             </table>
           </div>
 
-          <div className="flex justify-end gap-6">
-            <Button variant="outline" size="lg" className="lg:w-60">
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-6">
+            {requestedProducts.map((product) => (
+              <div
+                key={product.id}
+                className="border border-black/10 p-5 space-y-5 relative"
+              >
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 hover:text-red-500 transition-colors"
+                >
+                  <Trash2 className="size-5" strokeWidth={1.5} />
+                </Button>
+                <div className="flex gap-5">
+                  <div className="bg-gray-50 p-2 flex items-center justify-center size-36 shrink-0 relative">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      className="object-contain p-4"
+                    />
+                  </div>
+                  <div className="space-y-2 pt-1">
+                    <p className="text-gray-900 text-lg font-medium leading-tight">
+                      {product.name}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      Item no : {product.itemNo}
+                    </p>
+                    <p className="text-base text-gray-900 font-medium pt-1">
+                      MSRP : {product.msrp}
+                    </p>
+                    <p
+                      className={`text-sm ${
+                        product.stockStatus === "In Stock"
+                          ? "text-green-600"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {product.stockStatus}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-1">
+                  {product.notes ? (
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      Notes: {product.notes}
+                    </p>
+                  ) : (
+                    <NoteDialog product={product} isMobile />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-col md:flex-row justify-end gap-4 md:gap-6">
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full md:w-60 h-14 text-lg md:text-base"
+            >
               Save List
             </Button>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" size="lg" className="lg:w-60">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full md:w-60 h-14 text-lg md:text-base"
+                >
                   Submit Request
                 </Button>
               </DialogTrigger>
@@ -208,9 +239,64 @@ export default function RequestListPage() {
             </Dialog>
           </div>
         </section>
+        <ContactUs />
       </div>
-
-      <ContactUs />
     </main>
+  );
+}
+
+function NoteDialog({
+  product,
+  isMobile,
+}: {
+  product: any;
+  isMobile?: boolean;
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button
+          variant="ghost"
+          className={cn(
+            "text-highlight p-0 h-auto hover:bg-transparent",
+            isMobile ? "font-normal" : "",
+          )}
+        >
+          <PlusCircle
+            className={cn(isMobile ? "size-6" : "size-5")}
+            strokeWidth={1.5}
+          />
+          <span className={cn(isMobile ? "text-base" : "text-sm")}>
+            Add Notes
+          </span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Add Note</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor={`note-${product.id}`}
+              className="text-sm font-medium"
+            >
+              Note
+            </label>
+            <textarea
+              id={`note-${product.id}`}
+              className="min-h-[100px] w-full min-w-0 border border-input bg-input px-3 py-2 text-base transition-colors outline-none placeholder:text-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+              placeholder="Enter your note here..."
+            />
+          </div>
+        </div>
+        <DialogFooter className="border-t-0 bg-transparent">
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button>Add</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
