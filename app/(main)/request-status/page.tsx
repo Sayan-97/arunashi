@@ -1,4 +1,3 @@
-import { PlusCircle } from "lucide-react";
 import Image from "next/image";
 import ContactUs from "@/components/layout/contact-us";
 import { Button } from "@/components/ui/button";
@@ -88,16 +87,7 @@ export default function RequestStatus() {
                               {product.notes}
                             </p>
                           ) : (
-                            <Button
-                              variant="ghost"
-                              className="text-highlight p-0 h-auto hover:bg-transparent"
-                            >
-                              <PlusCircle
-                                className="size-5"
-                                strokeWidth={1.5}
-                              />
-                              <span className="text-sm">Add Notes</span>
-                            </Button>
+                            <p>-</p>
                           )}
                         </div>
                       </td>
@@ -161,13 +151,14 @@ export default function RequestStatus() {
                     </div>
                   </div>
 
-                  {product.notes && (
-                    <div className="pt-1">
-                      <p className="text-sm text-gray-600 leading-relaxed">
-                        Notes: {product.notes}
-                      </p>
-                    </div>
-                  )}
+                  <div className="pt-1">
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      Notes:{" "}
+                      {product.notes || (
+                        <span className="text-highlight">-</span>
+                      )}
+                    </p>
+                  </div>
                 </div>
               );
             })}

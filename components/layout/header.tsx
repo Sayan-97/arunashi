@@ -9,6 +9,7 @@ import AppLogo from "@/public/app-logo.png";
 import { Button } from "../ui/button";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -31,13 +32,14 @@ function HamburgerMenu() {
           </SheetHeader>
           <nav className="flex flex-col gap-6 mt-8 ml-4">
             {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-4xl font-fleur font-medium hover:text-gray-600 transition-colors"
-              >
-                {link.label}
-              </Link>
+              <SheetClose key={link.label} asChild>
+                <Link
+                  href={link.href}
+                  className="text-4xl font-fleur font-medium hover:text-gray-600 transition-colors"
+                >
+                  {link.label}
+                </Link>
+              </SheetClose>
             ))}
           </nav>
         </SheetContent>
