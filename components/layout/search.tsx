@@ -142,7 +142,7 @@ export default function Search() {
                           key={product.id}
                           className="flex items-center gap-6"
                         >
-                          <div className="w-[60px] h-[60px] bg-black flex items-center justify-center relative shrink-0">
+                          <div className="size-15 bg-black flex items-center justify-center relative shrink-0">
                             <Image
                               src={product.image}
                               alt={product.name}

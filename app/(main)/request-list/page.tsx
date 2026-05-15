@@ -1,10 +1,12 @@
-import { AlertCircle, PlusCircle, Trash2 } from "lucide-react";
+import { AlertCircle, Check, PlusCircle, Trash2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -19,9 +21,11 @@ export default function RequestListPage() {
         <div className="flex items-center justify-between">
           <h1>Request List</h1>
           <div className="space-x-6">
-            <Button variant="outline" size="lg">
-              Request Status
-            </Button>
+            <Link href="/request-status">
+              <Button variant="outline" size="lg">
+                Request Status
+              </Button>
+            </Link>
             <Button variant="outline" size="lg">
               Saved Lists
             </Button>
@@ -163,9 +167,38 @@ export default function RequestListPage() {
           <Button variant="outline" size="lg" className="lg:w-60">
             Save List
           </Button>
-          <Button variant="outline" size="lg" className="lg:w-60">
-            Submit Request
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="lg" className="lg:w-60">
+                Submit Request
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[771px] p-10 md:p-16">
+              <DialogHeader className="items-center text-center space-y-6">
+                <div className="size-20 rounded-full border-2 border-primary flex items-center justify-center mb-2">
+                  <Check className="size-8 text-primary" strokeWidth={1.5} />
+                </div>
+                <DialogTitle className="text-2xl md:text-[32px] font-medium leading-snug text-gray-900 max-w-xl mx-auto">
+                  Your Request List has been successfully
+                  <br />
+                  submitted to our sales team.
+                </DialogTitle>
+                <DialogDescription className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">
+                  A request list has been emailed to the sales team. We will be
+                  in touch shortly with next steps.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="border-t-0 bg-transparent sm:justify-center pt-8">
+                <DialogClose asChild>
+                  <Link href="/">
+                    <Button variant="outline" size="lg">
+                      Continue Browsing
+                    </Button>
+                  </Link>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </section>
     </main>
