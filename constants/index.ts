@@ -381,6 +381,21 @@ export const diamonds = [
   { name: "Diamond Yellow" },
 ];
 
+export const searchSuggestions = [
+  "Sapphire",
+  "Emerald Sapphire",
+  "Diamond Stacking Band",
+  "Lightning Strikes Collection",
+];
+
+export const searchPages = [
+  {
+    title: "The Storied Collection",
+    href: "/collections/the-story-collection",
+  },
+  { title: "Shipping, Order Processing & Returns", href: "/shipping" },
+];
+
 export const requestedProducts = [
   {
     id: 1,

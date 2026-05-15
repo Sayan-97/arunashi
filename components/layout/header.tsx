@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, Search } from "lucide-react";
+import { Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -14,6 +14,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
+import Search from "./search";
 
 function HamburgerMenu() {
   return (
@@ -50,7 +51,7 @@ export default function Header() {
               className="w-[164px] h-full"
             />
           </Link>
-          <Search className="size-6" />
+          <Search />
         </div>
       </div>
       {!onboardingRoutes.includes(pathname) && (
