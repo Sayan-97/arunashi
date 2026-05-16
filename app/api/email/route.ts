@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     }
 
     // CHANGE THIS TO ANY EMAIL ADDRESS YOU WANT TO SEND TO FOR YOUR DEMO
-    const targetAdminEmail = "Topobarlayek6@gmail.com";
+    const targetAdminEmail = "sales@arunashi.com";
 
     const mailOptions = {
       from: `"Arunashi System" <${process.env.GMAIL_USER}>`,
