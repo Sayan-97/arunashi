@@ -8,7 +8,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { products } from "@/constants";
+import { categories, products } from "@/constants";
 
 export default function Categories() {
   return (
@@ -30,15 +30,15 @@ export default function Categories() {
           </div>
         </div>
         <CarouselContent className="-ml-11.75">
-          {products.slice(0, 4).map((product) => (
+          {categories.map((category) => (
             <CarouselItem
-              key={product.id}
+              key={category.id}
               className="md:basis-1/2 lg:basis-1/3 space-y-4 pl-11.75"
             >
               <ProductCard
-                image={product.image}
-                name="Category Name"
-                link="/products"
+                image={category.image}
+                name={category.name}
+                link={`/categories/${category.name.replaceAll(" ", "-").toLowerCase()}`}
               />
             </CarouselItem>
           ))}

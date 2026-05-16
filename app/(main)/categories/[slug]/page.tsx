@@ -3,7 +3,7 @@ import FilterDropdown from "@/components/layout/filter-dropdown";
 import ProductCard from "@/components/shared/product-card";
 import { products } from "@/constants";
 
-export default function ProductsPage() {
+export default function CategoryProductsPage() {
   return (
     <main className="app_container space-y-15 py-15">
       <div className="flex justify-end gap-4">

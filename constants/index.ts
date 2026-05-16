@@ -38,7 +38,7 @@ export const navLinks = [
   },
   {
     label: "Categories",
-    href: "/products",
+    href: "/categories",
   },
   {
     label: "Gemstones",
@@ -176,6 +176,29 @@ export const collectionFilters = [
       { label: "Price: Low to High", count: 0 },
       { label: "Price: High to Low", count: 0 },
     ],
+  },
+];
+
+export const categories = [
+  {
+    id: 1,
+    name: "Bracelets",
+    image: ProductImg9,
+  },
+  {
+    id: 2,
+    name: "Earrings",
+    image: ProductImg1,
+  },
+  {
+    id: 3,
+    name: "Rings",
+    image: ProductImg10,
+  },
+  {
+    id: 4,
+    name: "Necklaces",
+    image: ProductImg8,
   },
 ];
 
