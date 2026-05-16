@@ -25,7 +25,7 @@ export default function DiamondsPage() {
                 <DialogTrigger asChild>
                   <div className="flex items-start gap-3 mb-4 break-inside-avoid">
                     <span className="size-1.5 mt-3 bg-foreground rounded-full shrink-0"></span>
-                    <span className="text-lg text-foreground font-medium tracking-wide">
+                    <span className="text-lg text-foreground font-medium tracking-wide hover:underline underline-offset-2 cursor-pointer">
                       {diamond.name}
                     </span>
                   </div>
