@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 
 export default function Footer() {
   return (
-    <footer className="pt-[54px] pb-[30px] border-t border-black/10">
+    <footer className="pt-[54px] mt-15 pb-[30px] border-t border-black/10">
       <div className="app_container flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-25">
         <ul className="flex-1 flex flex-col md:flex-row items-center justify-between gap-4">
           {footerLinks.map((link) => (

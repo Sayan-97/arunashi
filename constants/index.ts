@@ -651,7 +651,7 @@ export const productsData = [
   },
   {
     id: 12,
-    name: "White Burgundy Anyone? Brooch",
+    name: "White Burgundy Brooch",
     msrp: "58500",
     category: "Brooch",
     featuredImage: Product12,

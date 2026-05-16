@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function SubmissionPage() {
@@ -10,9 +11,11 @@ export default function SubmissionPage() {
           successfully submitted. Our team will review your details and notify
           you by email once your account is approved.
         </p>
-        <Button variant="outline" size="lg" className="px-10">
-          Got It
-        </Button>
+        <Link href="/">
+          <Button variant="outline" size="lg" className="px-10">
+            Got It
+          </Button>
+        </Link>
       </section>
     </div>
   );

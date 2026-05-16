@@ -23,9 +23,11 @@ export default function LoginPage() {
           />
         </div>
         <div className="flex flex-col items-center gap-2">
-          <Button variant="outline" size="lg" className="px-10">
-            Log In
-          </Button>
+          <Link href="/">
+            <Button variant="outline" size="lg" className="px-10">
+              Log In
+            </Button>
+          </Link>
           <div className="flex items-center justify-between gap-2">
             <div className="w-[52px] h-[2px] bg-foreground" />
             <p>Or</p>

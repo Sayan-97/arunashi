@@ -36,7 +36,7 @@ export default function Magazines() {
               <MagazineCard
                 image={magazine.image}
                 title="Magazine Name"
-                link="/products"
+                link="/"
               />
             </CarouselItem>
           ))}
