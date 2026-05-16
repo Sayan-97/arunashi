@@ -1,6 +1,4 @@
-import Link from "next/link";
 import ProductCard from "@/components/shared/product-card";
-import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
@@ -8,7 +6,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { categories, products } from "@/constants";
+import { categories } from "@/constants";
 
 export default function Categories() {
   return (

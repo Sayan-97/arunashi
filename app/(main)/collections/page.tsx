@@ -13,7 +13,7 @@ export default function CollectionsPage() {
             <ProductCard
               image={collection.image}
               name={collection.name}
-              link={`/collections/${collection.name}`}
+              link={`/collections/${collection.name.replaceAll(" ", "-").toLowerCase()}`}
             />
           </div>
         ))}
