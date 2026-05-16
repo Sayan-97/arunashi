@@ -1,6 +1,9 @@
+"use client";
+
 import { AlertCircle, Check, PlusCircle, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 import ContactUs from "@/components/layout/contact-us";
 import { Button } from "@/components/ui/button";
 import {
@@ -199,6 +202,15 @@ export default function RequestListPage() {
               variant="outline"
               size="lg"
               className="w-full md:w-60 h-14 text-lg md:text-base"
+              onClick={() =>
+                toast.success("Your list has been saved successfully", {
+                  position: "top-right",
+                  action: {
+                    label: "Undo",
+                    onClick: () => console.log("Undo"),
+                  },
+                })
+              }
             >
               Save List
             </Button>
