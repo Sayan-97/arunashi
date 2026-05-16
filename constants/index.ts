@@ -17,7 +17,18 @@ import MagazineImg5 from "@/public/magazine-img-5.png";
 import MagazineImg6 from "@/public/magazine-img-6.png";
 import MagazineImg7 from "@/public/magazine-img-7.png";
 import MagazineImg8 from "@/public/magazine-img-8.png";
-
+import Product1 from "@/public/product-1.png";
+import Product2 from "@/public/product-2.png";
+import Product3 from "@/public/product-3.png";
+import Product4 from "@/public/product-4.png";
+import Product5 from "@/public/product-5.png";
+import Product6 from "@/public/product-6.png";
+import Product7 from "@/public/product-7.png";
+import Product8 from "@/public/product-8.png";
+import Product9 from "@/public/product-9.png";
+import Product10 from "@/public/product-10.png";
+import Product11 from "@/public/product-11.png";
+import Product12 from "@/public/product-12.png";
 import ProductImg1 from "@/public/product-img-1.png";
 import ProductImg2 from "@/public/product-img-2.png";
 import ProductImg3 from "@/public/product-img-3.png";
@@ -202,68 +213,68 @@ export const categories = [
   },
 ];
 
-export const products = [
-  {
-    id: 1,
-    image: ProductImg1,
-    name: "Product Name",
-  },
-  {
-    id: 2,
-    image: ProductImg2,
-    name: "Product Name",
-  },
-  {
-    id: 3,
-    image: ProductImg3,
-    name: "Product Name",
-  },
-  {
-    id: 4,
-    image: ProductImg4,
-    name: "Product Name",
-  },
-  {
-    id: 5,
-    image: ProductImg5,
-    name: "Product Name",
-  },
-  {
-    id: 6,
-    image: ProductImg6,
-    name: "Product Name",
-  },
-  {
-    id: 7,
-    image: ProductImg7,
-    name: "Product Name",
-  },
-  {
-    id: 8,
-    image: ProductImg8,
-    name: "Product Name",
-  },
-  {
-    id: 9,
-    image: ProductImg9,
-    name: "Product Name",
-  },
-  {
-    id: 10,
-    image: ProductImg10,
-    name: "Product Name",
-  },
-  {
-    id: 11,
-    image: ProductImg11,
-    name: "Product Name",
-  },
-  {
-    id: 12,
-    image: ProductImg12,
-    name: "Product Name",
-  },
-];
+// export const products = [
+//   {
+//     id: 1,
+//     image: ProductImg1,
+//     name: "Product Name",
+//   },
+//   {
+//     id: 2,
+//     image: ProductImg2,
+//     name: "Product Name",
+//   },
+//   {
+//     id: 3,
+//     image: ProductImg3,
+//     name: "Product Name",
+//   },
+//   {
+//     id: 4,
+//     image: ProductImg4,
+//     name: "Product Name",
+//   },
+//   {
+//     id: 5,
+//     image: ProductImg5,
+//     name: "Product Name",
+//   },
+//   {
+//     id: 6,
+//     image: ProductImg6,
+//     name: "Product Name",
+//   },
+//   {
+//     id: 7,
+//     image: ProductImg7,
+//     name: "Product Name",
+//   },
+//   {
+//     id: 8,
+//     image: ProductImg8,
+//     name: "Product Name",
+//   },
+//   {
+//     id: 9,
+//     image: ProductImg9,
+//     name: "Product Name",
+//   },
+//   {
+//     id: 10,
+//     image: ProductImg10,
+//     name: "Product Name",
+//   },
+//   {
+//     id: 11,
+//     image: ProductImg11,
+//     name: "Product Name",
+//   },
+//   {
+//     id: 12,
+//     image: ProductImg12,
+//     name: "Product Name",
+//   },
+// ];
 
 export const magazines = [
   {
@@ -511,5 +522,139 @@ export const requestedProducts = [
     stockStatus: "In Stock",
     notes: null,
     image: "/product-img-1.png",
+  },
+];
+
+export const productCollections = [{}];
+
+export const productCategories = [
+  {
+    name: "Rings",
+    image: Product9,
+    type: "ring",
+  },
+  {
+    name: "Bracelets",
+    image: Product1,
+    type: "bracelet",
+  },
+  {
+    name: "Earrings",
+    image: Product3,
+    type: "earring",
+  },
+  {
+    name: "Brooch",
+    image: Product11,
+    type: "brooch",
+  },
+  {
+    name: "Necklaces",
+    image: Product5,
+    type: "necklace",
+  },
+  {
+    name: "Pendants",
+    image: Product7,
+    type: "pendant",
+  },
+];
+
+export const productsData = [
+  {
+    id: 1,
+    name: "Lotus Flower Diamond Bracelet",
+    msrp: "58500",
+    category: "Bracelet",
+    featuredImage: Product1,
+    collection: "Collectible Art",
+  },
+  {
+    id: 2,
+    name: "Violet Sapphire Bracelet",
+    msrp: "44500",
+    category: "Bracelet",
+    featuredImage: Product2,
+    collection: "Maximal Minimalism",
+  },
+  {
+    id: 3,
+    name: "White Sapphire, Spinel & Diamond Earrings",
+    msrp: "25500",
+    category: "Earrings",
+    featuredImage: Product3,
+    collection: "Collectible Art",
+  },
+  {
+    id: 4,
+    name: "Sapphire Eggs with Diamonds",
+    msrp: "26500",
+    category: "Earrings",
+    featuredImage: Product4,
+    collection: "Collectible Art",
+  },
+  {
+    id: 5,
+    name: "Emerald & Opal Flower Necklace",
+    msrp: "65500",
+    category: "Necklace",
+    featuredImage: Product5,
+    collection: "Collectible Art",
+  },
+  {
+    id: 6,
+    name: "Gray Diamond Necklace",
+    msrp: "58500",
+    category: "Necklace",
+    featuredImage: Product6,
+    collection: "Minimal Maximalism",
+  },
+  {
+    id: 7,
+    name: "Tanzanite Fish Pendant",
+    msrp: "33500",
+    category: "Pendant",
+    featuredImage: Product7,
+    collection: "Collectible Art",
+  },
+  {
+    id: 8,
+    name: "Peridot Pendant",
+    msrp: "68500",
+    category: "Pendant",
+    featuredImage: Product8,
+    collection: "Collectible Art",
+  },
+  {
+    id: 9,
+    name: "Pearl Ocean Ring with Reverse Set Diamonds",
+    msrp: "30600",
+    category: "Ring",
+    featuredImage: Product9,
+    collection: "Collectible Art",
+  },
+  {
+    id: 10,
+    name: "Pearl Encased In Emerald Sapphire & Diamond",
+    msrp: "26500",
+    category: "Ring",
+    featuredImage: Product10,
+    collection: "Collectible Art",
+  },
+  {
+    id: 11,
+    name: "Diamond Flower Brooch with Amythyst",
+    msrp: "18800",
+    category: "Brooch",
+    featuredImage: Product11,
+    collection: "Collectible Art",
+  },
+  {
+    id: 12,
+    name: "White Burgundy Anyone? Brooch",
+    msrp: "58500",
+    category: "Brooch",
+    featuredImage: Product12,
+    collection: "Collectible Art",
   },
 ];

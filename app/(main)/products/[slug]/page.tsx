@@ -7,15 +7,15 @@ import ContactUs from "@/components/layout/contact-us";
 import RelatedProducts from "@/components/layout/related-products";
 import ShareProduct from "@/components/layout/share-product";
 import { Button } from "@/components/ui/button";
-import { products } from "@/constants";
+import { productsData } from "@/constants";
 import { cn } from "@/lib/utils";
 export default function ProductDetailsPage() {
-  const product = products[0];
+  const product = productsData[0];
   const productImages = [
-    product.image,
-    product.image,
-    product.image,
-    product.image,
+    product.featuredImage,
+    product.featuredImage,
+    product.featuredImage,
+    product.featuredImage,
   ];
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("Description");

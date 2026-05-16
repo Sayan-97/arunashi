@@ -1,7 +1,7 @@
 import Image from "next/image";
 import FilterDropdown from "@/components/layout/filter-dropdown";
 import ProductCard from "@/components/shared/product-card";
-import { collectionFilters, products } from "@/constants";
+import { collectionFilters, productsData } from "@/constants";
 import HeroImg from "@/public/collection-hero-bg.png";
 
 export default function CollectionProductsPage() {
@@ -26,10 +26,10 @@ export default function CollectionProductsPage() {
         ))}
       </section>
       <section className="app_container grid md:grid-cols-2 lg:grid-cols-3 gap-x-11.75 gap-y-15">
-        {products.slice(0, 6).map((product) => (
+        {productsData.slice(0, 6).map((product) => (
           <ProductCard
             key={product.id}
-            image={product.image}
+            image={product.featuredImage}
             name={product.name}
             link={`/products/${product.id}`}
           />

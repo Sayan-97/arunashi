@@ -3,7 +3,7 @@
 import { Search as SearchIcon, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { products, searchPages, searchSuggestions } from "@/constants";
+import { productsData, searchPages, searchSuggestions } from "@/constants";
 import { Button } from "../ui/button";
 
 export default function Search() {
@@ -137,14 +137,14 @@ export default function Search() {
                       Products
                     </h3>
                     <ul className="space-y-6">
-                      {products.slice(0, 3).map((product) => (
+                      {productsData.slice(0, 3).map((product) => (
                         <li
                           key={product.id}
                           className="flex items-center gap-6"
                         >
                           <div className="size-15 bg-black flex items-center justify-center relative shrink-0">
                             <Image
-                              src={product.image}
+                              src={product.featuredImage}
                               alt={product.name}
                               fill
                               className="object-contain p-1"

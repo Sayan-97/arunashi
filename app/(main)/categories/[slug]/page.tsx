@@ -1,16 +1,26 @@
-import { ArrowUpDown, Filter } from "lucide-react";
 import FilterDropdown from "@/components/layout/filter-dropdown";
 import ProductCard from "@/components/shared/product-card";
-import { products } from "@/constants";
+import { collectionFilters, productsData } from "@/constants";
 
-export default function CategoryProductsPage() {
+export default async function CategoryProductsPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+
+  const filteredProducts = productsData.filter((product) => {
+    const s = slug.toLowerCase();
+    const t = product.category.toLowerCase();
+    return t === s || t === s + "s" || s === t + "s";
+  });
+
   return (
-    <main className="app_container space-y-15 py-15">
-      <div className="flex justify-end gap-4">
+    <main className="py-15 space-y-15">
+      <section className="app_container flex justify-end gap-4 md:gap-10">
         <FilterDropdown
           label="Sort"
-          variant="outline-button"
-          icon={<ArrowUpDown size={18} className="text-[#d9df85]" />}
+          align="right"
           options={[
             { label: "Price: Low to High", count: 0 },
             { label: "Price: High to Low", count: 0 },
@@ -19,20 +29,20 @@ export default function CategoryProductsPage() {
         />
         <FilterDropdown
           label="Filter"
-          variant="outline-button"
-          icon={<Filter size={18} className="text-[#d9df85]" />}
+          align="right"
           options={[
             { label: "In Stock", count: 12 },
             { label: "On Sale", count: 5 },
           ]}
         />
-      </div>
-      <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-11.75 gap-y-15">
-        {products.map((product) => (
+      </section>
+
+      <section className="app_container grid md:grid-cols-2 lg:grid-cols-3 gap-x-11.75 gap-y-15">
+        {filteredProducts.map((product) => (
           <div key={product.id}>
             <ProductCard
               name={product.name}
-              image={product.image}
+              image={product.featuredImage}
               link={`/products/${product.id}`}
             />
           </div>
