@@ -18,6 +18,7 @@ export default function ProductDetailsPage() {
     product.image,
   ];
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState("Description");
 
   return (
     <main className="app_container py-15 space-y-25">
@@ -58,7 +59,7 @@ export default function ProductDetailsPage() {
             ))}
           </div>
         </div>
-        <div className="space-y-6">
+        <div className="space-y-8">
           <h1>Premium emerald inlay seamless ring</h1>
           <div className="flex items-center gap-4 text-xl">
             <p>MSRP - $30,600 USD</p>
@@ -66,12 +67,55 @@ export default function ProductDetailsPage() {
           </div>
           <div className="grid grid-cols-2 py-3 border-y border-black/10">
             <div className="border-r border-black/10">
-              <p>Item Number</p>
+              <p className="text-muted-foreground">Item Number</p>
               <p className="text-lg">XBHYU-098</p>
             </div>
             <div className="flex flex-col items-center">
-              <p>Stock Status</p>
-              <p className="text-lg text-success">In Stock</p>
+              <p className="text-muted-foreground">Stock Status</p>
+              <div className="flex items-center gap-2">
+                <span className="size-2 bg-green-600 rounded-full" />
+                <p className="text-lg text-green-600">In Stock</p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-6">
+            <div className="flex items-center gap-8 border-b border-black/10">
+              {["Description", "Specifications"].map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setActiveTab(tab)}
+                  className={cn(
+                    "pb-2 transition-all relative",
+                    activeTab === tab
+                      ? "text-foreground font-medium"
+                      : "text-gray-400",
+                  )}
+                >
+                  {tab}
+                  {activeTab === tab && (
+                    <div className="absolute -bottom-px left-0 w-full h-0.5 bg-highlight" />
+                  )}
+                </button>
+              ))}
+            </div>
+            <div className="text-gray-500 text-lg leading-relaxed">
+              {activeTab === "Description" ? (
+                <p>
+                  Lorem Ipsum is simply dummy text of the printing and
+                  typesetting industry. Lorem Ipsum has been the industry's
+                  standard dummy text ever since the 1500s.
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-y-2 max-w-sm">
+                  <p>Material</p>
+                  <p className="text-gray-900">18K Yellow Gold</p>
+                  <p>Gemstone</p>
+                  <p className="text-gray-900">Emerald</p>
+                  <p>Weight</p>
+                  <p className="text-gray-900">2.5g</p>
+                </div>
+              )}
             </div>
           </div>
           <div className="space-y-6">
