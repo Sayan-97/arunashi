@@ -49,6 +49,10 @@ export const navLinks = [
     href: "/diamonds",
   },
   {
+    label: "Latest Magazines",
+    href: "/magazines",
+  },
+  {
     label: "Request List",
     href: "/request-list",
   },
