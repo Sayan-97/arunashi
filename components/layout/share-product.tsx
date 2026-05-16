@@ -8,11 +8,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { products } from "@/constants";
+import { productsData } from "@/constants";
 
-export default function ShareProduct() {
-  const product = products[0];
-
+export default function ShareProduct({ product }: { product: any }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -29,7 +27,7 @@ export default function ShareProduct() {
         <div className="border border-black/10 p-5 flex flex-col sm:flex-row gap-6 md:gap-8">
           <div className="bg-[#f6f6f6] w-[220px] h-[233px] shrink-0 relative flex items-center justify-center mx-auto sm:mx-0">
             <Image
-              src={product.image}
+              src={product.featuredImage}
               alt="Product Image"
               fill
               className="object-contain p-4"
@@ -38,11 +36,10 @@ export default function ShareProduct() {
           <div className="flex flex-col justify-center space-y-4">
             <div>
               <h3 className="text-[22px] md:text-[26px] font-medium text-foreground leading-snug">
-                Premium emerald inlay
-                <br className="hidden md:block" /> seamless ring
+                {product.name}
               </h3>
               <p className="text-primary text-[14px] md:text-[15px] mt-1">
-                Collection Name
+                {product.collection}
               </p>
             </div>
             <p className="text-[#8e8e8e] text-[13px] md:text-[14px] leading-relaxed">

@@ -1,6 +1,6 @@
 import FilterDropdown from "@/components/layout/filter-dropdown";
 import ProductCard from "@/components/shared/product-card";
-import { collectionFilters, productsData } from "@/constants";
+import { productsData } from "@/constants";
 
 export default async function CategoryProductsPage({
   params,

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import ContactUs from "@/components/layout/contact-us";
 import RelatedProducts from "@/components/layout/related-products";
@@ -10,7 +11,10 @@ import { Button } from "@/components/ui/button";
 import { productsData } from "@/constants";
 import { cn } from "@/lib/utils";
 export default function ProductDetailsPage() {
-  const product = productsData[0];
+  const { slug } = useParams();
+  const product =
+    productsData.find((p) => p.id.toString() === slug) || productsData[0];
+
   const productImages = [
     product.featuredImage,
     product.featuredImage,
@@ -62,7 +66,7 @@ export default function ProductDetailsPage() {
         <div className="space-y-8">
           <h1>Premium emerald inlay seamless ring</h1>
           <div className="flex items-center gap-4 text-xl">
-            <p>MSRP - $30,600 USD</p>
+            <p>MSRP - ${Number(product.msrp).toLocaleString()} USD</p>
             <p>Wholesale - $30,600 USD</p>
           </div>
           <div className="grid grid-cols-2 py-3 border-y border-black/10">
@@ -119,7 +123,7 @@ export default function ProductDetailsPage() {
             </div>
           </div>
           <div className="space-y-6">
-            <ShareProduct />
+            <ShareProduct product={product} />
             <Button variant="outline" size="lg" className="w-full">
               Add to Request List
             </Button>

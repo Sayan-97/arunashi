@@ -6,7 +6,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { categories } from "@/constants";
+import { productCategories } from "@/constants";
 
 export default function Categories() {
   return (
@@ -28,9 +28,9 @@ export default function Categories() {
           </div>
         </div>
         <CarouselContent className="-ml-11.75">
-          {categories.map((category) => (
+          {productCategories.map((category) => (
             <CarouselItem
-              key={category.id}
+              key={category.type}
               className="md:basis-1/2 lg:basis-1/3 space-y-4 pl-11.75"
             >
               <ProductCard
