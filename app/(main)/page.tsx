@@ -1,6 +1,7 @@
 import Banners from "@/components/layout/banners";
 import Categories from "@/components/layout/categories";
 import Collections from "@/components/layout/collections";
+import GemstonesAndDiamonds from "@/components/layout/gemstones-and-diamonds";
 import Magazines from "@/components/layout/magazines";
 
 export default function HomePage() {
@@ -9,6 +10,7 @@ export default function HomePage() {
       <Banners />
       <Collections />
       <Categories />
+      <GemstonesAndDiamonds />
       <Magazines />
     </main>
   );

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import ContactUs from "@/components/layout/contact-us";
 import RelatedProducts from "@/components/layout/related-products";
 import ShareProduct from "@/components/layout/share-product";
@@ -124,7 +125,20 @@ export default function ProductDetailsPage() {
           </div>
           <div className="space-y-6">
             <ShareProduct product={product} />
-            <Button variant="outline" size="lg" className="w-full">
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={() =>
+                toast.success("Added to request list", {
+                  position: "top-right",
+                  action: {
+                    label: "Undo",
+                    onClick: () => console.log("Undo"),
+                  },
+                })
+              }
+            >
               Add to Request List
             </Button>
           </div>
