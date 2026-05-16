@@ -3,14 +3,30 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from "@/components/ui/carousel";
 import { collections } from "@/constants";
 
 export default function Collections() {
   return (
-    <section className="app_container space-y-15">
-      <h1>Browse by collections</h1>
-      <Carousel opts={{ loop: true }}>
+    <section className="app_container">
+      <Carousel opts={{ loop: true }} className="space-y-15">
+        <div className="flex items-center justify-between">
+          <h1>Browse by collections</h1>
+          <div className="flex items-center gap-4">
+            <CarouselPrevious
+              variant="outline"
+              size="icon-lg"
+              className="static rounded-none translate-y-0"
+            />
+            <CarouselNext
+              variant="outline"
+              size="icon-lg"
+              className="static rounded-none translate-y-0"
+            />
+          </div>
+        </div>
         <CarouselContent className="-ml-11.75">
           {collections.map((collection) => (
             <CarouselItem
