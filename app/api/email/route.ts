@@ -72,10 +72,11 @@ export async function POST(req: Request) {
     const info = await transporter.sendMail(mailOptions);
 
     return NextResponse.json({ success: true, messageId: info.messageId });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Nodemailer Error Details:", error);
+    const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Internal Server Error", details: error.message },
+      { error: "Internal Server Error", details: message },
       { status: 500 },
     );
   }

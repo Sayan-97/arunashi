@@ -8,9 +8,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { productsData } from "@/constants";
+import type { Product } from "@/constants";
 
-export default function ShareProduct({ product }: { product: any }) {
+export default function ShareProduct({ product }: { product: Product }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -27,7 +27,11 @@ export default function ShareProduct({ product }: { product: any }) {
         <div className="border border-black/10 p-5 flex flex-col sm:flex-row gap-6 md:gap-8">
           <div className="bg-[#f6f6f6] w-[220px] h-[233px] shrink-0 relative flex items-center justify-center mx-auto sm:mx-0">
             <Image
-              src={product.featuredImage}
+              src={
+                product.images
+                  ? product.images[0]
+                  : (product.featuredImage as import("next/image").StaticImageData)
+              }
               alt="Product Image"
               fill
               className="object-contain p-4"

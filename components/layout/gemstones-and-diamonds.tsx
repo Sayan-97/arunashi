@@ -34,7 +34,12 @@ export default function GemstonesAndDiamonds() {
               className="md:basis-1/2 lg:basis-1/3 space-y-4 pl-11.75"
             >
               <ProductCard
-                image={product.featuredImage}
+                image={
+                  product.images
+                    ? product.images[0]
+                    : (product.featuredImage as import("next/image").StaticImageData)
+                }
+                hoverImage={product.images ? product.images[1] : undefined}
                 name={product.name}
                 link={`/products/${product.id}`}
               />

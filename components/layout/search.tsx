@@ -144,7 +144,11 @@ export default function Search() {
                         >
                           <div className="size-15 bg-black flex items-center justify-center relative shrink-0">
                             <Image
-                              src={product.featuredImage}
+                              src={
+                                product.images
+                                  ? product.images[0]
+                                  : (product.featuredImage as import("next/image").StaticImageData)
+                              }
                               alt={product.name}
                               fill
                               className="object-contain p-1"

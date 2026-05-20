@@ -12,7 +12,7 @@ export default async function CategoryProductsPage({
   const filteredProducts = productsData.filter((product) => {
     const s = slug.toLowerCase();
     const t = product.category.toLowerCase();
-    return t === s || t === s + "s" || s === t + "s";
+    return t === s || t === `${s}s` || s === `${t}s`;
   });
 
   return (
@@ -42,7 +42,12 @@ export default async function CategoryProductsPage({
           <div key={product.id}>
             <ProductCard
               name={product.name}
-              image={product.featuredImage}
+              image={
+                product.images
+                  ? product.images[0]
+                  : (product.featuredImage as import("next/image").StaticImageData)
+              }
+              hoverImage={product.images ? product.images[1] : undefined}
               link={`/products/${product.id}`}
             />
           </div>

@@ -29,7 +29,12 @@ export default function CollectionProductsPage() {
         {productsData.slice(0, 6).map((product) => (
           <ProductCard
             key={product.id}
-            image={product.featuredImage}
+            image={
+              product.images
+                ? product.images[0]
+                : (product.featuredImage as import("next/image").StaticImageData)
+            }
+            hoverImage={product.images ? product.images[1] : undefined}
             name={product.name}
             link={`/products/${product.id}`}
           />

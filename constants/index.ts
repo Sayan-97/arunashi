@@ -18,29 +18,54 @@ import MagazineImg6 from "@/public/magazine-img-6.png";
 import MagazineImg7 from "@/public/magazine-img-7.png";
 import MagazineImg8 from "@/public/magazine-img-8.png";
 import Product1 from "@/public/product-1.png";
-import Product2 from "@/public/product-2.png";
+// import Product2 from "@/public/product-2.png";
 import Product3 from "@/public/product-3.png";
-import Product4 from "@/public/product-4.png";
+// import Product4 from "@/public/product-4.png";
 import Product5 from "@/public/product-5.png";
-import Product6 from "@/public/product-6.png";
+// import Product6 from "@/public/product-6.png";
 import Product7 from "@/public/product-7.png";
-import Product8 from "@/public/product-8.png";
+// import Product8 from "@/public/product-8.png";
 import Product9 from "@/public/product-9.png";
-import Product10 from "@/public/product-10.png";
+// import Product10 from "@/public/product-10.png";
 import Product11 from "@/public/product-11.png";
-import Product12 from "@/public/product-12.png";
+// import Product12 from "@/public/product-12.png";
 import ProductImg1 from "@/public/product-img-1.png";
-import ProductImg2 from "@/public/product-img-2.png";
-import ProductImg3 from "@/public/product-img-3.png";
-import ProductImg4 from "@/public/product-img-4.png";
-import ProductImg5 from "@/public/product-img-5.png";
-import ProductImg6 from "@/public/product-img-6.png";
-import ProductImg7 from "@/public/product-img-7.png";
+// import ProductImg2 from "@/public/product-img-2.png";
+// import ProductImg3 from "@/public/product-img-3.png";
+// import ProductImg4 from "@/public/product-img-4.png";
+// import ProductImg5 from "@/public/product-img-5.png";
+// import ProductImg6 from "@/public/product-img-6.png";
+// import ProductImg7 from "@/public/product-img-7.png";
 import ProductImg8 from "@/public/product-img-8.png";
 import ProductImg9 from "@/public/product-img-9.png";
 import ProductImg10 from "@/public/product-img-10.png";
-import ProductImg11 from "@/public/product-img-11.png";
-import ProductImg12 from "@/public/product-img-12.png";
+
+// import ProductImg11 from "@/public/product-img-11.png";
+// import ProductImg12 from "@/public/product-img-12.png";
+
+import type { StaticImageData } from "next/image";
+import Product1Img1 from "@/public/products/product1img1.jpg";
+import Product1Img2 from "@/public/products/product1img2.jpg";
+import Product1Img3 from "@/public/products/product1img3.jpg";
+import Product1Img4 from "@/public/products/product1img4.jpg";
+import Product1Img5 from "@/public/products/product1img5.jpg";
+
+export interface Product {
+  id: number;
+  name: string;
+  msrp: string;
+  category: string;
+  featuredImage?: StaticImageData;
+  images?: StaticImageData[];
+  videos?: string[];
+  collection: string;
+  itemNumber?: string;
+  des?: string;
+  specifications?: string[];
+  variant1?: string;
+  variant2?: string;
+  wholesalePrice?: string;
+}
 
 export const navLinks = [
   {
@@ -560,101 +585,117 @@ export const productCategories = [
   },
 ];
 
-export const productsData = [
+export const productsData: Product[] = [
   {
     id: 1,
+    itemNumber: "2B000075 BXXXDIWGCA",
     name: "Lotus Flower Diamond Bracelet",
+    des: "Layers of Diamond petals unfold along a lotus motif, capturing transformation, balance, and the quiet strength found in nature’s rhythm.",
+    specifications: [
+      "Diamond  Centers  4,68  carat F-G-H SI+",
+      "Diamond  Full  Cut  5,32  carat  F-G-H SI+",
+    ],
+    variant1: "18K White Gold",
+    variant2: "Diamond",
     msrp: "58500",
+    wholesalePrice: "35100",
+    images: [
+      Product1Img1,
+      Product1Img2,
+      Product1Img3,
+      Product1Img4,
+      Product1Img5,
+    ],
+    videos: ["/public/products/product1vid1.mp4"],
     category: "Bracelet",
-    featuredImage: Product1,
     collection: "Collectible Art",
   },
-  {
-    id: 2,
-    name: "Violet Sapphire Bracelet",
-    msrp: "44500",
-    category: "Bracelet",
-    featuredImage: Product2,
-    collection: "Maximal Minimalism",
-  },
-  {
-    id: 3,
-    name: "White Sapphire, Spinel & Diamond Earrings",
-    msrp: "25500",
-    category: "Earrings",
-    featuredImage: Product3,
-    collection: "Collectible Art",
-  },
-  {
-    id: 4,
-    name: "Sapphire Eggs with Diamonds",
-    msrp: "26500",
-    category: "Earrings",
-    featuredImage: Product4,
-    collection: "Collectible Art",
-  },
-  {
-    id: 5,
-    name: "Emerald & Opal Flower Necklace",
-    msrp: "65500",
-    category: "Necklace",
-    featuredImage: Product5,
-    collection: "Collectible Art",
-  },
-  {
-    id: 6,
-    name: "Gray Diamond Necklace",
-    msrp: "58500",
-    category: "Necklace",
-    featuredImage: Product6,
-    collection: "Minimal Maximalism",
-  },
-  {
-    id: 7,
-    name: "Tanzanite Fish Pendant",
-    msrp: "33500",
-    category: "Pendant",
-    featuredImage: Product7,
-    collection: "Collectible Art",
-  },
-  {
-    id: 8,
-    name: "Peridot Pendant",
-    msrp: "68500",
-    category: "Pendant",
-    featuredImage: Product8,
-    collection: "Collectible Art",
-  },
-  {
-    id: 9,
-    name: "Pearl Ocean Ring with Reverse Set Diamonds",
-    msrp: "30600",
-    category: "Ring",
-    featuredImage: Product9,
-    collection: "Collectible Art",
-  },
-  {
-    id: 10,
-    name: "Pearl Encased In Emerald Sapphire & Diamond",
-    msrp: "26500",
-    category: "Ring",
-    featuredImage: Product10,
-    collection: "Collectible Art",
-  },
-  {
-    id: 11,
-    name: "Diamond Flower Brooch with Amythyst",
-    msrp: "18800",
-    category: "Brooch",
-    featuredImage: Product11,
-    collection: "Collectible Art",
-  },
-  {
-    id: 12,
-    name: "White Burgundy Brooch",
-    msrp: "58500",
-    category: "Brooch",
-    featuredImage: Product12,
-    collection: "Collectible Art",
-  },
+  // {
+  //   id: 2,
+  //   name: "Violet Sapphire Bracelet",
+  //   msrp: "44500",
+  //   category: "Bracelet",
+  //   featuredImage: Product2,
+  //   collection: "Maximal Minimalism",
+  // },
+  // {
+  //   id: 3,
+  //   name: "White Sapphire, Spinel & Diamond Earrings",
+  //   msrp: "25500",
+  //   category: "Earrings",
+  //   featuredImage: Product3,
+  //   collection: "Collectible Art",
+  // },
+  // {
+  //   id: 4,
+  //   name: "Sapphire Eggs with Diamonds",
+  //   msrp: "26500",
+  //   category: "Earrings",
+  //   featuredImage: Product4,
+  //   collection: "Collectible Art",
+  // },
+  // {
+  //   id: 5,
+  //   name: "Emerald & Opal Flower Necklace",
+  //   msrp: "65500",
+  //   category: "Necklace",
+  //   featuredImage: Product5,
+  //   collection: "Collectible Art",
+  // },
+  // {
+  //   id: 6,
+  //   name: "Gray Diamond Necklace",
+  //   msrp: "58500",
+  //   category: "Necklace",
+  //   featuredImage: Product6,
+  //   collection: "Minimal Maximalism",
+  // },
+  // {
+  //   id: 7,
+  //   name: "Tanzanite Fish Pendant",
+  //   msrp: "33500",
+  //   category: "Pendant",
+  //   featuredImage: Product7,
+  //   collection: "Collectible Art",
+  // },
+  // {
+  //   id: 8,
+  //   name: "Peridot Pendant",
+  //   msrp: "68500",
+  //   category: "Pendant",
+  //   featuredImage: Product8,
+  //   collection: "Collectible Art",
+  // },
+  // {
+  //   id: 9,
+  //   name: "Pearl Ocean Ring with Reverse Set Diamonds",
+  //   msrp: "30600",
+  //   category: "Ring",
+  //   featuredImage: Product9,
+  //   collection: "Collectible Art",
+  // },
+  // {
+  //   id: 10,
+  //   name: "Pearl Encased In Emerald Sapphire & Diamond",
+  //   msrp: "26500",
+  //   category: "Ring",
+  //   featuredImage: Product10,
+  //   collection: "Collectible Art",
+  // },
+  // {
+  //   id: 11,
+  //   name: "Diamond Flower Brooch with Amythyst",
+  //   msrp: "18800",
+  //   category: "Brooch",
+  //   featuredImage: Product11,
+  //   collection: "Collectible Art",
+  // },
+  // {
+  //   id: 12,
+  //   name: "White Burgundy Brooch",
+  //   msrp: "58500",
+  //   category: "Brooch",
+  //   featuredImage: Product12,
+  //   collection: "Collectible Art",
+  // },
 ];

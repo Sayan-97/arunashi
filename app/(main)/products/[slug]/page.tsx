@@ -1,5 +1,6 @@
 "use client";
 
+import { Play } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -11,69 +12,146 @@ import ShareProduct from "@/components/layout/share-product";
 import { Button } from "@/components/ui/button";
 import { productsData } from "@/constants";
 import { cn } from "@/lib/utils";
+
+// Helper to resolve the source URL of an asset safely
+const getSrc = (
+  assetSrc: string | { src: string } | undefined | null,
+): string => {
+  if (!assetSrc) return "";
+  let src = typeof assetSrc === "string" ? assetSrc : assetSrc.src || "";
+  if (src.startsWith("/public")) {
+    src = src.substring(7);
+  }
+  return src;
+};
+
 export default function ProductDetailsPage() {
   const { slug } = useParams();
   const product =
     productsData.find((p) => p.id.toString() === slug) || productsData[0];
 
-  const productImages = [
-    product.featuredImage,
-    product.featuredImage,
-    product.featuredImage,
-    product.featuredImage,
+  const images =
+    product.images || (product.featuredImage ? [product.featuredImage] : []);
+  const videos = product.videos || [];
+  const assets = [
+    ...images.map((img) => ({ type: "image" as const, src: img })),
+    ...videos.map((vid) => ({ type: "video" as const, src: vid })),
   ];
+
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("Description");
+  const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
+  const [isZoomed, setIsZoomed] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } =
+      e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomPosition({ x, y });
+  };
 
   return (
     <main className="app_container py-15 space-y-25">
       <section className="grid lg:grid-cols-2 gap-19">
         <div className="flex flex-col items-center gap-6">
-          <div className="relative w-full h-[320px] md:h-[550px]">
-            <Image
-              src={productImages[selectedIndex]}
-              alt="Product Images"
-              fill
-              priority
-              placeholder="blur"
-              className="object-cover"
-            />
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: Zoom interactive container */}
+          <div
+            role="presentation"
+            className={cn(
+              "relative w-full h-[320px] md:h-[550px] bg-black/5 rounded-lg overflow-hidden",
+              assets[selectedIndex]?.type !== "video" && "cursor-zoom-in",
+            )}
+            onMouseEnter={() => setIsZoomed(true)}
+            onMouseLeave={() => setIsZoomed(false)}
+            onMouseMove={handleMouseMove}
+          >
+            {assets[selectedIndex]?.type === "video" ? (
+              <video
+                src={getSrc(assets[selectedIndex].src)}
+                className="w-full h-full object-cover"
+                controls
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            ) : (
+              <div
+                className="w-full h-full relative"
+                style={{
+                  transform: isZoomed ? "scale(2.2)" : "scale(1)",
+                  transformOrigin: isZoomed
+                    ? `${zoomPosition.x}% ${zoomPosition.y}%`
+                    : "center",
+                  transition: isZoomed ? "none" : "transform 0.3s ease-out",
+                }}
+              >
+                <Image
+                  src={assets[selectedIndex]?.src}
+                  alt="Product Images"
+                  fill
+                  priority
+                  placeholder="blur"
+                  className="object-cover"
+                />
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-2.5">
-            {productImages.map((img, i) => (
+          <div className="flex items-center gap-2.5 w-full max-w-[550px] overflow-x-auto pb-2 scrollbar-thin">
+            {assets.map((asset, i) => (
               <button
-                // biome-ignore lint/suspicious/noArrayIndexKey: using index for mock placeholder images
-                key={`thumb-${i}`}
+                key={getSrc(asset.src)}
                 type="button"
                 onClick={() => setSelectedIndex(i)}
                 className={cn(
-                  "relative border-2 transition-all overflow-hidden",
+                  "relative border-2 transition-all overflow-hidden shrink-0 w-[97px] h-[97px] flex items-center justify-center bg-black/5",
                   selectedIndex === i
                     ? "border-highlight"
                     : "border-transparent",
                 )}
               >
-                <Image
-                  src={img}
-                  alt={`Product View ${i + 1}`}
-                  width={97}
-                  height={97}
-                  className="max-md:size-20"
-                />
+                {asset.type === "video" ? (
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <video
+                      src={getSrc(asset.src)}
+                      className="w-full h-full object-cover"
+                      muted
+                      playsInline
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <Play className="size-5 text-white" />
+                    </div>
+                  </div>
+                ) : (
+                  <Image
+                    src={asset.src}
+                    alt={`Product View ${i + 1}`}
+                    fill
+                    sizes="97px"
+                    className="object-cover"
+                  />
+                )}
               </button>
             ))}
           </div>
         </div>
         <div className="space-y-8">
-          <h1>Premium emerald inlay seamless ring</h1>
+          <h1>{product.name}</h1>
           <div className="flex items-center gap-4 text-xl">
             <p>MSRP - ${Number(product.msrp).toLocaleString()} USD</p>
-            <p>Wholesale - $30,600 USD</p>
+            <p>
+              Wholesale - $
+              {product.wholesalePrice
+                ? Number(product.wholesalePrice).toLocaleString()
+                : "30,600"}{" "}
+              USD
+            </p>
           </div>
           <div className="grid grid-cols-2 py-3 border-y border-black/10">
             <div className="border-r border-black/10">
               <p className="text-muted-foreground">Item Number</p>
-              <p className="text-lg">XBHYU-098</p>
+              <p className="text-lg">{product.itemNumber || "XBHYU-098"}</p>
             </div>
             <div className="flex flex-col items-center">
               <p className="text-muted-foreground">Stock Status</p>
@@ -85,7 +163,7 @@ export default function ProductDetailsPage() {
           </div>
           <div className="space-y-6">
             <div className="flex items-center gap-8 border-b border-black/10">
-              {["Description", "Specifications"].map((tab) => (
+              {["Description", "Specifications", "Details"].map((tab) => (
                 <button
                   key={tab}
                   type="button"
@@ -107,18 +185,30 @@ export default function ProductDetailsPage() {
             <div className="text-gray-500 text-lg leading-relaxed">
               {activeTab === "Description" ? (
                 <p>
-                  Lorem Ipsum is simply dummy text of the printing and
-                  typesetting industry. Lorem Ipsum has been the industry's
-                  standard dummy text ever since the 1500s.
+                  {product.des ||
+                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry."}
                 </p>
+              ) : activeTab === "Specifications" ? (
+                <div className="space-y-1">
+                  {product.specifications?.map((spec) => (
+                    <p key={spec}>{spec}</p>
+                  )) || (
+                    <>
+                      <p>Specification 1</p>
+                      <p>Specification 2</p>
+                    </>
+                  )}
+                </div>
               ) : (
                 <div className="grid grid-cols-2 gap-y-2 max-w-sm">
                   <p>Material</p>
-                  <p className="text-gray-900">18K Yellow Gold</p>
+                  <p className="text-gray-900">
+                    {product.variant1 || "18K Yellow Gold"}
+                  </p>
                   <p>Gemstone</p>
-                  <p className="text-gray-900">Emerald</p>
-                  <p>Weight</p>
-                  <p className="text-gray-900">2.5g</p>
+                  <p className="text-gray-900">
+                    {product.variant2 || "Emerald"}
+                  </p>
                 </div>
               )}
             </div>
