@@ -44,11 +44,22 @@ import ProductImg10 from "@/public/product-img-10.png";
 // import ProductImg12 from "@/public/product-img-12.png";
 
 import type { StaticImageData } from "next/image";
-import Product1Img1 from "@/public/products/product1img1.jpg";
-import Product1Img2 from "@/public/products/product1img2.jpg";
-import Product1Img3 from "@/public/products/product1img3.jpg";
-import Product1Img4 from "@/public/products/product1img4.jpg";
-import Product1Img5 from "@/public/products/product1img5.jpg";
+import Product1Img1 from "@/public/products/product1img1.png";
+import Product1Img2 from "@/public/products/product1img2.png";
+import Product1Img3 from "@/public/products/product1img3.png";
+import Product1Img4 from "@/public/products/product1img4.png";
+import Product1Img5 from "@/public/products/product1img5.png";
+import Product2Img1 from "@/public/products/product2img1.png";
+import Product2Img2 from "@/public/products/product2img2.png";
+import Product2Img3 from "@/public/products/product2img3.png";
+import Product2Img4 from "@/public/products/product2img4.png";
+import Product3Img1 from "@/public/products/product3img1.png";
+import Product3Img2 from "@/public/products/product3img2.jpg";
+import Product3Img3 from "@/public/products/product3img3.jpg";
+import Product3Img4 from "@/public/products/product3img4.jpg";
+import Product3Img5 from "@/public/products/product3img5.jpg";
+import Product3Img6 from "@/public/products/product3img6.jpg";
+import Product3Img7 from "@/public/products/product3img7.jpg";
 
 export interface Product {
   id: number;
@@ -610,92 +621,48 @@ export const productsData: Product[] = [
     category: "Bracelet",
     collection: "Collectible Art",
   },
-  // {
-  //   id: 2,
-  //   name: "Violet Sapphire Bracelet",
-  //   msrp: "44500",
-  //   category: "Bracelet",
-  //   featuredImage: Product2,
-  //   collection: "Maximal Minimalism",
-  // },
-  // {
-  //   id: 3,
-  //   name: "White Sapphire, Spinel & Diamond Earrings",
-  //   msrp: "25500",
-  //   category: "Earrings",
-  //   featuredImage: Product3,
-  //   collection: "Collectible Art",
-  // },
-  // {
-  //   id: 4,
-  //   name: "Sapphire Eggs with Diamonds",
-  //   msrp: "26500",
-  //   category: "Earrings",
-  //   featuredImage: Product4,
-  //   collection: "Collectible Art",
-  // },
-  // {
-  //   id: 5,
-  //   name: "Emerald & Opal Flower Necklace",
-  //   msrp: "65500",
-  //   category: "Necklace",
-  //   featuredImage: Product5,
-  //   collection: "Collectible Art",
-  // },
-  // {
-  //   id: 6,
-  //   name: "Gray Diamond Necklace",
-  //   msrp: "58500",
-  //   category: "Necklace",
-  //   featuredImage: Product6,
-  //   collection: "Minimal Maximalism",
-  // },
-  // {
-  //   id: 7,
-  //   name: "Tanzanite Fish Pendant",
-  //   msrp: "33500",
-  //   category: "Pendant",
-  //   featuredImage: Product7,
-  //   collection: "Collectible Art",
-  // },
-  // {
-  //   id: 8,
-  //   name: "Peridot Pendant",
-  //   msrp: "68500",
-  //   category: "Pendant",
-  //   featuredImage: Product8,
-  //   collection: "Collectible Art",
-  // },
-  // {
-  //   id: 9,
-  //   name: "Pearl Ocean Ring with Reverse Set Diamonds",
-  //   msrp: "30600",
-  //   category: "Ring",
-  //   featuredImage: Product9,
-  //   collection: "Collectible Art",
-  // },
-  // {
-  //   id: 10,
-  //   name: "Pearl Encased In Emerald Sapphire & Diamond",
-  //   msrp: "26500",
-  //   category: "Ring",
-  //   featuredImage: Product10,
-  //   collection: "Collectible Art",
-  // },
-  // {
-  //   id: 11,
-  //   name: "Diamond Flower Brooch with Amythyst",
-  //   msrp: "18800",
-  //   category: "Brooch",
-  //   featuredImage: Product11,
-  //   collection: "Collectible Art",
-  // },
-  // {
-  //   id: 12,
-  //   name: "White Burgundy Brooch",
-  //   msrp: "58500",
-  //   category: "Brooch",
-  //   featuredImage: Product12,
-  //   collection: "Collectible Art",
-  // },
+  {
+    id: 2,
+    itemNumber: "2B000085 BXXXLSYGMI",
+    name: "Violet Sapphire Bracelet",
+    des: "Violet sapphire adds subtle color and rarity to a sleek gold bangle, designed for effortless wear from everyday style to evening elegance.",
+    specifications: [
+      "1 Violet Sapphire 4.64 carat ",
+      "86 Diamond 2.46 carat F-G-H VS+",
+    ],
+    variant1: "18K Yellow Gold",
+    variant2: "Violet Sapphire, Diamond",
+    msrp: "44500",
+    wholesalePrice: "26700",
+    images: [Product2Img1, Product2Img2, Product2Img3, Product2Img4],
+    videos: [],
+    category: "Bracelet",
+    collection: "Maximal Minimalism",
+  },
+  {
+    id: 3,
+    itemNumber: "2B000087 BXXXTZWGMX",
+    name: "Tanzanite Bangle",
+    des: "Tanzanite and Diamonds glow with calming energy, symbolizing intuition, clarity, and balance. Inspired by Tanzanian tradition and beauty.",
+    specifications: [
+      "Tanzanite 18.87 carat",
+      "154  Diamond 2.09 carat  F-G-H VS+",
+    ],
+    variant1: "18K White Gold",
+    variant2: "Tanzanite, Diamond",
+    msrp: "78500",
+    wholesalePrice: "47100",
+    images: [
+      Product3Img1,
+      Product3Img2,
+      Product3Img3,
+      Product3Img4,
+      Product3Img5,
+      Product3Img6,
+      Product3Img7,
+    ],
+    videos: ["/products/product3vid1.mp4"],
+    category: "Bracelet",
+    collection: "Minimal Maximalism",
+  },
 ];
