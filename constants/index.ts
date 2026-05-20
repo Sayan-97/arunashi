@@ -60,6 +60,29 @@ import Product3Img4 from "@/public/products/product3img4.jpg";
 import Product3Img5 from "@/public/products/product3img5.jpg";
 import Product3Img6 from "@/public/products/product3img6.jpg";
 import Product3Img7 from "@/public/products/product3img7.jpg";
+import Product4Img1 from "@/public/products/product4img1.png";
+import Product4Img2 from "@/public/products/product4img2.png";
+import Product4Img3 from "@/public/products/product4img3.png";
+import Product4Img4 from "@/public/products/product4img4.png";
+import Product4Img5 from "@/public/products/product4img5.png";
+import Product4Img6 from "@/public/products/product4img6.png";
+import Product5Img1 from "@/public/products/product5img1.png";
+import Product5Img2 from "@/public/products/product5img2.png";
+import Product5Img3 from "@/public/products/product5img3.png";
+import Product5Img4 from "@/public/products/product5img4.png";
+import Product6Img1 from "@/public/products/product6img1.png";
+import Product7Img1 from "@/public/products/product7img1.png";
+import Product7Img2 from "@/public/products/product7img2.png";
+import Product7Img3 from "@/public/products/product7img3.png";
+import Product7Img4 from "@/public/products/product7img4.png";
+import Product8Img1 from "@/public/products/product8img1.png";
+import Product8Img2 from "@/public/products/product8img2.png";
+import Product8Img3 from "@/public/products/product8img3.png";
+import Product9Img1 from "@/public/products/product9img1.png";
+import Product9Img2 from "@/public/products/product9img2.png";
+import Product9Img3 from "@/public/products/product9img3.png";
+import Product9Img4 from "@/public/products/product9img4.png";
+import Product10Img1 from "@/public/products/product10img1.png";
 
 export interface Product {
   id: number;
@@ -664,5 +687,131 @@ export const productsData: Product[] = [
     videos: ["/products/product3vid1.mp4"],
     category: "Bracelet",
     collection: "Minimal Maximalism",
+  },
+  {
+    id: 4,
+    itemNumber: "2B000096 B009DIYGLS",
+    name: "Lightning Strikes Bangle",
+    des: "Brushed gold bangle showcases lightning-inspired design, accented with Diamonds symbolizing power, energy, and inner strength with refined detail.",
+    specifications: ["165 Diamond 3.23 carat F-G-H VS+"],
+    variant1: "18K Yellow Gold",
+    variant2: "Diamond",
+    msrp: "48800",
+    wholesalePrice: "29280",
+    images: [
+      Product4Img1,
+      Product4Img2,
+      Product4Img3,
+      Product4Img4,
+      Product4Img5,
+      Product4Img6,
+    ],
+    videos: ["/products/product4vid1.mp4"],
+    category: "Bracelet",
+    collection: "Lightning Strikes",
+  },
+  {
+    id: 5,
+    itemNumber: "2E000160 EXXXSPBGCA",
+    name: "White Sapphire, Spinel & Diamond Earrings",
+    des: "White Sapphire and Spinel earrings in blackened gold explore cosmic origins, blending myth, craftsmanship, and lightness into sculptural celestial forms.",
+    specifications: [
+      "2 Spinel 7.88 carat",
+      "2 Spinel 7.88 carat",
+      "18 Spinel 6.90 carat",
+      "415 Diamond 7.45 carat F-G-H VS+",
+    ],
+    variant1: "18K Black",
+    variant2: "Spinel, Sapphire Spinel Diamond",
+    msrp: "25500",
+    wholesalePrice: "15300",
+    images: [Product5Img1, Product5Img2, Product5Img3, Product5Img4],
+    videos: ["/products/product5vid1.mp4"],
+    category: "Earrings",
+    collection: "Collectible Art",
+  },
+  {
+    id: 6,
+    itemNumber: "2E000214 EXXXMSBGCA",
+    name: "Sapphire Eggs with Diamonds",
+    des: "Purple sapphire and Diamond egg forms reflect cosmic origins, uniting myth, rarity, and color symbolism through bold design and refined craftsmanship.",
+    specifications: [
+      "64 Multi Sapphire 40.53 carat",
+      "69 Multi Sapphire 4.60 carat",
+      "215 Diamond 4.39 carat F-G-H VS+",
+    ],
+    variant1: "18K Black",
+    variant2: "Muti Sapphire Muti Sapphire Diamond",
+    msrp: "26500",
+    wholesalePrice: "15900",
+    images: [Product6Img1],
+    videos: [],
+    category: "Earrings",
+    collection: "Collectible Art",
+  },
+  {
+    id: 7,
+    itemNumber: "2E000227 EXXXMSBGCA",
+    name: "Multi Sapphire & Diamond Earrings",
+    des: "Multi-sapphire and Diamond earrings feature a deep concave design, showcasing vibrant gemstone arrangement and masterful craftsmanship in black gold.",
+    specifications: ["Sapphire 34.89 carat", "Diamond 4.11 carat"],
+    variant1: "18K Black",
+    variant2: "Sapphire Diamond",
+    msrp: "28800",
+    wholesalePrice: "17280",
+    images: [Product7Img1, Product7Img2, Product7Img3, Product7Img4],
+    videos: ["/products/product7vid1.mp4"],
+    category: "Earrings",
+    collection: "Undefined",
+  },
+  {
+    id: 8,
+    itemNumber: "2E000234 EXXXTSBGCA",
+    name: "Tsavorite Stain Glass Window Earrings",
+    des: "Earrings inspired by stained glass feature flat stones, mismatched shapes, reverse-set Diamonds, and blackened gold, blending light and intricate craftsmanship.",
+    specifications: ["Tsavorite 21.68 carat", "Diamond 4.55 carat F-G-H VS+"],
+    variant1: "18K Black",
+    variant2: "Tsavorite Diamond",
+    msrp: "29500",
+    wholesalePrice: "17700",
+    images: [Product8Img1, Product8Img2, Product8Img3],
+    videos: [],
+    category: "Earrings",
+    collection: "Collectible Art",
+  },
+  {
+    id: 9,
+    itemNumber: "2E000260 EXXXJUTICA",
+    name: "Imperial Jade Earrings",
+    des: "Egg-shaped earrings combine carved Imperial Jade and Diamonds, symbolizing creation, rebirth, and the cosmic connection between earth and sky.",
+    specifications: ["Jade 25.60 carat", "Diamond 5.80 carat"],
+    variant1: "Titanium",
+    variant2: "Imperial Jade, Diamond",
+    msrp: "88000",
+    wholesalePrice: "52800",
+    images: [Product9Img1, Product9Img2, Product9Img3, Product9Img4],
+    videos: ["/products/product9vid1.mp4"],
+    category: "Earrings",
+    collection: "Collectible Art",
+  },
+  {
+    id: 10,
+    itemNumber: "2E000337 EXXXMCTICA",
+    name: "Pearl Encased in Emerald & Sapphire Earrings",
+    des: "Sculptural earrings blend sapphires, Emeralds, Diamonds, and South Sea Baroque Pearls, celebrating life's joyful, unstructured beauty and vibrant uniqueness.",
+    specifications: [
+      "Pearl 18.6mm",
+      "Emerald 3.04 carat",
+      "Sapphire 12.15 carat",
+      "Diamond 2.77 carat F-G-H VS+",
+    ],
+    variant1: "Titanium",
+    variant2: "Pearl, Emerald, Sapphire, Diamond",
+    msrp: "34500",
+    wholesalePrice: "20700",
+    images: [Product10Img1],
+    videos: ["/products/product10vid1.mp4"],
+    category: "Earrings",
+    collection: "Collectible Art",
   },
 ];
