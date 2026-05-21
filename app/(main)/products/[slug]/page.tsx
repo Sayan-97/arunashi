@@ -98,47 +98,49 @@ export default function ProductDetailsPage() {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2.5 w-full max-w-[550px] overflow-x-auto pb-2 scrollbar-thin">
-            {assets.map((asset, i) => (
-              <button
-                key={getSrc(asset.src)}
-                type="button"
-                onClick={() => setSelectedIndex(i)}
-                className={cn(
-                  "relative border-2 transition-all overflow-hidden shrink-0 w-[97px] h-[97px] flex items-center justify-center bg-black/5",
-                  selectedIndex === i
-                    ? "border-highlight"
-                    : "border-transparent",
-                )}
-              >
-                {asset.type === "video" ? (
-                  <div className="relative w-full h-full flex items-center justify-center">
-                    <video
-                      src={getSrc(asset.src)}
-                      className="w-full h-full object-cover"
-                      muted
-                      playsInline
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                      <Play className="size-5 text-white" />
+          <div className="w-full max-w-[280px] md:max-w-[550px] overflow-x-auto pb-2 scrollbar-thin">
+            <div className="flex items-center gap-2 sm:gap-2.5 w-max mx-auto">
+              {assets.map((asset, i) => (
+                <button
+                  key={getSrc(asset.src)}
+                  type="button"
+                  onClick={() => setSelectedIndex(i)}
+                  className={cn(
+                    "relative border-2 transition-all overflow-hidden shrink-0 w-16 h-16 sm:w-20 sm:h-20 md:w-[97px] md:h-[97px] flex items-center justify-center bg-black/5",
+                    selectedIndex === i
+                      ? "border-highlight"
+                      : "border-transparent",
+                  )}
+                >
+                  {asset.type === "video" ? (
+                    <div className="relative w-full h-full flex items-center justify-center">
+                      <video
+                        src={getSrc(asset.src)}
+                        className="w-full h-full object-cover"
+                        muted
+                        playsInline
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <Play className="size-5 text-white" />
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <Image
-                    src={asset.src}
-                    alt={`Product View ${i + 1}`}
-                    fill
-                    sizes="97px"
-                    className="object-cover"
-                  />
-                )}
-              </button>
-            ))}
+                  ) : (
+                    <Image
+                      src={asset.src}
+                      alt={`Product View ${i + 1}`}
+                      fill
+                      sizes="(max-width: 640px) 64px, (max-width: 768px) 80px, 97px"
+                      className="object-cover"
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <div className="space-y-8">
           <h1>{product.name}</h1>
-          <div className="flex items-center gap-4 text-xl">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-lg md:text-xl">
             <p>MSRP - ${Number(product.msrp).toLocaleString()} USD</p>
             <p>
               Wholesale - $
@@ -148,12 +150,14 @@ export default function ProductDetailsPage() {
               USD
             </p>
           </div>
-          <div className="grid grid-cols-2 py-3 border-y border-black/10">
-            <div className="border-r border-black/10">
+          <div className="grid grid-cols-1 md:grid-cols-2 py-3 border-y border-black/10 gap-3 md:gap-0">
+            <div className="md:border-r border-black/10">
               <p className="text-muted-foreground">Item Number</p>
-              <p className="text-lg">{product.itemNumber || "XBHYU-098"}</p>
+              <p className="text-lg break-all">
+                {product.itemNumber || "XBHYU-098"}
+              </p>
             </div>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col md:items-center">
               <p className="text-muted-foreground">Stock Status</p>
               <div className="flex items-center gap-2">
                 <span className="size-2 bg-green-600 rounded-full" />
@@ -162,14 +166,14 @@ export default function ProductDetailsPage() {
             </div>
           </div>
           <div className="space-y-6">
-            <div className="flex items-center gap-8 border-b border-black/10">
+            <div className="flex items-center gap-5 sm:gap-8 border-b border-black/10 overflow-x-auto scrollbar-none">
               {["Description", "Specifications", "Details"].map((tab) => (
                 <button
                   key={tab}
                   type="button"
                   onClick={() => setActiveTab(tab)}
                   className={cn(
-                    "pb-2 transition-all relative",
+                    "pb-2 transition-all relative text-base sm:text-lg whitespace-nowrap",
                     activeTab === tab
                       ? "text-foreground font-medium"
                       : "text-gray-400",
@@ -182,7 +186,7 @@ export default function ProductDetailsPage() {
                 </button>
               ))}
             </div>
-            <div className="text-gray-500 text-lg leading-relaxed">
+            <div className="text-gray-500 text-base sm:text-lg leading-relaxed">
               {activeTab === "Description" ? (
                 <p>
                   {product.des ||
@@ -242,7 +246,7 @@ export default function ProductDetailsPage() {
               <li key={item.title}>
                 <Link
                   href={item.link}
-                  className="text-xl underline underline-offset-2 hover:text-foreground"
+                  className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground"
                 >
                   {item.title}
                 </Link>
