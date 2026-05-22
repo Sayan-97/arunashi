@@ -44,6 +44,7 @@ import ProductImg10 from "@/public/product-img-10.png";
 // import ProductImg12 from "@/public/product-img-12.png";
 
 import type { StaticImageData } from "next/image";
+import MinimalMaximalBg from "@/public/Minimal-Maximal-bg.jpg";
 import Product1Img1 from "@/public/products/product1img1.png";
 import Product1Img2 from "@/public/products/product1img2.png";
 import Product1Img3 from "@/public/products/product1img3.png";
@@ -584,7 +585,37 @@ export const requestedProducts = [
   },
 ];
 
-export const productCollections = [{}];
+export const productCollections = [
+  {
+    id: 1,
+    name: "Collectible Art",
+    image: CollectionImg1,
+    bgImage: MinimalMaximalBg,
+    description:
+      "Collectible art jewelry is wearable storytelling. Each piece inspired by a short story or visual motif, brought to life with meticulous craftsmanship. One of a kind by design, these jewels are both personal treasures and timeless artifacts, blending beauty, meaning, and rarity.",
+  },
+  {
+    id: 2,
+    name: "Maximal Minimalism",
+    image: CollectionImg2,
+    bgImage: MinimalMaximalBg,
+    description: "",
+  },
+  {
+    id: 3,
+    name: "Lightning Strikes",
+    image: CollectionImg3,
+    bgImage: MinimalMaximalBg,
+    description: "",
+  },
+  {
+    id: 4,
+    name: "Minimal Maximalism",
+    image: CollectionImg4,
+    bgImage: MinimalMaximalBg,
+    description: "",
+  },
+];
 
 export const productCategories = [
   {

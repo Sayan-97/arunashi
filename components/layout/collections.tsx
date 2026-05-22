@@ -6,7 +6,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { collections } from "@/constants";
+import { productCollections } from "@/constants";
 
 export default function Collections() {
   return (
@@ -28,7 +28,7 @@ export default function Collections() {
           </div>
         </div>
         <CarouselContent className="-ml-11.75">
-          {collections.map((collection) => (
+          {productCollections.map((collection) => (
             <CarouselItem
               key={collection.id}
               className="md:basis-1/2 lg:basis-1/3 space-y-4 pl-11.75"
@@ -36,7 +36,7 @@ export default function Collections() {
               <ProductCard
                 image={collection.image}
                 name={collection.name}
-                link={`/collections/${collection.id}`}
+                link={`/collections/${collection.name.replaceAll(" ", "-").toLowerCase()}`}
               />
             </CarouselItem>
           ))}

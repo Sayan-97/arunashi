@@ -41,7 +41,7 @@ export default function ContactUsPage() {
               Book an Appointment
             </p>
             <p>Email : sales@arunashi.com</p>
-            <p>Phone : +1 310-888-0123</p>
+            <p>Phone : 310-888-0123</p>
             <div className="flex items-center gap-6 pt-1">
               <span className="text-lg font-normal">Social</span>
               <div className="flex items-center gap-5">
