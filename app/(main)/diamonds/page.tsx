@@ -35,10 +35,12 @@ export default function DiamondsPage() {
                     <DialogTitle>{diamond.name}</DialogTitle>
                   </DialogHeader>
 
-                  <div className="flex-1 overflow-hidden bg-white relative">
+                  <div className="flex-1 overflow-y-auto overflow-x-hidden bg-white relative">
                     <iframe
                       src="/diamond-ashoka-cut.pdf#view=FitH&toolbar=0&navpanes=0"
-                      className="absolute inset-0 w-[calc(100%+12px)] h-[calc(100%+12px)] -left-1.5 -top-1.5 border-none outline-none bg-white"
+                      className="w-[calc(100%+30px)] aspect-[1/1.4] border-0 border-none outline-none bg-white"
+                      frameBorder="0"
+                      scrolling="no"
                       title={diamond.name}
                     />
                   </div>
