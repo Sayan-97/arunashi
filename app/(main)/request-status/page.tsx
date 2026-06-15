@@ -1,8 +1,61 @@
+import { cookies } from "next/headers";
 import Image from "next/image";
+import Link from "next/link";
 import ContactUs from "@/components/layout/contact-us";
-import { requestedProducts } from "@/constants";
+import { Button } from "@/components/ui/button";
+import { getMyRequests } from "@/services/products";
 
-export default function RequestStatus() {
+export const dynamic = "force-dynamic";
+
+interface RequestedProductItem {
+  id: number;
+  name: string;
+  itemNo: string;
+  msrp: string;
+  stockStatus: string;
+  image: string;
+  notes?: string;
+  requestId: string;
+  requestStatus: "PENDING" | "APPROVED" | "REJECTED";
+  createdAt: string;
+}
+
+export default async function RequestStatus() {
+  const cookieStore = await cookies();
+  const token =
+    cookieStore.get("accessToken")?.value ||
+    cookieStore.get("adminAccessToken")?.value;
+  const requests = await getMyRequests(token);
+
+  // Flatten the requests to list each product separately with its request's status
+  const requestedProductsList: RequestedProductItem[] = requests.flatMap(
+    (req: any) =>
+      (req.items || []).map((item: any) => ({
+        ...item,
+        requestId: req.id,
+        requestStatus: req.status as "PENDING" | "APPROVED" | "REJECTED",
+        createdAt: req.createdAt,
+      })),
+  );
+
+  if (requestedProductsList.length === 0) {
+    return (
+      <main className="py-15 min-h-[65vh] flex flex-col items-center justify-center bg-white space-y-6">
+        <h1 className="uppercase tracking-widest text-3xl font-light">
+          Request Status
+        </h1>
+        <p className="text-gray-400 text-lg font-light">
+          You have not submitted any request lists yet.
+        </p>
+        <Link href="/">
+          <Button variant="outline" size="lg" className="px-10 h-12">
+            Explore Products
+          </Button>
+        </Link>
+      </main>
+    );
+  }
+
   return (
     <main className="py-15 space-y-25">
       <div className="app_container space-y-10">
@@ -34,23 +87,23 @@ export default function RequestStatus() {
                 </tr>
               </thead>
               <tbody>
-                {requestedProducts.map((product, index) => {
-                  const status = index === 2 ? "APPROVED" : "PENDING";
+                {requestedProductsList.map((product) => {
+                  const status = product.requestStatus;
 
                   return (
                     <tr
-                      key={product.id}
+                      key={`${product.requestId}-${product.id}`}
                       className="border-b border-black/10 last:border-0"
                     >
                       <td className="p-6 align-top">
                         <div className="flex gap-6">
-                          <div className="bg-gray-50 p-2 flex items-center justify-center size-24 shrink-0">
+                          <div className="bg-gray-50 p-2 flex items-center justify-center size-24 shrink-0 relative">
                             <Image
                               src={product.image}
                               alt={product.name}
-                              width={70}
-                              height={70}
-                              className="object-contain"
+                              fill
+                              sizes="96px"
+                              className="object-contain p-2"
                             />
                           </div>
                           <div className="space-y-1 pt-1">
@@ -59,6 +112,10 @@ export default function RequestStatus() {
                             </p>
                             <p className="text-xs text-gray-400 pt-2">
                               Item no : {product.itemNo}
+                            </p>
+                            <p className="text-[10px] text-gray-300">
+                              Submitted:{" "}
+                              {new Date(product.createdAt).toLocaleDateString()}
                             </p>
                           </div>
                         </div>
@@ -82,7 +139,7 @@ export default function RequestStatus() {
                       <td className="p-6 align-top">
                         <div className="pt-1 max-w-sm">
                           {product.notes ? (
-                            <p className="text-gray-600 text-sm leading-relaxed">
+                            <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap break-words">
                               {product.notes}
                             </p>
                           ) : (
@@ -93,10 +150,12 @@ export default function RequestStatus() {
                       <td className="p-6 align-top text-right">
                         <div className="pt-1 flex justify-end">
                           <div
-                            className={`inline-block px-4 py-2 text-sm font-medium ${
+                            className={`inline-block px-4 py-2 text-sm font-medium tracking-wide ${
                               status === "APPROVED"
                                 ? "bg-green-200/50 text-green-700"
-                                : "bg-[#fff4cc] text-gray-800"
+                                : status === "REJECTED"
+                                  ? "bg-red-100 text-red-600"
+                                  : "bg-[#fff4cc] text-gray-800"
                             }`}
                           >
                             {status}
@@ -112,11 +171,11 @@ export default function RequestStatus() {
 
           {/* Mobile Card View */}
           <div className="md:hidden space-y-6">
-            {requestedProducts.map((product, index) => {
-              const status = index === 2 ? "APPROVED" : "PENDING";
+            {requestedProductsList.map((product) => {
+              const status = product.requestStatus;
               return (
                 <div
-                  key={product.id}
+                  key={`${product.requestId}-${product.id}`}
                   className="border border-black/10 p-5 space-y-5"
                 >
                   <div className="flex gap-5">
@@ -125,6 +184,7 @@ export default function RequestStatus() {
                         src={product.image}
                         alt={product.name}
                         fill
+                        sizes="144px"
                         className="object-contain p-4"
                       />
                     </div>
@@ -138,11 +198,17 @@ export default function RequestStatus() {
                       <p className="text-base text-gray-900 font-medium pt-1">
                         MSRP : {product.msrp}
                       </p>
+                      <p className="text-[10px] text-gray-400">
+                        Submitted:{" "}
+                        {new Date(product.createdAt).toLocaleDateString()}
+                      </p>
                       <div
-                        className={`inline-block px-4 py-2 text-sm font-medium ${
+                        className={`inline-block px-4 py-2 text-sm font-medium mt-1 ${
                           status === "APPROVED"
                             ? "bg-green-200/50 text-green-700"
-                            : "bg-[#fff4cc] text-gray-800"
+                            : status === "REJECTED"
+                              ? "bg-red-100 text-red-600"
+                              : "bg-[#fff4cc] text-gray-800"
                         }`}
                       >
                         {status}
@@ -151,7 +217,7 @@ export default function RequestStatus() {
                   </div>
 
                   <div className="pt-1">
-                    <p className="text-sm text-gray-600 leading-relaxed">
+                    <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap break-words">
                       Notes:{" "}
                       {product.notes || (
                         <span className="text-highlight">-</span>

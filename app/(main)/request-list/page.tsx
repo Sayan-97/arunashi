@@ -3,6 +3,7 @@
 import { AlertCircle, Check, PlusCircle, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ContactUs from "@/components/layout/contact-us";
 import { Button } from "@/components/ui/button";
@@ -16,10 +17,166 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { requestedProducts } from "@/constants";
 import { cn } from "@/lib/utils";
 
+interface RequestItem {
+  id: number;
+  name: string;
+  itemNo: string;
+  msrp: string;
+  stockStatus: string;
+  image: string;
+  notes?: string;
+}
+
 export default function RequestListPage() {
+  const [requestedItems, setRequestedItems] = useState<RequestItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [listName, setListName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleOpenSaveDialog = () => {
+    const defaultName = `Saved List - ${new Date().toLocaleDateString()}`;
+    setListName(defaultName);
+    setIsSaveDialogOpen(true);
+  };
+
+  const handleSaveList = async () => {
+    if (!listName.trim()) {
+      toast.error("Please enter a list name");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const res = await fetch("/api/saved-lists", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: listName.trim(),
+          items: requestedItems,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to save request list");
+      }
+
+      toast.success("List saved successfully", {
+        position: "top-right",
+      });
+      setIsSaveDialogOpen(false);
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.message || "Failed to save request list");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSubmitRequest = async () => {
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/products/requests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: requestedItems,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to submit request");
+      }
+
+      // Clear localStorage
+      localStorage.removeItem("request-list");
+      setRequestedItems([]);
+      setIsSubmitDialogOpen(true);
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.message || "Failed to submit request", {
+        position: "top-right",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("request-list");
+      if (stored) {
+        setRequestedItems(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error("Failed to load request list:", e);
+    }
+    setIsLoaded(true);
+  }, []);
+
+  const handleRemove = (id: number) => {
+    const updated = requestedItems.filter((item) => item.id !== id);
+    setRequestedItems(updated);
+    localStorage.setItem("request-list", JSON.stringify(updated));
+    toast.success("Product removed from request list", {
+      position: "top-right",
+    });
+  };
+
+  const handleSaveNote = (id: number, noteText: string) => {
+    const updated = requestedItems.map((item) => {
+      if (item.id === id) {
+        return { ...item, notes: noteText };
+      }
+      return item;
+    });
+    setRequestedItems(updated);
+    localStorage.setItem("request-list", JSON.stringify(updated));
+    toast.success("Note saved successfully", {
+      position: "top-right",
+    });
+  };
+
+  if (!isLoaded) {
+    return (
+      <main className="py-15 min-h-[60vh] flex items-center justify-center bg-white">
+        <p className="text-gray-400 font-light text-lg">
+          Loading your request list...
+        </p>
+      </main>
+    );
+  }
+
+  if (requestedItems.length === 0) {
+    return (
+      <main className="py-15 min-h-[65vh] flex flex-col items-center justify-center bg-white space-y-6">
+        <h1 className="uppercase tracking-widest text-3xl font-light">
+          Request List
+        </h1>
+        <p className="text-gray-400 text-lg font-light">
+          Your request list is currently empty.
+        </p>
+        <Link href="/">
+          <Button variant="outline" size="lg" className="px-10 h-12">
+            Explore Products
+          </Button>
+        </Link>
+      </main>
+    );
+  }
+
   return (
     <main className="py-15 space-y-25">
       <div className="app_container space-y-10">
@@ -39,7 +196,7 @@ export default function RequestListPage() {
           </div>
           <div className="space-y-3">
             <p className="text-xl md:text-2xl font-medium">
-              Requested Products (4)
+              Requested Products ({requestedItems.length})
             </p>
             <p className="flex items-center gap-2 text-xs md:text-sm text-yellow-600">
               <AlertCircle className="size-4 md:size-4.5" strokeWidth={1.5} />
@@ -70,20 +227,20 @@ export default function RequestListPage() {
                 </tr>
               </thead>
               <tbody>
-                {requestedProducts.map((product) => (
+                {requestedItems.map((product) => (
                   <tr
                     key={product.id}
                     className="border-b border-black/10 last:border-0"
                   >
                     <td className="p-6 align-top">
                       <div className="flex gap-6">
-                        <div className="bg-gray-50 p-2 flex items-center justify-center size-24 shrink-0">
+                        <div className="bg-gray-50 p-2 flex items-center justify-center size-24 shrink-0 relative">
                           <Image
                             src={product.image}
                             alt={product.name}
-                            width={70}
-                            height={70}
-                            className="object-contain"
+                            fill
+                            sizes="96px"
+                            className="object-contain p-2"
                           />
                         </div>
                         <div className="space-y-1 pt-1">
@@ -113,13 +270,25 @@ export default function RequestListPage() {
                       </p>
                     </td>
                     <td className="p-6 align-top">
-                      <div className="pt-1 max-w-sm">
+                      <div className="pt-1 max-w-sm space-y-2">
                         {product.notes ? (
-                          <p className="text-gray-600 text-sm leading-relaxed">
-                            {product.notes}
-                          </p>
+                          <div>
+                            <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap break-words">
+                              {product.notes}
+                            </p>
+                            <NoteDialog
+                              product={product}
+                              onSave={(note) =>
+                                handleSaveNote(product.id, note)
+                              }
+                              isEdit
+                            />
+                          </div>
                         ) : (
-                          <NoteDialog product={product} />
+                          <NoteDialog
+                            product={product}
+                            onSave={(note) => handleSaveNote(product.id, note)}
+                          />
                         )}
                       </div>
                     </td>
@@ -128,6 +297,7 @@ export default function RequestListPage() {
                         type="button"
                         variant="ghost"
                         size="icon"
+                        onClick={() => handleRemove(product.id)}
                         className="hover:text-red-500 transition-colors"
                       >
                         <Trash2 className="size-5" strokeWidth={1.5} />
@@ -141,7 +311,7 @@ export default function RequestListPage() {
 
           {/* Mobile Card View */}
           <div className="md:hidden space-y-6">
-            {requestedProducts.map((product) => (
+            {requestedItems.map((product) => (
               <div
                 key={product.id}
                 className="border border-black/10 p-5 space-y-5 relative"
@@ -149,6 +319,7 @@ export default function RequestListPage() {
                 <Button
                   variant="ghost"
                   size="icon"
+                  onClick={() => handleRemove(product.id)}
                   className="absolute top-2 right-2 hover:text-red-500 transition-colors"
                 >
                   <Trash2 className="size-5" strokeWidth={1.5} />
@@ -159,6 +330,7 @@ export default function RequestListPage() {
                       src={product.image}
                       alt={product.name}
                       fill
+                      sizes="144px"
                       className="object-contain p-4"
                     />
                   </div>
@@ -186,11 +358,23 @@ export default function RequestListPage() {
 
                 <div className="pt-1">
                   {product.notes ? (
-                    <p className="text-sm text-gray-600 leading-relaxed">
-                      Notes: {product.notes}
-                    </p>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap break-words">
+                        Notes: {product.notes}
+                      </p>
+                      <NoteDialog
+                        product={product}
+                        onSave={(note) => handleSaveNote(product.id, note)}
+                        isMobile
+                        isEdit
+                      />
+                    </div>
                   ) : (
-                    <NoteDialog product={product} isMobile />
+                    <NoteDialog
+                      product={product}
+                      onSave={(note) => handleSaveNote(product.id, note)}
+                      isMobile
+                    />
                   )}
                 </div>
               </div>
@@ -202,28 +386,23 @@ export default function RequestListPage() {
               variant="outline"
               size="lg"
               className="w-full md:w-60 h-14 text-lg md:text-base"
-              onClick={() =>
-                toast.success("Your list has been saved successfully", {
-                  position: "top-right",
-                  action: {
-                    label: "Undo",
-                    onClick: () => console.log("Undo"),
-                  },
-                })
-              }
+              onClick={handleOpenSaveDialog}
             >
               Save List
             </Button>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full md:w-60 h-14 text-lg md:text-base"
-                >
-                  Submit Request
-                </Button>
-              </DialogTrigger>
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full md:w-60 h-14 text-lg md:text-base"
+              onClick={handleSubmitRequest}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Submit Request"}
+            </Button>
+            <Dialog
+              open={isSubmitDialogOpen}
+              onOpenChange={setIsSubmitDialogOpen}
+            >
               <DialogContent className="sm:max-w-[771px] p-10 md:p-16">
                 <DialogHeader className="items-center text-center space-y-6">
                   <div className="size-20 rounded-full border-2 border-primary flex items-center justify-center mb-2">
@@ -250,6 +429,44 @@ export default function RequestListPage() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+            <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Save Request List</DialogTitle>
+                  <DialogDescription>
+                    Enter a name for this list to save it to your account.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="save-list-name"
+                      className="text-sm font-medium"
+                    >
+                      List Name
+                    </label>
+                    <input
+                      id="save-list-name"
+                      type="text"
+                      value={listName}
+                      onChange={(e) => setListName(e.target.value)}
+                      className="flex h-10 w-full border border-input bg-input px-3 py-2 text-base transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                      placeholder="e.g. My Favorite Items"
+                    />
+                  </div>
+                </div>
+                <DialogFooter className="border-t-0 bg-transparent gap-2 sm:gap-0">
+                  <DialogClose asChild>
+                    <Button variant="outline" disabled={isSaving}>
+                      Cancel
+                    </Button>
+                  </DialogClose>
+                  <Button onClick={handleSaveList} disabled={isSaving}>
+                    {isSaving ? "Saving..." : "Save"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </section>
         <ContactUs />
@@ -261,32 +478,58 @@ export default function RequestListPage() {
 function NoteDialog({
   product,
   isMobile,
+  onSave,
+  isEdit,
 }: {
-  product: (typeof requestedProducts)[0];
+  product: RequestItem;
   isMobile?: boolean;
+  onSave: (note: string) => void;
+  isEdit?: boolean;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [noteText, setNoteText] = useState(product.notes || "");
+
+  // Update noteText when product.notes changes (e.g. on external load or remove)
+  useEffect(() => {
+    setNoteText(product.notes || "");
+  }, [product.notes]);
+
+  const handleSave = () => {
+    onSave(noteText);
+    setIsOpen(false);
+  };
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          className={cn(
-            "text-highlight p-0 h-auto hover:bg-transparent",
-            isMobile ? "font-normal" : "",
-          )}
-        >
-          <PlusCircle
-            className={cn(isMobile ? "size-6" : "size-5")}
-            strokeWidth={1.5}
-          />
-          <span className={cn(isMobile ? "text-base" : "text-sm")}>
-            Add Notes
-          </span>
-        </Button>
+        {isEdit ? (
+          <Button
+            variant="link"
+            className="text-highlight p-0 h-auto text-xs underline mt-1 font-light hover:text-black/80 inline-flex items-center"
+          >
+            Edit Note
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            className={cn(
+              "text-highlight p-0 h-auto hover:bg-transparent inline-flex items-center gap-1.5",
+              isMobile ? "font-normal" : "",
+            )}
+          >
+            <PlusCircle
+              className={cn(isMobile ? "size-6" : "size-5")}
+              strokeWidth={1.5}
+            />
+            <span className={cn(isMobile ? "text-base" : "text-sm")}>
+              Add Notes
+            </span>
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add Note</DialogTitle>
+          <DialogTitle>{isEdit ? "Edit Note" : "Add Note"}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="flex flex-col gap-2">
@@ -298,16 +541,18 @@ function NoteDialog({
             </label>
             <textarea
               id={`note-${product.id}`}
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
               className="min-h-[100px] w-full min-w-0 border border-input bg-input px-3 py-2 text-base transition-colors outline-none placeholder:text-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
               placeholder="Enter your note here..."
             />
           </div>
         </div>
-        <DialogFooter className="border-t-0 bg-transparent">
+        <DialogFooter className="border-t-0 bg-transparent gap-2 sm:gap-0">
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button>Add</Button>
+          <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

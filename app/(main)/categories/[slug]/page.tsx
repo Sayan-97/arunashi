@@ -1,6 +1,8 @@
 import FilterDropdown from "@/components/layout/filter-dropdown";
 import ProductCard from "@/components/shared/product-card";
-import { productsData } from "@/constants";
+import { getShopifyProducts } from "@/services/products";
+
+export const dynamic = "force-dynamic";
 
 export default async function CategoryProductsPage({
   params,
@@ -8,8 +10,9 @@ export default async function CategoryProductsPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const products = await getShopifyProducts();
 
-  const filteredProducts = productsData.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const s = slug.toLowerCase();
     const t = product.category.toLowerCase();
     return t === s || t === `${s}s` || s === `${t}s`;

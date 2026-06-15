@@ -3,14 +3,19 @@ import Categories from "@/components/layout/categories";
 import Collections from "@/components/layout/collections";
 import GemstonesAndDiamonds from "@/components/layout/gemstones-and-diamonds";
 import Magazines from "@/components/layout/magazines";
+import { getShopifyProducts } from "@/services/products";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const products = await getShopifyProducts();
+
   return (
     <main className="pb-15 space-y-25">
       <Banners />
       <Collections />
       <Categories />
-      <GemstonesAndDiamonds />
+      <GemstonesAndDiamonds products={products} />
       <Magazines />
     </main>
   );

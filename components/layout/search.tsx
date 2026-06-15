@@ -3,13 +3,33 @@
 import { Search as SearchIcon, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { productsData, searchPages, searchSuggestions } from "@/constants";
+import type { Product } from "@/constants";
+import { searchPages, searchSuggestions } from "@/constants";
+import {
+  allowedTitles,
+  mapShopifyProduct,
+  type ShopifyProduct,
+} from "@/services/products";
 import { Button } from "../ui/button";
 
 export default function Search() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((json) => {
+        const allProducts: ShopifyProduct[] = json.data || [];
+        const filtered = allProducts
+          .filter((p) => allowedTitles.includes((p.title || "").toLowerCase()))
+          .map(mapShopifyProduct);
+        setProducts(filtered);
+      })
+      .catch((err) => console.error("Error fetching search products:", err));
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -137,7 +157,7 @@ export default function Search() {
                       Products
                     </h3>
                     <ul className="space-y-6">
-                      {productsData.slice(0, 3).map((product) => (
+                      {products.slice(0, 3).map((product) => (
                         <li
                           key={product.id}
                           className="flex items-center gap-6"

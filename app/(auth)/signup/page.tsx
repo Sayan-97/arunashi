@@ -1,58 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useActionState } from "react";
+import { signup } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function SignupPage() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    clientName: "",
-    company: "",
-    email: "",
-    phone: "",
-    address: "",
-    pressPublicationTitle: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleSubmit = async () => {
-    const { clientName, company, email, phone, address } = formData;
-
-    if (!clientName || !company || !email || !phone || !address) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const response = await fetch("/api/email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send request");
-      }
-
-      toast.success("Account request submitted successfully!");
-      router.push("/submission");
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const [state, action, pending] = useActionState(signup, undefined);
 
   return (
     <div className="app_container flex items-center justify-center">
@@ -64,73 +19,110 @@ export default function SignupPage() {
             Portal.
           </p>
         </div>
-        <div className="space-y-5.5">
-          <div className="grid md:grid-cols-2 gap-5.5">
-            <Input
-              name="clientName"
-              value={formData.clientName}
-              onChange={handleChange}
-              placeholder="Client Name*"
-              className="w-full h-[57px] rounded-none border-0"
-            />
-            <Input
-              name="company"
-              value={formData.company}
-              onChange={handleChange}
-              placeholder="Company*"
-              className="w-full h-[57px] rounded-none border-0"
-            />
+        <form action={action} className="space-y-7">
+          <div className="space-y-5.5">
+            <div className="grid md:grid-cols-2 gap-5.5">
+              <div className="space-y-1.5">
+                <Input
+                  name="clientName"
+                  placeholder="Client Name*"
+                  className="w-full h-[57px] rounded-none border-0"
+                />
+                {state?.errors?.clientName && (
+                  <p className="text-xs text-red-500 font-medium pl-1">
+                    {state.errors.clientName[0]}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Input
+                  name="company"
+                  placeholder="Company*"
+                  className="w-full h-[57px] rounded-none border-0"
+                />
+                {state?.errors?.company && (
+                  <p className="text-xs text-red-500 font-medium pl-1">
+                    {state.errors.company[0]}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="grid md:grid-cols-2 gap-5.5">
+              <div className="space-y-1.5">
+                <Input
+                  name="email"
+                  type="email"
+                  placeholder="Email*"
+                  className="w-full h-[57px] rounded-none border-0"
+                />
+                {state?.errors?.email && (
+                  <p className="text-xs text-red-500 font-medium pl-1">
+                    {state.errors.email[0]}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Input
+                  name="phone"
+                  type="tel"
+                  placeholder="Phone*"
+                  className="w-full h-[57px] rounded-none border-0"
+                />
+                {state?.errors?.phone && (
+                  <p className="text-xs text-red-500 font-medium pl-1">
+                    {state.errors.phone[0]}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="grid md:grid-cols-2 gap-5.5">
+              <div className="space-y-1.5">
+                <Input
+                  name="address"
+                  placeholder="Address*"
+                  className="w-full h-[57px] rounded-none border-0"
+                />
+                {state?.errors?.address && (
+                  <p className="text-xs text-red-500 font-medium pl-1">
+                    {state.errors.address[0]}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Input
+                  name="pressPublicationTitle"
+                  placeholder="Press Publication Title*"
+                  className="w-full h-[57px] rounded-none border-0"
+                />
+                {state?.errors?.pressPublicationTitle && (
+                  <p className="text-xs text-red-500 font-medium pl-1">
+                    {state.errors.pressPublicationTitle[0]}
+                  </p>
+                )}
+              </div>
+            </div>
+            {state?.errors?.form && (
+              <p className="text-sm text-red-500 font-medium text-center">
+                {state.errors.form}
+              </p>
+            )}
           </div>
-          <div className="grid md:grid-cols-2 gap-5.5">
-            <Input
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Email*"
-              className="w-full h-[57px] rounded-none border-0"
-            />
-            <Input
-              name="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="Phone*"
-              className="w-full h-[57px] rounded-none border-0"
-            />
-          </div>
-          <div className="grid md:grid-cols-2 gap-5.5">
-            <Input
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              placeholder="Address*"
-              className="w-full h-[57px] rounded-none border-0"
-            />
-            <Input
-              name="pressPublicationTitle"
-              value={formData.pressPublicationTitle}
-              onChange={handleChange}
-              placeholder="Press Publication Title"
-              className="w-full h-[57px] rounded-none border-0"
-            />
-          </div>
-        </div>
-        <div className="flex flex-col items-center gap-4">
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Submitting..." : "Create Account"}
-          </Button>
-          <Link href="/login">
-            <Button variant="link" className="text-foreground">
-              Already Registered?
+          <div className="flex flex-col items-center gap-4">
+            <Button
+              variant="outline"
+              size="lg"
+              type="submit"
+              disabled={pending}
+            >
+              {pending ? "Submitting..." : "Create Account"}
             </Button>
-          </Link>
-        </div>
+            <Link href="/login">
+              <Button type="button" variant="link" className="text-foreground">
+                Already Registered?
+              </Button>
+            </Link>
+          </div>
+        </form>
       </section>
     </div>
   );

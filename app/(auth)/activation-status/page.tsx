@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function ActivationStatusPage() {
@@ -9,9 +10,11 @@ export default function ActivationStatusPage() {
           Your account has been successfully set up. You can now access the
           Arunashi Retailer Portal.
         </p>
-        <Button variant="outline" size="lg" className="px-10">
-          Log In
-        </Button>
+        <Link href="/login">
+          <Button variant="outline" size="lg" className="px-10">
+            Log In
+          </Button>
+        </Link>
       </section>
     </div>
   );

@@ -1,12 +1,11 @@
 import Image from "next/image";
 import FilterDropdown from "@/components/layout/filter-dropdown";
 import ProductCard from "@/components/shared/product-card";
-import {
-  collectionFilters,
-  productCollections,
-  productsData,
-} from "@/constants";
+import { collectionFilters, productCollections } from "@/constants";
 import HeroImg from "@/public/collection-hero-bg.png";
+import { getShopifyProducts } from "@/services/products";
+
+export const dynamic = "force-dynamic";
 
 export default async function CollectionProductsPage({
   params,
@@ -14,6 +13,7 @@ export default async function CollectionProductsPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const products = await getShopifyProducts();
 
   // Resolve the collection object from slug (handling both string slug and numeric ID)
   const isNumeric = /^\d+$/.test(slug);
@@ -33,7 +33,7 @@ export default async function CollectionProductsPage({
     ? colObj.name
     : decodeURIComponent(slug).replaceAll("-", " ");
 
-  const filteredProducts = productsData.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     if (!product.collection) return false;
     const pCol = product.collection.toLowerCase();
     const tCol = targetCollectionName.toLowerCase();

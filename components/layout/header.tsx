@@ -50,12 +50,7 @@ function HamburgerMenu() {
 
 export default function Header() {
   const pathname = usePathname();
-  const onboardingRoutes = [
-    "/login",
-    "/signup",
-    "/submission",
-    "/create-password",
-  ];
+  const onboardingRoutes = ["/login", "/signup", "/submission", "/activate"];
   return (
     <header>
       <div className="h-30.25 bg-secondary">
