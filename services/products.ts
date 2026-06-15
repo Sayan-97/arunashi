@@ -96,7 +96,6 @@ export function mapShopifyProduct(p: ShopifyProduct): Product {
     }
   }
 
-  // Map images to format next/image can consume
   const mappedImages = p.images
     ? p.images.map((img) => ({
         src: img.src,
