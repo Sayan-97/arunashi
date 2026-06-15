@@ -153,23 +153,29 @@ export async function getShopifyProducts(): Promise<Product[]> {
   }
 }
 
-export async function getMyRequests(token?: string): Promise<any[]> {
+export async function getMyRequests(cookieHeader: string): Promise<any[]> {
   const backendUrl = getBackendUrl();
-  if (!token) return [];
+  if (!cookieHeader) return [];
   try {
     const res = await fetch(`${backendUrl}/api/products/requests/my`, {
       headers: {
-        Cookie: `accessToken=${token}`,
+        Cookie: cookieHeader,
       },
       cache: "no-store",
     });
     if (!res.ok) {
+      if (res.status === 401) {
+        throw new Error("Unauthorized");
+      }
       console.error("Failed to fetch my requests:", res.status);
       return [];
     }
     const json = await res.json();
     return json.data || [];
   } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      throw error;
+    }
     console.error("Error fetching my requests:", error);
     return [];
   }

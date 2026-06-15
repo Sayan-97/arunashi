@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import ContactUs from "@/components/layout/contact-us";
 import { Button } from "@/components/ui/button";
 import { getMyRequests } from "@/services/products";
@@ -22,10 +23,43 @@ interface RequestedProductItem {
 
 export default async function RequestStatus() {
   const cookieStore = await cookies();
-  const token =
-    cookieStore.get("accessToken")?.value ||
-    cookieStore.get("adminAccessToken")?.value;
-  const requests = await getMyRequests(token);
+  const accessToken = cookieStore.get("arunashiAccessToken")?.value;
+  const adminAccessToken = cookieStore.get("arunashiAdminAccessToken")?.value;
+
+  console.log("--- [DEBUG] RequestStatus Page Load ---");
+  console.log("arunashiAccessToken cookie exists:", !!accessToken);
+  console.log("arunashiAdminAccessToken cookie exists:", !!adminAccessToken);
+
+  // Prioritize arunashiAccessToken (retailer) over arunashiAdminAccessToken (admin)
+  const cookieHeader = accessToken
+    ? `arunashiAccessToken=${accessToken}`
+    : adminAccessToken
+      ? `arunashiAdminAccessToken=${adminAccessToken}`
+      : "";
+
+  console.log(
+    "Formatted cookieHeader:",
+    cookieHeader
+      ? `${cookieHeader.split("=")[0]}=${cookieHeader.split("=")[1].substring(0, 15)}...`
+      : "NONE",
+  );
+
+  if (!cookieHeader) {
+    console.log("[DEBUG] No token found, redirecting to /login");
+    redirect("/login");
+  }
+
+  let requests: any[] = [];
+  try {
+    requests = await getMyRequests(cookieHeader);
+    console.log("[DEBUG] Fetch requests count:", requests.length);
+  } catch (err: any) {
+    console.log("[DEBUG] Fetch requests threw error:", err.message);
+    if (err.message === "Unauthorized") {
+      redirect("/login");
+    }
+    throw err;
+  }
 
   // Flatten the requests to list each product separately with its request's status
   const requestedProductsList: RequestedProductItem[] = requests.flatMap(

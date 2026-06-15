@@ -22,8 +22,8 @@ export function proxy(request: NextRequest) {
     return NextResponse.rewrite(targetUrl);
   }
 
-  const hasAccessToken = request.cookies.has("accessToken");
-  const hasRefreshToken = request.cookies.has("refreshToken");
+  const hasAccessToken = request.cookies.has("arunashiAccessToken");
+  const hasRefreshToken = request.cookies.has("arunashiRefreshToken");
   const isAuthenticated = hasAccessToken || hasRefreshToken;
 
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
