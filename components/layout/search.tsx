@@ -5,11 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { Product } from "@/constants";
 import { searchPages, searchSuggestions } from "@/constants";
-import {
-  allowedTitles,
-  mapShopifyProduct,
-  type ShopifyProduct,
-} from "@/services/products";
+import { mapShopifyProduct, type ShopifyProduct } from "@/services/products";
 import { Button } from "../ui/button";
 
 export default function Search() {
@@ -23,9 +19,7 @@ export default function Search() {
       .then((res) => res.json())
       .then((json) => {
         const allProducts: ShopifyProduct[] = json.data || [];
-        const filtered = allProducts
-          .filter((p) => allowedTitles.includes((p.title || "").toLowerCase()))
-          .map(mapShopifyProduct);
+        const filtered = allProducts.map(mapShopifyProduct);
         setProducts(filtered);
       })
       .catch((err) => console.error("Error fetching search products:", err));

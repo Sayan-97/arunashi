@@ -181,13 +181,6 @@ export default function ProductDetailsClient({
           <h1>{product.name}</h1>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-lg md:text-xl">
             <p>MSRP - ${Number(product.msrp).toLocaleString()} USD</p>
-            <p>
-              Wholesale - $
-              {product.wholesalePrice
-                ? Number(product.wholesalePrice).toLocaleString()
-                : "30,600"}{" "}
-              USD
-            </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 py-3 border-y border-black/10 gap-3 md:gap-0">
             <div className="md:border-r border-black/10">
@@ -199,8 +192,17 @@ export default function ProductDetailsClient({
             <div className="flex flex-col md:items-center">
               <p className="text-muted-foreground">Stock Status</p>
               <div className="flex items-center gap-2">
-                <span className="size-2 bg-green-600 rounded-full" />
-                <p className="text-lg text-green-600">In Stock</p>
+                {product.inventory !== undefined && product.inventory >= 1 ? (
+                  <>
+                    <span className="size-2 bg-green-600 rounded-full" />
+                    <p className="text-lg text-green-600">In Stock</p>
+                  </>
+                ) : (
+                  <>
+                    <span className="size-2 bg-red-600 rounded-full" />
+                    <p className="text-lg text-red-600">Out of Stock</p>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -232,15 +234,15 @@ export default function ProductDetailsClient({
                     "Lorem Ipsum is simply dummy text of the printing and typesetting industry."}
                 </p>
               ) : activeTab === "Specifications" ? (
-                <div className="space-y-1">
-                  {product.specifications?.map((spec) => (
-                    <p key={spec}>{spec}</p>
-                  )) || (
-                    <>
-                      <p>Specification 1</p>
-                      <p>Specification 2</p>
-                    </>
-                  )}
+                <div className="grid grid-cols-2 gap-y-2 max-w-sm">
+                  <p>Product Type</p>
+                  <p className="text-gray-900">
+                    {product.category || "Jewelry"}
+                  </p>
+                  <p>Weight</p>
+                  <p className="text-gray-900">
+                    {product.weight ?? 0} {product.weightUnit || "lb"}
+                  </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-y-2 max-w-sm">

@@ -19,6 +19,10 @@ export interface ShopifyProduct {
     price?: string;
     option1?: string | null;
     option2?: string | null;
+    inventory_quantity?: number;
+    grams?: number;
+    weight?: number;
+    weight_unit?: string;
   }[];
   options?: {
     name: string;
@@ -28,23 +32,12 @@ export interface ShopifyProduct {
   image?: ShopifyImage;
 }
 
-export const allowedTitles = [
-  "Lotus Flower Diamond Bracelet",
-  "Violet Sapphire Bracelet",
-  "Tanzanite Bangle",
-  "Lightning Strikes Bangle",
-  "White Sapphire, Spinel & Diamond Earrings",
-  "Sapphire Eggs with Diamonds",
-  "Multi Sapphire & Diamond Earrings",
-  "Tsavorite Stain Glass Window Earrings",
-  "Imperial Jade Earrings",
-  "Pearl Encased in Emerald & Sapphire Earrings",
-].map((t) => t.toLowerCase());
-
 export function mapShopifyProduct(p: ShopifyProduct): Product {
   const primaryVariant = p.variants?.[0] || {};
   const msrpVal = primaryVariant.price || "0";
   const wholesaleVal = (Number.parseFloat(msrpVal) * 0.6).toFixed(0);
+  const totalInventory =
+    p.variants?.reduce((sum, v) => sum + (v.inventory_quantity || 0), 0) ?? 0;
 
   // Determine collection based on tags
   let collectionName = "Undefined"; // default fallback
@@ -122,6 +115,10 @@ export function mapShopifyProduct(p: ShopifyProduct): Product {
     variant2: primaryVariant.option2 || undefined,
     msrp: msrpVal,
     wholesalePrice: wholesaleVal,
+    inventory: totalInventory,
+    grams: primaryVariant.grams ?? 0,
+    weight: primaryVariant.weight ?? 0,
+    weightUnit: primaryVariant.weight_unit || "lb",
     images: mappedImages,
     featuredImage: mappedFeaturedImage,
     videos: [],
@@ -143,10 +140,8 @@ export async function getShopifyProducts(): Promise<Product[]> {
     const json = await res.json();
     const allProducts: ShopifyProduct[] = json.data || [];
 
-    // Filter and map
-    return allProducts
-      .filter((p) => allowedTitles.includes((p.title || "").toLowerCase()))
-      .map(mapShopifyProduct);
+    // Filter and map all active products
+    return allProducts.map(mapShopifyProduct);
   } catch (error) {
     console.error("Error fetching products from backend:", error);
     return [];

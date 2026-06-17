@@ -61,6 +61,10 @@ export interface Product {
   variant1?: string;
   variant2?: string;
   wholesalePrice?: string;
+  inventory?: number;
+  grams?: number;
+  weight?: number;
+  weightUnit?: string;
 }
 
 export const navLinks = [
