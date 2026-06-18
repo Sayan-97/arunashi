@@ -30,6 +30,10 @@ export interface ShopifyProduct {
   }[];
   images?: ShopifyImage[];
   image?: ShopifyImage;
+  media?: {
+    type: "image" | "video";
+    src: string;
+  }[];
 }
 
 export function mapShopifyProduct(p: ShopifyProduct): Product {
@@ -105,6 +109,12 @@ export function mapShopifyProduct(p: ShopifyProduct): Product {
       }
     : undefined;
 
+  const mappedVideos = p.media
+    ? p.media
+        .filter((item) => item.type === "video" && typeof item.src === "string")
+        .map((item) => item.src)
+    : [];
+
   return {
     id: p.id,
     name: p.title,
@@ -121,7 +131,7 @@ export function mapShopifyProduct(p: ShopifyProduct): Product {
     weightUnit: primaryVariant.weight_unit || "lb",
     images: mappedImages,
     featuredImage: mappedFeaturedImage,
-    videos: [],
+    videos: mappedVideos,
     category: p.product_type || "Jewelry",
     collection: collectionName,
   };

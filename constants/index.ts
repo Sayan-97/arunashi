@@ -96,12 +96,12 @@ export const navLinks = [
 
 export const footerLinks = [
   {
-    label: "Terms & Conditions",
-    href: "",
+    label: "Terms & Condition",
+    href: "https://arunashi.com/pages/terms-conditions",
   },
   {
     label: "Privacy Policy",
-    href: "",
+    href: "https://arunashi.com/pages/privacy-policy",
   },
   {
     label: "Contact",
@@ -109,7 +109,7 @@ export const footerLinks = [
   },
   {
     label: "About Us",
-    href: "",
+    href: "https://arunashi.com/pages/why-arunashi",
   },
 ];
 

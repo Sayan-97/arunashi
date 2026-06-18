@@ -362,3 +362,10 @@ export async function activate(
 
   return { success: true };
 }
+
+export async function logout(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete("arunashiAccessToken");
+  cookieStore.delete("arunashiRefreshToken");
+  redirect("/login");
+}

@@ -1,9 +1,9 @@
-import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import ContactUs from "@/components/layout/contact-us";
 import { Button } from "@/components/ui/button";
+import { getAuthCookieHeader } from "@/lib/auth";
 import { getMyRequests } from "@/services/products";
 
 export const dynamic = "force-dynamic";
@@ -22,27 +22,10 @@ interface RequestedProductItem {
 }
 
 export default async function RequestStatus() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("arunashiAccessToken")?.value;
-  const adminAccessToken = cookieStore.get("arunashiAdminAccessToken")?.value;
+  const cookieHeader = await getAuthCookieHeader();
 
   console.log("--- [DEBUG] RequestStatus Page Load ---");
-  console.log("arunashiAccessToken cookie exists:", !!accessToken);
-  console.log("arunashiAdminAccessToken cookie exists:", !!adminAccessToken);
-
-  // Prioritize arunashiAccessToken (retailer) over arunashiAdminAccessToken (admin)
-  const cookieHeader = accessToken
-    ? `arunashiAccessToken=${accessToken}`
-    : adminAccessToken
-      ? `arunashiAdminAccessToken=${adminAccessToken}`
-      : "";
-
-  console.log(
-    "Formatted cookieHeader:",
-    cookieHeader
-      ? `${cookieHeader.split("=")[0]}=${cookieHeader.split("=")[1].substring(0, 15)}...`
-      : "NONE",
-  );
+  console.log("Formatted cookieHeader:", cookieHeader ? "PRESENT" : "NONE");
 
   if (!cookieHeader) {
     console.log("[DEBUG] No token found, redirecting to /login");

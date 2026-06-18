@@ -5,7 +5,7 @@ export default function Banners() {
   const banner = banners[0];
 
   return (
-    <section>
+    <section className="app_container">
       <div className="relative w-full h-[381px]">
         <Image
           src={banner.image}

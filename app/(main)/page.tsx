@@ -11,7 +11,7 @@ export default async function HomePage() {
   const products = await getShopifyProducts();
 
   return (
-    <main className="pb-15 space-y-25">
+    <main className="pt-10 pb-15 space-y-25">
       <Banners />
       <Collections />
       <Categories />

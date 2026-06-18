@@ -1,9 +1,11 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { LogOut, Menu, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { logout } from "@/actions/auth";
 import { navLinks } from "@/constants";
 import AppLogo from "@/public/app-logo.png";
 import { Button } from "../ui/button";
@@ -51,6 +53,27 @@ function HamburgerMenu() {
 export default function Header() {
   const pathname = usePathname();
   const onboardingRoutes = ["/login", "/signup", "/submission", "/activate"];
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (onboardingRoutes.includes(pathname)) return;
+
+    fetch("/api/user/profile", { method: "POST" })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch profile");
+        return res.json();
+      })
+      .then((json) => {
+        if (json.success && json.data) {
+          setUser(json.data);
+        }
+      })
+      .catch((err) => console.error("Error fetching user profile:", err));
+  }, [pathname]);
+
   return (
     <header>
       <div className="h-30.25 bg-secondary">
@@ -67,7 +90,57 @@ export default function Header() {
               className="w-[164px] h-full"
             />
           </Link>
-          <Search />
+          <div className="flex items-center gap-2 relative">
+            <Search />
+            {!onboardingRoutes.includes(pathname) && (
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="text-black hover:text-gray-600 transition-colors"
+                  aria-label="User Profile"
+                >
+                  <User className="size-6" />
+                </Button>
+
+                {isDropdownOpen && (
+                  <>
+                    <button
+                      type="button"
+                      className="fixed inset-0 z-40 bg-transparent cursor-default"
+                      onClick={() => setIsDropdownOpen(false)}
+                      aria-label="Close user menu"
+                    />
+                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-xl border border-black/10 z-50 py-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="px-4 pb-3 border-b border-black/5">
+                        <p className="text-xs text-gray-400">Current User</p>
+                        <p className="font-semibold text-gray-900 mt-1 truncate">
+                          {user ? user.name : "Loading..."}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {user ? user.email : ""}
+                        </p>
+                      </div>
+                      <div className="px-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            setIsDropdownOpen(false);
+                            await logout();
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors text-left font-medium cursor-pointer"
+                        >
+                          <LogOut className="size-4" />
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
       {!onboardingRoutes.includes(pathname) && (

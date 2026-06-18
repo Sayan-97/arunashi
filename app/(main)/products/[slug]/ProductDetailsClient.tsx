@@ -1,5 +1,6 @@
 "use client";
 
+import JSZip from "jszip";
 import { Play } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -86,6 +87,106 @@ export default function ProductDetailsClient({
     } catch (e) {
       console.error(e);
       toast.error("Failed to add to request list");
+    }
+  };
+
+  const downloadPhotos = async () => {
+    const imageUrls = images
+      .map((img) => getSrc(img))
+      .filter((src) => typeof src === "string" && src.length > 0);
+
+    if (imageUrls.length === 0) {
+      toast.error("No photos available to download");
+      return;
+    }
+
+    const toastId = toast.loading("Preparing photos download...");
+    try {
+      const zip = new JSZip();
+      const folderName = `${product.name.replace(/[^a-zA-Z0-9-_]/g, "_")}_photos`;
+      const photosFolder = zip.folder(folderName);
+
+      if (!photosFolder) throw new Error("Failed to create zip folder");
+
+      await Promise.all(
+        imageUrls.map(async (url, idx) => {
+          try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+            const blob = await res.blob();
+
+            // Get file extension or default to png
+            const ext = url.split("?")[0].split(".").pop() || "png";
+            const fileName = `photo_${idx + 1}.${ext}`;
+
+            photosFolder.file(fileName, blob);
+          } catch (err) {
+            console.error(`Failed to download image from ${url}:`, err);
+          }
+        }),
+      );
+
+      const content = await zip.generateAsync({ type: "blob" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(content);
+      link.download = `${folderName}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Photos downloaded successfully", { id: toastId });
+    } catch (error) {
+      console.error("Error zipping photos:", error);
+      toast.error("Failed to download photos", { id: toastId });
+    }
+  };
+
+  const downloadVideos = async () => {
+    const videoUrls = videos
+      .map((vid) => getSrc(vid))
+      .filter((src) => typeof src === "string" && src.length > 0);
+
+    if (videoUrls.length === 0) {
+      toast.error("No videos available to download");
+      return;
+    }
+
+    const toastId = toast.loading("Preparing videos download...");
+    try {
+      const zip = new JSZip();
+      const folderName = `${product.name.replace(/[^a-zA-Z0-9-_]/g, "_")}_videos`;
+      const videosFolder = zip.folder(folderName);
+
+      if (!videosFolder) throw new Error("Failed to create zip folder");
+
+      await Promise.all(
+        videoUrls.map(async (url, idx) => {
+          try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+            const blob = await res.blob();
+
+            // Get file extension or default to mp4
+            const ext = url.split("?")[0].split(".").pop() || "mp4";
+            const fileName = `video_${idx + 1}.${ext}`;
+
+            videosFolder.file(fileName, blob);
+          } catch (err) {
+            console.error(`Failed to download video from ${url}:`, err);
+          }
+        }),
+      );
+
+      const content = await zip.generateAsync({ type: "blob" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(content);
+      link.download = `${folderName}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Videos downloaded successfully", { id: toastId });
+    } catch (error) {
+      console.error("Error zipping videos:", error);
+      toast.error("Failed to download videos", { id: toastId });
     }
   };
 
@@ -270,21 +371,42 @@ export default function ProductDetailsClient({
             </Button>
           </div>
           <ul className="list-disc list-inside space-y-1.5 text-gray-400 marker:text-gray-400">
-            {[
-              { title: "Download Linesheet", link: "" },
-              { title: "Download Photos", link: "" },
-              { title: "Download Videos", link: "" },
-              { title: "Download diamond lab reports", link: "" },
-            ].map((item) => (
-              <li key={item.title}>
-                <Link
-                  href={item.link}
-                  className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground"
+            <li>
+              <Link
+                href=""
+                className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground"
+              >
+                Download Linesheet
+              </Link>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={downloadPhotos}
+                className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground text-left cursor-pointer bg-transparent border-0 p-0 font-normal font-sans inline text-gray-400"
+              >
+                Download Photos
+              </button>
+            </li>
+            {videos.length > 0 && (
+              <li>
+                <button
+                  type="button"
+                  onClick={downloadVideos}
+                  className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground text-left cursor-pointer bg-transparent border-0 p-0 font-normal font-sans inline text-gray-400"
                 >
-                  {item.title}
-                </Link>
+                  Download Videos
+                </button>
               </li>
-            ))}
+            )}
+            <li>
+              <Link
+                href=""
+                className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground"
+              >
+                Download diamond lab reports
+              </Link>
+            </li>
           </ul>
         </div>
       </section>

@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { footerLinks } from "@/constants";
-import { Button } from "../ui/button";
-
 export default function Footer() {
   return (
     <footer className="pt-[54px] mt-15 pb-[30px] border-t border-black/10">
@@ -13,21 +11,32 @@ export default function Footer() {
             </li>
           ))}
         </ul>
-        <div className="space-x-6">
-          <i className="fi fi-brands-facebook text-2xl"></i>
-          <i className="fi fi-brands-instagram text-2xl"></i>
-          <i className="fi fi-brands-pinterest text-2xl"></i>
+        <div className="space-x-6 flex items-center">
+          <Link
+            href="https://www.facebook.com/arunashi/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:opacity-70 transition-opacity"
+          >
+            <i className="fi fi-brands-facebook text-2xl"></i>
+          </Link>
+          <Link
+            href="https://www.instagram.com/arunashibh/?hl=en"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:opacity-70 transition-opacity"
+          >
+            <i className="fi fi-brands-instagram text-2xl"></i>
+          </Link>
+          <Link
+            href="https://www.pinterest.com/arunashibh/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:opacity-70 transition-opacity"
+          >
+            <i className="fi fi-brands-pinterest text-2xl"></i>
+          </Link>
         </div>
-      </div>
-      <div className="mt-16 flex flex-col md:flex-row items-center justify-center gap-10">
-        <div className="w-full max-w-[180px]">
-          <input
-            type="email"
-            placeholder="Email Address"
-            className="w-full bg-transparent border-b border-black/60 py-2 outline-none text-center placeholder:text-black/50 font-nunito"
-          />
-        </div>
-        <Button variant="outline">JOIN THE LIST</Button>
       </div>
     </footer>
   );
