@@ -12,8 +12,10 @@ export default async function Collections() {
   // Fetch collections directly from Shopify through our backend
   const allCollections = await getShopifyCollections();
 
-  const collections = allCollections.filter((c) => {
-    const title = c.title.toLowerCase().trim();
+  const collectionsList = Array.isArray(allCollections) ? allCollections : [];
+
+  const collections = collectionsList.filter((c) => {
+    const title = c.title?.toLowerCase().trim() || "";
     return (
       title.endsWith("collection") ||
       title.endsWith("collections") ||

@@ -4,8 +4,10 @@ import { getShopifyCollections } from "@/services/products";
 export default async function CategoriesPage() {
   const allCollections = await getShopifyCollections();
 
-  const categories = allCollections.filter((c) => {
-    const title = c.title.toLowerCase().trim();
+  const collectionsList = Array.isArray(allCollections) ? allCollections : [];
+
+  const categories = collectionsList.filter((c) => {
+    const title = c.title?.toLowerCase().trim() || "";
     return !(
       title.endsWith("collection") ||
       title.endsWith("collections") ||
