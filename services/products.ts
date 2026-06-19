@@ -34,6 +34,11 @@ export interface ShopifyProduct {
     type: "image" | "video";
     src: string;
   }[];
+  collections?: {
+    id: string;
+    title: string;
+    handle: string;
+  }[];
 }
 
 export function mapShopifyProduct(p: ShopifyProduct): Product {
@@ -43,44 +48,10 @@ export function mapShopifyProduct(p: ShopifyProduct): Product {
   const totalInventory =
     p.variants?.reduce((sum, v) => sum + (v.inventory_quantity || 0), 0) ?? 0;
 
-  // Determine collection based on tags
-  let collectionName = "Undefined"; // default fallback
-  const tags = (p.tags || "").split(",").map((t) => t.trim().toLowerCase());
-
-  if (tags.includes("arches")) {
-    collectionName = "Arches Collection";
-  } else if (tags.includes("enigma")) {
-    collectionName = "Enigma Collection";
-  } else if (tags.includes("kintsugi")) {
-    collectionName = "Kintsugi Collection";
-  } else if (
-    tags.includes("lightning-strikes") ||
-    tags.includes("lightning strikes")
-  ) {
-    collectionName = "Lightning Strikes";
-  } else if (
-    tags.includes("maximal-minimalism") ||
-    tags.includes("maximal minimalism")
-  ) {
-    collectionName = "Maximal Minimalism";
-  } else if (
-    tags.includes("minimal-maximalism") ||
-    tags.includes("minimal maximalism") ||
-    tags.includes("minimal maximal")
-  ) {
-    collectionName = "Minimal Maximalism";
-  } else if (
-    tags.includes("temple-of-echoes") ||
-    tags.includes("temple of echoes")
-  ) {
-    collectionName = "Temple of Echoes Collection";
-  } else if (tags.includes("the-story") || tags.includes("the story")) {
-    collectionName = "The Story Collection";
-  } else if (
-    tags.includes("collectible-art") ||
-    tags.includes("collectible art")
-  ) {
-    collectionName = "Collectible Art";
+  // Determine collection based on the native Shopify collections array
+  let collectionName = "Undefined";
+  if (p.collections && p.collections.length > 0) {
+    collectionName = p.collections[0].title;
   }
 
   // Specifications
@@ -134,6 +105,13 @@ export function mapShopifyProduct(p: ShopifyProduct): Product {
     videos: mappedVideos,
     category: p.product_type || "Jewelry",
     collection: collectionName,
+    collections: p.collections
+      ? p.collections.map((c) => ({
+          id: c.id,
+          title: c.title,
+          handle: c.handle,
+        }))
+      : [],
   };
 }
 
@@ -154,6 +132,24 @@ export async function getShopifyProducts(): Promise<Product[]> {
     return allProducts.map(mapShopifyProduct);
   } catch (error) {
     console.error("Error fetching products from backend:", error);
+    return [];
+  }
+}
+
+export async function getShopifyCollections(): Promise<any[]> {
+  const backendUrl = getBackendUrl();
+  try {
+    const res = await fetch(`${backendUrl}/api/products/collections`, {
+      next: { revalidate: 3600 }, // Cache collections for 1 hour
+    });
+    if (!res.ok) {
+      console.error("Failed to fetch collections from backend:", res.status);
+      return [];
+    }
+    const json = await res.json();
+    return json.data || [];
+  } catch (error) {
+    console.error("Error fetching collections from backend:", error);
     return [];
   }
 }

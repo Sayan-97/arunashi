@@ -55,6 +55,7 @@ export interface Product {
   images?: (StaticImageData | string)[];
   videos?: string[];
   collection: string;
+  collections?: { id: string; title: string; handle: string }[];
   itemNumber?: string;
   des?: string;
   specifications?: string[];

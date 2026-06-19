@@ -34,13 +34,25 @@ export default async function CollectionProductsPage({
     : decodeURIComponent(slug).replaceAll("-", " ");
 
   const filteredProducts = products.filter((product) => {
+    const tCol = targetCollectionName.toLowerCase();
+    const tColClean = tCol.replace(" collection", "");
+
+    if (product.collections && product.collections.length > 0) {
+      return product.collections.some((col) => {
+        const colId = col.id.split("/").pop();
+        const cTitle = col.title.toLowerCase();
+        return (
+          col.handle === slug ||
+          colId === slug ||
+          cTitle === tCol ||
+          cTitle.replace(" collection", "") === tColClean
+        );
+      });
+    }
+
     if (!product.collection) return false;
     const pCol = product.collection.toLowerCase();
-    const tCol = targetCollectionName.toLowerCase();
-    return (
-      pCol === tCol ||
-      pCol.replace(" collection", "") === tCol.replace(" collection", "")
-    );
+    return pCol === tCol || pCol.replace(" collection", "") === tColClean;
   });
 
   const heroImage = colObj?.bgImage || HeroImg;

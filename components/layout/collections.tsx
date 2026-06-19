@@ -6,9 +6,21 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { productCollections } from "@/constants";
+import { getShopifyCollections } from "@/services/products";
 
-export default function Collections() {
+export default async function Collections() {
+  // Fetch collections directly from Shopify through our backend
+  const allCollections = await getShopifyCollections();
+
+  const collections = allCollections.filter((c) => {
+    const title = c.title.toLowerCase().trim();
+    return (
+      title.endsWith("collection") ||
+      title.endsWith("collections") ||
+      title === "collectible art"
+    );
+  });
+
   return (
     <section className="app_container">
       <Carousel opts={{ loop: true }} className="space-y-15">
@@ -28,18 +40,23 @@ export default function Collections() {
           </div>
         </div>
         <CarouselContent className="-ml-11.75">
-          {productCollections.map((collection) => (
-            <CarouselItem
-              key={collection.id}
-              className="md:basis-1/2 lg:basis-1/3 space-y-4 pl-11.75"
-            >
-              <ProductCard
-                image={collection.image}
-                name={collection.name}
-                link={`/collections/${collection.name.replaceAll(" ", "-").toLowerCase()}`}
-              />
-            </CarouselItem>
-          ))}
+          {collections.map((collection) => {
+            // Shopify Collection GraphQL mapping gives us: id, title, handle, image { url, altText }
+            const imageUrl =
+              collection.image?.url || "/placeholder-collection.jpg";
+            return (
+              <CarouselItem
+                key={collection.id}
+                className="md:basis-1/2 lg:basis-1/3 space-y-4 pl-11.75"
+              >
+                <ProductCard
+                  image={imageUrl}
+                  name={collection.title}
+                  link={`/collections/${collection.handle}`}
+                />
+              </CarouselItem>
+            );
+          })}
         </CarouselContent>
       </Carousel>
     </section>

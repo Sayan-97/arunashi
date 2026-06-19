@@ -6,9 +6,20 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { productCategories } from "@/constants";
+import { getShopifyCollections } from "@/services/products";
 
-export default function Categories() {
+export default async function Categories() {
+  const allCollections = await getShopifyCollections();
+
+  const categories = allCollections.filter((c) => {
+    const title = c.title.toLowerCase().trim();
+    return !(
+      title.endsWith("collection") ||
+      title.endsWith("collections") ||
+      title === "collectible art"
+    );
+  });
+
   return (
     <section className="app_container">
       <Carousel opts={{ loop: true }} className="space-y-15">
@@ -28,18 +39,22 @@ export default function Categories() {
           </div>
         </div>
         <CarouselContent className="-ml-11.75">
-          {productCategories.map((category) => (
-            <CarouselItem
-              key={category.type}
-              className="md:basis-1/2 lg:basis-1/3 space-y-4 pl-11.75"
-            >
-              <ProductCard
-                image={category.image}
-                name={category.name}
-                link={`/categories/${category.name.replaceAll(" ", "-").toLowerCase()}`}
-              />
-            </CarouselItem>
-          ))}
+          {categories.map((category) => {
+            const imageUrl =
+              category.image?.url || "/placeholder-collection.jpg";
+            return (
+              <CarouselItem
+                key={category.id}
+                className="md:basis-1/2 lg:basis-1/3 space-y-4 pl-11.75"
+              >
+                <ProductCard
+                  image={imageUrl}
+                  name={category.title}
+                  link={`/collections/${category.handle}`}
+                />
+              </CarouselItem>
+            );
+          })}
         </CarouselContent>
       </Carousel>
     </section>

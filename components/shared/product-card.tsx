@@ -12,19 +12,18 @@ export default function ProductCard({
   name: string;
   link: string;
 }) {
-  const getSrcStr = (img: any): string => {
+  const _getSrcStr = (img: any): string => {
     if (typeof img === "string") return img;
     if (img && typeof img === "object" && "src" in img) return img.src;
     return "";
   };
 
-  const isRemote = (img: any) => {
-    const src = getSrcStr(img);
-    return src.startsWith("http") || src.startsWith("//");
-  };
-
-  const isImageStatic = !isRemote(image);
-  const isHoverStatic = hoverImage && !isRemote(hoverImage);
+  const isImageStatic =
+    typeof image === "object" && image !== null && "blurDataURL" in image;
+  const isHoverStatic =
+    typeof hoverImage === "object" &&
+    hoverImage !== null &&
+    "blurDataURL" in hoverImage;
 
   return (
     <Link href={link} className="space-y-4 group">

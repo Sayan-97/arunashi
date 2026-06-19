@@ -6,12 +6,38 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { magazines } from "@/constants";
 
-export default function Magazines() {
+interface Magazine {
+  id: string;
+  link: string;
+  image?: string;
+  issueNumber?: string | null;
+  date: string;
+}
+
+export default async function Magazines() {
+  let magazines: Magazine[] = [];
+  try {
+    const res = await fetch(
+      `${process.env.API_URL || "http://localhost:8000"}/api/magazines`,
+      { cache: "no-store" },
+    );
+    const data = await res.json();
+    if (data.success) {
+      // Sort strictly from latest to oldest based on the 'date' field
+      magazines = data.data.sort((a: Magazine, b: Magazine) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return dateB - dateA; // Descending: latest first
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching latest magazines:", error);
+  }
+
   return (
     <section className="app_container">
-      <Carousel opts={{ loop: true }} className="space-y-15">
+      <Carousel opts={{ align: "start", loop: true }} className="space-y-15">
         <div className="flex items-center justify-between">
           <h1>Latest Magazines</h1>
           <div className="flex items-center gap-4">
@@ -28,18 +54,38 @@ export default function Magazines() {
           </div>
         </div>
         <CarouselContent className="-ml-11.75">
-          {magazines.map((magazine) => (
-            <CarouselItem
-              key={magazine.id}
-              className="md:basis-1/2 lg:basis-1/3 space-y-4 pl-11.75"
-            >
-              <MagazineCard
-                image={magazine.image}
-                title="Magazine Name"
-                link="/"
-              />
-            </CarouselItem>
-          ))}
+          {magazines.map((magazine) => {
+            let resolvedImage = magazine.image;
+            if (resolvedImage && !resolvedImage.startsWith("http")) {
+              resolvedImage = `${process.env.API_URL || "http://localhost:8000"}${resolvedImage}`;
+            }
+
+            const dateObj = new Date(magazine.date);
+            const monthName = dateObj.toLocaleString("default", {
+              month: "long",
+            });
+            const year = dateObj.getFullYear();
+            const displayTitle = magazine.issueNumber
+              ? `${monthName} ${year} - ${magazine.issueNumber}`
+              : `${monthName} ${year}`;
+
+            return (
+              <CarouselItem
+                key={magazine.id}
+                className="md:basis-1/2 lg:basis-1/3 space-y-4 pl-11.75"
+              >
+                <MagazineCard
+                  image={resolvedImage}
+                  title={displayTitle}
+                  link={magazine.link}
+                  imageContainerClassName="aspect-[3/4] w-full h-auto"
+                />
+              </CarouselItem>
+            );
+          })}
+          {magazines.length === 0 && (
+            <p className="pl-11.75 text-gray-500">No magazines available.</p>
+          )}
         </CarouselContent>
       </Carousel>
     </section>
