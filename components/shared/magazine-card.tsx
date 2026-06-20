@@ -1,17 +1,29 @@
 import { Download, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const getFormattedIssue = (issue: string | null | undefined) => {
+  if (!issue) return "";
+  const cleaned = issue.trim();
+  if (/^(issue\s*no\.?|issue)/i.test(cleaned)) {
+    const num = cleaned.replace(/^(issue\s*no\.?|issue)\s*/i, "");
+    return `Issue No. ${num}`;
+  }
+  return `Issue No. ${cleaned}`;
+};
+
 export default function MagazineCard({
   image,
   title,
   link,
   date,
+  issueNumber,
   imageContainerClassName,
 }: {
   image?: string;
   title?: string;
   link: string;
   date?: string;
+  issueNumber?: string | null;
   imageContainerClassName?: string;
 }) {
   const displayTitle =
@@ -75,7 +87,16 @@ export default function MagazineCard({
           </span>
         </a>
       </div>
-      {displayTitle && <p className="text-2xl text-center">{displayTitle}</p>}
+      {displayTitle && (
+        <div className="text-center space-y-1">
+          <p className="text-2xl">{displayTitle}</p>
+          {issueNumber && (
+            <p className="text-base text-gray-500 font-light">
+              {getFormattedIssue(issueNumber)}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

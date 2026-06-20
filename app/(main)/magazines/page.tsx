@@ -68,15 +68,14 @@ export default async function MagazinesPage() {
                       "default",
                       { month: "long" },
                     );
-                    const displayTitle = mag.issueNumber
-                      ? `${monthName} ${year} - ${mag.issueNumber}`
-                      : `${monthName} ${year}`;
+                    const displayTitle = `${monthName} ${year}`;
 
                     return (
                       <MagazineCard
                         key={mag.id}
                         link={mag.link}
                         title={displayTitle}
+                        issueNumber={mag.issueNumber}
                         image={resolvedImage}
                         imageContainerClassName="aspect-[3/4] w-full h-auto"
                       />

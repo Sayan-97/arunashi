@@ -65,9 +65,7 @@ export default async function Magazines() {
               month: "long",
             });
             const year = dateObj.getFullYear();
-            const displayTitle = magazine.issueNumber
-              ? `${monthName} ${year} - ${magazine.issueNumber}`
-              : `${monthName} ${year}`;
+            const displayTitle = `${monthName} ${year}`;
 
             return (
               <CarouselItem
@@ -77,6 +75,7 @@ export default async function Magazines() {
                 <MagazineCard
                   image={resolvedImage}
                   title={displayTitle}
+                  issueNumber={magazine.issueNumber}
                   link={magazine.link}
                   imageContainerClassName="aspect-[3/4] w-full h-auto"
                 />
