@@ -90,7 +90,14 @@ export async function login(
         const name = nameValue.substring(0, eqIdx);
         const value = nameValue.substring(eqIdx + 1);
 
-        const cookieOptions: any = {};
+        const cookieOptions: {
+          path?: string;
+          httpOnly?: boolean;
+          secure?: boolean;
+          maxAge?: number;
+          sameSite?: "lax" | "strict" | "none";
+          expires?: Date;
+        } = {};
         for (const option of options) {
           const [optName, optVal] = option.split("=");
           const normalizedName = optName.toLowerCase();
@@ -148,7 +155,7 @@ export async function signup(
   const address = formData.get("address") as string;
   const pressPublicationTitle = formData.get("pressPublicationTitle") as string;
 
-  const errors: any = {};
+  const errors: NonNullable<SignupActionState["errors"]> = {};
 
   if (!clientName || clientName.trim().length === 0) {
     errors.clientName = ["Client name is required"];
@@ -196,7 +203,7 @@ export async function signup(
 
     if (!response.ok) {
       if (data.error && typeof data.error === "object") {
-        const mappedErrors: any = {};
+        const mappedErrors: NonNullable<SignupActionState["errors"]> = {};
         const backendErr = data.error as Record<string, string[]>;
         if (backendErr.name) mappedErrors.clientName = backendErr.name;
         if (backendErr.company) mappedErrors.company = backendErr.company;
@@ -292,10 +299,10 @@ export async function activate(
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
 
-  const errors: any = {};
+  const errors: NonNullable<ActivateActionState["errors"]> = {};
 
   if (!token || token.trim().length === 0) {
-    errors.form = ["Activation token is missing or invalid."];
+    errors.form = "Activation token is missing or invalid.";
   }
   if (!password || password.length === 0) {
     errors.password = ["Password is required."];

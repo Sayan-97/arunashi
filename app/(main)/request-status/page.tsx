@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import ContactUs from "@/components/layout/contact-us";
 import { Button } from "@/components/ui/button";
 import { getAuthCookieHeader } from "@/lib/auth";
-import { getMyRequests } from "@/services/products";
+import { getMyRequests, type ShopifyRequest } from "@/services/products";
 
 export const dynamic = "force-dynamic";
 
@@ -32,13 +32,14 @@ export default async function RequestStatus() {
     redirect("/login");
   }
 
-  let requests: any[] = [];
+  let requests: ShopifyRequest[] = [];
   try {
     requests = await getMyRequests(cookieHeader);
     console.log("[DEBUG] Fetch requests count:", requests.length);
-  } catch (err: any) {
-    console.log("[DEBUG] Fetch requests threw error:", err.message);
-    if (err.message === "Unauthorized") {
+  } catch (err: unknown) {
+    const error = err as { message?: string } | null;
+    console.log("[DEBUG] Fetch requests threw error:", error?.message);
+    if (error?.message === "Unauthorized") {
       redirect("/login");
     }
     throw err;
@@ -46,11 +47,11 @@ export default async function RequestStatus() {
 
   // Flatten the requests to list each product separately with its request's status
   const requestedProductsList: RequestedProductItem[] = requests.flatMap(
-    (req: any) =>
-      (req.items || []).map((item: any) => ({
+    (req) =>
+      (req.items || []).map((item) => ({
         ...item,
         requestId: req.id,
-        requestStatus: req.status as "PENDING" | "APPROVED" | "REJECTED",
+        requestStatus: req.status,
         createdAt: req.createdAt,
       })),
   );

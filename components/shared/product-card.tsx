@@ -12,12 +12,6 @@ export default function ProductCard({
   name: string;
   link: string;
 }) {
-  const _getSrcStr = (img: any): string => {
-    if (typeof img === "string") return img;
-    if (img && typeof img === "object" && "src" in img) return img.src;
-    return "";
-  };
-
   const isImageStatic =
     typeof image === "object" && image !== null && "blurDataURL" in image;
   const isHoverStatic =

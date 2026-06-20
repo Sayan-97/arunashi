@@ -66,6 +66,7 @@ export interface Product {
   grams?: number;
   weight?: number;
   weightUnit?: string;
+  linesheetLink?: string | null;
 }
 
 export const navLinks = [

@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "cdn.shopify.com",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8000",
+      },
     ],
   },
 };

@@ -73,9 +73,10 @@ export default function RequestListPage() {
         position: "top-right",
       });
       setIsSaveDialogOpen(false);
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e);
-      toast.error(e.message || "Failed to save request list");
+      const err = e as { message?: string } | null;
+      toast.error(err?.message || "Failed to save request list");
     } finally {
       setIsSaving(false);
     }
@@ -107,9 +108,10 @@ export default function RequestListPage() {
       toast.success("Request submitted successfully", {
         position: "top-right",
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e);
-      toast.error(e.message || "Failed to submit request", {
+      const err = e as { message?: string } | null;
+      toast.error(err?.message || "Failed to submit request", {
         position: "top-right",
       });
     } finally {

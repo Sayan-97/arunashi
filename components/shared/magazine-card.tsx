@@ -8,7 +8,7 @@ export default function MagazineCard({
   date,
   imageContainerClassName,
 }: {
-  image?: any;
+  image?: string;
   title?: string;
   link: string;
   date?: string;
@@ -32,11 +32,14 @@ export default function MagazineCard({
         )}
       >
         {typeof image === "string" && image.trim() !== "" ? (
-          <img
-            src={image}
-            alt="Magazine Cover"
-            className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
-          />
+          <>
+            {/* biome-ignore lint/performance/noImgElement: Native img is used to bypass Next.js image domain config for local uploads */}
+            <img
+              src={image}
+              alt="Magazine Cover"
+              className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
+            />
+          </>
         ) : (
           <iframe
             src={link}
@@ -50,15 +53,14 @@ export default function MagazineCard({
 
         {/* Clickable Overlay */}
         <a
-          href={link}
+          href={`/api/download?url=${encodeURIComponent(link)}`}
+          download
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-colors duration-300 flex flex-col items-center justify-center gap-2 text-white opacity-0 hover:opacity-100"
+          className="absolute inset-0 bg-transparent hover:bg-black/[0.82] transition-colors duration-300 flex flex-col items-center justify-center gap-3 text-white opacity-0 hover:opacity-100"
         >
-          <Download className="size-7" strokeWidth={1.5} />
-          <span className="text-lg font-light tracking-wide">
-            View Magazine
-          </span>
+          <Download className="size-8" strokeWidth={1.5} />
+          <span className="text-xl font-normal tracking-wide">Download</span>
         </a>
       </div>
       {displayTitle && <p className="text-2xl text-center">{displayTitle}</p>}

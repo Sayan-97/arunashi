@@ -39,6 +39,7 @@ export interface ShopifyProduct {
     title: string;
     handle: string;
   }[];
+  linesheetLink?: string | null;
 }
 
 export function mapShopifyProduct(p: ShopifyProduct): Product {
@@ -112,6 +113,7 @@ export function mapShopifyProduct(p: ShopifyProduct): Product {
           handle: c.handle,
         }))
       : [],
+    linesheetLink: p.linesheetLink || null,
   };
 }
 
@@ -136,7 +138,18 @@ export async function getShopifyProducts(): Promise<Product[]> {
   }
 }
 
-export async function getShopifyCollections(): Promise<any[]> {
+export interface ShopifyCollection {
+  id: string | number;
+  title: string;
+  handle: string;
+  description?: string;
+  image?: {
+    url: string;
+    altText?: string | null;
+  } | null;
+}
+
+export async function getShopifyCollections(): Promise<ShopifyCollection[]> {
   const backendUrl = getBackendUrl();
   try {
     const res = await fetch(`${backendUrl}/api/products/collections`, {
@@ -147,14 +160,33 @@ export async function getShopifyCollections(): Promise<any[]> {
       return [];
     }
     const json = await res.json();
-    return json.data || [];
+    return (json.data || []) as ShopifyCollection[];
   } catch (error) {
     console.error("Error fetching collections from backend:", error);
     return [];
   }
 }
 
-export async function getMyRequests(cookieHeader: string): Promise<any[]> {
+export interface RequestItem {
+  id: number;
+  name: string;
+  itemNo: string;
+  msrp: string;
+  stockStatus: string;
+  image: string;
+  notes?: string;
+}
+
+export interface ShopifyRequest {
+  id: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  createdAt: string;
+  items?: RequestItem[];
+}
+
+export async function getMyRequests(
+  cookieHeader: string,
+): Promise<ShopifyRequest[]> {
   const backendUrl = getBackendUrl();
   if (!cookieHeader) return [];
   try {
@@ -172,7 +204,7 @@ export async function getMyRequests(cookieHeader: string): Promise<any[]> {
       return [];
     }
     const json = await res.json();
-    return json.data || [];
+    return (json.data || []) as ShopifyRequest[];
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {
       throw error;

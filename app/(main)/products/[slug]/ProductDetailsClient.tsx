@@ -58,9 +58,9 @@ export default function ProductDetailsClient({
   const handleAddToRequestList = () => {
     try {
       const stored = localStorage.getItem("request-list");
-      const list = stored ? JSON.parse(stored) : [];
+      const list: { id: string | number }[] = stored ? JSON.parse(stored) : [];
 
-      const alreadyExists = list.some((item: any) => item.id === product.id);
+      const alreadyExists = list.some((item) => item.id === product.id);
       if (alreadyExists) {
         toast.warning("This product is already in your request list.", {
           position: "top-right",
@@ -371,14 +371,19 @@ export default function ProductDetailsClient({
             </Button>
           </div>
           <ul className="list-disc list-inside space-y-1.5 text-gray-400 marker:text-gray-400">
-            <li>
-              <Link
-                href=""
-                className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground"
-              >
-                Download Linesheet
-              </Link>
-            </li>
+            {product.linesheetLink && (
+              <li>
+                <Link
+                  href={product.linesheetLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
+                  className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground"
+                >
+                  Download Linesheet
+                </Link>
+              </li>
+            )}
             <li>
               <button
                 type="button"
