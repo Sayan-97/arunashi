@@ -3,7 +3,7 @@ import FilterDropdown from "@/components/layout/filter-dropdown";
 import ProductCard from "@/components/shared/product-card";
 import { collectionFilters, productCollections } from "@/constants";
 import HeroImg from "@/public/collection-hero-bg.png";
-import { getShopifyProducts } from "@/services/products";
+import { getShopifyCollections, getShopifyProducts } from "@/services/products";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +13,13 @@ export default async function CollectionProductsPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const products = await getShopifyProducts();
+  const [products, allCollections] = await Promise.all([
+    getShopifyProducts(),
+    getShopifyCollections(),
+  ]);
 
   // Resolve the collection object from slug (handling both string slug and numeric ID)
-  const isNumeric = /^\d+$/.test(slug);
+  const isNumeric = /^\\d+$/.test(slug);
   const colObj = isNumeric
     ? productCollections.find((c) => c.id === parseInt(slug, 10))
     : productCollections.find((c) => {
@@ -29,9 +32,13 @@ export default async function CollectionProductsPage({
         );
       });
 
-  const targetCollectionName = colObj
-    ? colObj.name
-    : decodeURIComponent(slug).replaceAll("-", " ");
+  const shopifyCol = Array.isArray(allCollections)
+    ? allCollections.find((c: any) => c.handle === slug)
+    : undefined;
+
+  const targetCollectionName =
+    shopifyCol?.title ||
+    (colObj ? colObj.name : decodeURIComponent(slug).replaceAll("-", " "));
 
   const filteredProducts = products.filter((product) => {
     const tCol = targetCollectionName.toLowerCase();
@@ -55,7 +62,7 @@ export default async function CollectionProductsPage({
     return pCol === tCol || pCol.replace(" collection", "") === tColClean;
   });
 
-  const heroImage = colObj?.bgImage || HeroImg;
+  const heroImage = shopifyCol?.image?.url || colObj?.bgImage || HeroImg;
 
   return (
     <main className="pb-15 space-y-25">

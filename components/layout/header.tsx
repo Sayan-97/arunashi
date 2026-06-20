@@ -3,7 +3,6 @@
 import { LogOut, Menu, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { logout } from "@/actions/auth";
 import { navLinks } from "@/constants";
@@ -50,16 +49,18 @@ function HamburgerMenu() {
   );
 }
 
-export default function Header() {
-  const pathname = usePathname();
-  const onboardingRoutes = ["/login", "/signup", "/submission", "/activate"];
+export default function Header({
+  isLoggedIn = false,
+}: {
+  isLoggedIn?: boolean;
+}) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string } | null>(
     null,
   );
 
   useEffect(() => {
-    if (onboardingRoutes.includes(pathname)) return;
+    if (!isLoggedIn) return;
 
     fetch("/api/user/profile", { method: "POST" })
       .then((res) => {
@@ -72,7 +73,7 @@ export default function Header() {
         }
       })
       .catch((err) => console.error("Error fetching user profile:", err));
-  }, [pathname]);
+  }, [isLoggedIn]);
 
   return (
     <header>
@@ -91,8 +92,8 @@ export default function Header() {
             />
           </Link>
           <div className="flex items-center gap-2 relative">
-            <Search />
-            {!onboardingRoutes.includes(pathname) && (
+            {isLoggedIn && <Search />}
+            {isLoggedIn && (
               <div className="relative">
                 <Button
                   variant="ghost"
@@ -143,7 +144,7 @@ export default function Header() {
           </div>
         </div>
       </div>
-      {!onboardingRoutes.includes(pathname) && (
+      {isLoggedIn && (
         <div className="max-md:hidden bg-highlight h-12">
           <nav className="app_container h-full flex items-center justify-between gap-4">
             {navLinks.map((link) => (

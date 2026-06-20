@@ -2,9 +2,9 @@
 
 import { Search as SearchIcon, X } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Product } from "@/constants";
-import { searchPages, searchSuggestions } from "@/constants";
 import { mapShopifyProduct, type ShopifyProduct } from "@/services/products";
 import { Button } from "../ui/button";
 
@@ -12,7 +12,14 @@ export default function Search() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
   const [products, setProducts] = useState<Product[]>([]);
+  const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
+  const [dynamicPages, setDynamicPages] = useState<
+    { title: string; href: string }[]
+  >([]);
+
+  const onClose = useCallback(() => setIsOpen(false), []);
 
   useEffect(() => {
     fetch("/api/products")
@@ -21,6 +28,53 @@ export default function Search() {
         const allProducts: ShopifyProduct[] = json.data || [];
         const filtered = allProducts.map(mapShopifyProduct);
         setProducts(filtered);
+
+        // Generate dynamic suggestions and pages
+        const uniqueCollections = new Map<
+          string,
+          { title: string; handle: string }
+        >();
+        const uniqueCategories = new Set<string>();
+
+        filtered.forEach((p) => {
+          if (
+            p.category &&
+            p.category !== "Undefined" &&
+            p.category !== "Jewelry"
+          ) {
+            uniqueCategories.add(p.category);
+          }
+          if (p.collections) {
+            p.collections.forEach((c) => {
+              uniqueCollections.set(c.title, c);
+            });
+          }
+        });
+
+        const suggestions = [
+          ...Array.from(uniqueCategories),
+          ...Array.from(uniqueCollections.values()).map((c) => c.title),
+        ];
+
+        setDynamicSuggestions(Array.from(new Set(suggestions)));
+
+        const pages: { title: string; href: string }[] = [];
+
+        Array.from(uniqueCollections.values()).forEach((c) => {
+          pages.push({
+            title: c.title,
+            href: `/collections/${c.handle}`,
+          });
+        });
+
+        Array.from(uniqueCategories).forEach((cat) => {
+          pages.push({
+            title: cat,
+            href: `/categories/${cat.toLowerCase().replace(/\s+/g, "-")}`,
+          });
+        });
+
+        setDynamicPages(pages);
       })
       .catch((err) => console.error("Error fetching search products:", err));
   }, []);
@@ -37,12 +91,84 @@ export default function Search() {
     };
   }, [isOpen]);
 
-  const onClose = () => setIsOpen(false);
+  // Handle Escape key to close the drawer
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    if (isOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   const showDropdown = query.length > 0;
+  const q = query.toLowerCase();
+
+  // Filters with sorting preference for "startsWith" and "word startsWith"
+  const filteredSuggestions = dynamicSuggestions
+    .filter((suggestion) => suggestion.toLowerCase().includes(q))
+    .sort((a, b) => {
+      const aStarts = a.toLowerCase().startsWith(q);
+      const bStarts = b.toLowerCase().startsWith(q);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      return 0;
+    });
+
+  const filteredPages = dynamicPages
+    .filter((page) => page.title.toLowerCase().includes(q))
+    .sort((a, b) => {
+      const aStarts = a.title.toLowerCase().startsWith(q);
+      const bStarts = b.title.toLowerCase().startsWith(q);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      return 0;
+    });
+
+  const filteredProducts = products
+    .filter((product) => {
+      return (
+        product.name?.toLowerCase().includes(q) ||
+        product.category?.toLowerCase().includes(q) ||
+        product.collection?.toLowerCase().includes(q)
+      );
+    })
+    .sort((a, b) => {
+      const aName = a.name?.toLowerCase() || "";
+      const bName = b.name?.toLowerCase() || "";
+
+      // 1. Starts with query
+      const aStarts = aName.startsWith(q);
+      const bStarts = bName.startsWith(q);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+
+      // 2. Contains query as word prefix
+      const aWordPrefix = aName.split(" ").some((w) => w.startsWith(q));
+      const bWordPrefix = bName.split(" ").some((w) => w.startsWith(q));
+      if (aWordPrefix && !bWordPrefix) return -1;
+      if (!aWordPrefix && bWordPrefix) return 1;
+
+      // 3. Name contains query
+      const aNameContains = aName.includes(q);
+      const bNameContains = bName.includes(q);
+      if (aNameContains && !bNameContains) return -1;
+      if (!aNameContains && bNameContains) return 1;
+
+      return 0;
+    });
 
   return (
     <>
-      <Button variant="ghost" size="icon" onClick={() => setIsOpen(true)}>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        onClick={() => setIsOpen(true)}
+      >
         <SearchIcon className="size-6" />
       </Button>
 
@@ -104,45 +230,74 @@ export default function Search() {
                       <h3 className="text-[12px] font-medium tracking-widest text-[#a0a0a0] uppercase mb-6">
                         Suggestions
                       </h3>
-                      <ul className="space-y-5 text-[15px] text-[#333]">
-                        {searchSuggestions.map((suggestion) => {
-                          const lowerQuery = query.toLowerCase();
-                          const parts = suggestion.split(
-                            new RegExp(`(${query})`, "gi"),
-                          );
+                      {filteredSuggestions.length === 0 ? (
+                        <p className="text-[14px] text-gray-400 italic">
+                          No matching suggestions
+                        </p>
+                      ) : (
+                        <ul className="space-y-5 text-[15px] text-[#333]">
+                          {filteredSuggestions.slice(0, 5).map((suggestion) => {
+                            const lowerQuery = query.toLowerCase();
+                            const parts = suggestion.split(
+                              new RegExp(`(${query})`, "gi"),
+                            );
 
-                          return (
-                            <li key={suggestion}>
-                              {parts.map((part, i) => {
-                                const key = `${suggestion}-${i}`;
-                                return (
-                                  <span
-                                    key={key}
-                                    className={
-                                      part.toLowerCase() === lowerQuery
-                                        ? "font-normal"
-                                        : "font-bold"
-                                    }
-                                  >
-                                    {part}
-                                  </span>
-                                );
-                              })}
-                            </li>
-                          );
-                        })}
-                      </ul>
+                            return (
+                              <li key={suggestion}>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setQuery(suggestion);
+                                    inputRef.current?.focus();
+                                  }}
+                                  className="text-left w-full hover:text-[#627426] transition-colors cursor-pointer block"
+                                >
+                                  {parts.map((part, i) => {
+                                    const key = `${suggestion}-${i}`;
+                                    return (
+                                      <span
+                                        key={key}
+                                        className={
+                                          part.toLowerCase() === lowerQuery
+                                            ? "font-normal"
+                                            : "font-bold"
+                                        }
+                                      >
+                                        {part}
+                                      </span>
+                                    );
+                                  })}
+                                </button>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
                     </div>
 
                     <div>
                       <h3 className="text-[12px] font-medium tracking-widest text-[#a0a0a0] uppercase mb-6">
                         Pages
                       </h3>
-                      <ul className="space-y-5 text-[15px] text-[#333]">
-                        {searchPages.map((page) => (
-                          <li key={page.title}>{page.title}</li>
-                        ))}
-                      </ul>
+                      {filteredPages.length === 0 ? (
+                        <p className="text-[14px] text-gray-400 italic">
+                          No matching pages
+                        </p>
+                      ) : (
+                        <ul className="space-y-5 text-[15px] text-[#333]">
+                          {filteredPages.slice(0, 5).map((page) => (
+                            <li key={page.title}>
+                              <Link
+                                href={page.href}
+                                onClick={onClose}
+                                className="hover:text-[#627426] transition-colors block font-medium"
+                              >
+                                {page.title}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   </div>
 
@@ -150,30 +305,41 @@ export default function Search() {
                     <h3 className="text-[12px] font-medium tracking-widest text-[#a0a0a0] uppercase mb-6">
                       Products
                     </h3>
-                    <ul className="space-y-6">
-                      {products.slice(0, 3).map((product) => (
-                        <li
-                          key={product.id}
-                          className="flex items-center gap-6"
-                        >
-                          <div className="size-15 bg-black flex items-center justify-center relative shrink-0">
-                            <Image
-                              src={
-                                product.images
-                                  ? product.images[0]
-                                  : (product.featuredImage as import("next/image").StaticImageData)
-                              }
-                              alt={product.name}
-                              fill
-                              className="object-contain p-1"
-                            />
-                          </div>
-                          <span className="text-[15px] text-[#333]">
-                            {product.name}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
+                    {filteredProducts.length === 0 ? (
+                      <p className="text-[14px] text-gray-400 italic">
+                        No matching products
+                      </p>
+                    ) : (
+                      <ul className="space-y-6">
+                        {filteredProducts.slice(0, 5).map((product) => (
+                          <li key={product.id}>
+                            <Link
+                              href={`/products/${product.id}`}
+                              onClick={onClose}
+                              className="flex items-center gap-6 group"
+                            >
+                              <div className="size-15 bg-black flex items-center justify-center relative shrink-0 border border-gray-100 rounded-sm overflow-hidden">
+                                <Image
+                                  src={
+                                    product.images && product.images.length > 0
+                                      ? product.images[0]
+                                      : product.featuredImage
+                                        ? (product.featuredImage as string)
+                                        : ""
+                                  }
+                                  alt={product.name || "Product"}
+                                  fill
+                                  className="object-contain p-1"
+                                />
+                              </div>
+                              <span className="text-[15px] text-[#333] group-hover:text-[#627426] transition-colors font-medium">
+                                {product.name}
+                              </span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 </div>
               </div>
@@ -183,7 +349,8 @@ export default function Search() {
                   <Button
                     type="button"
                     variant="ghost"
-                    className="h-auto p-0 text-[15px] text-[#333] hover:text-[#d9df85] hover:bg-transparent"
+                    onClick={() => inputRef.current?.focus()}
+                    className="h-auto p-0 text-[15px] text-[#333] hover:text-[#627426] hover:bg-transparent cursor-pointer font-medium"
                   >
                     Search for &quot;{query}&quot;
                   </Button>
