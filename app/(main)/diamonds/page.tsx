@@ -69,20 +69,36 @@ export default function DiamondsPage() {
   const [diamonds, setDiamonds] = useState<Diamond[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchDiamonds = async () => {
+    try {
+      const res = await fetch("/api/diamonds");
+      if (!res.ok) throw new Error("Failed to fetch");
+      const data = await res.json();
+      setDiamonds(data.data || []);
+    } catch (error) {
+      console.error("Failed to load diamonds:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fetchDiamonds only needs to run on mount
   useEffect(() => {
-    const fetchDiamonds = async () => {
-      try {
-        const res = await fetch("/api/diamonds");
-        if (!res.ok) throw new Error("Failed to fetch");
-        const data = await res.json();
-        setDiamonds(data.data || []);
-      } catch (error) {
-        console.error("Failed to load diamonds:", error);
-      } finally {
-        setLoading(false);
+    fetchDiamonds();
+  }, []);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fetchDiamonds only runs once to setup listener
+  useEffect(() => {
+    const handleRealtime = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail.type === "diamonds:updated") {
+        fetchDiamonds();
       }
     };
-    fetchDiamonds();
+    window.addEventListener("realtime-sync", handleRealtime);
+    return () => {
+      window.removeEventListener("realtime-sync", handleRealtime);
+    };
   }, []);
 
   if (loading) {

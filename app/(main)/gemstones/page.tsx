@@ -69,20 +69,36 @@ export default function GemstonesPage() {
   const [gemstones, setGemstones] = useState<Gemstone[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchGemstones = async () => {
+    try {
+      const res = await fetch("/api/gemstones");
+      if (!res.ok) throw new Error("Failed to fetch");
+      const data = await res.json();
+      setGemstones(data.data || []);
+    } catch (error) {
+      console.error("Failed to load gemstones:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fetchGemstones only needs to run on mount
   useEffect(() => {
-    const fetchGemstones = async () => {
-      try {
-        const res = await fetch("/api/gemstones");
-        if (!res.ok) throw new Error("Failed to fetch");
-        const data = await res.json();
-        setGemstones(data.data || []);
-      } catch (error) {
-        console.error("Failed to load gemstones:", error);
-      } finally {
-        setLoading(false);
+    fetchGemstones();
+  }, []);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: fetchGemstones only runs once to setup listener
+  useEffect(() => {
+    const handleRealtime = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail.type === "gemstones:updated") {
+        fetchGemstones();
       }
     };
-    fetchGemstones();
+    window.addEventListener("realtime-sync", handleRealtime);
+    return () => {
+      window.removeEventListener("realtime-sync", handleRealtime);
+    };
   }, []);
 
   if (loading) {

@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
+import RealtimeSyncListener from "@/components/shared/RealtimeSyncListener";
 import { Toaster } from "@/components/ui/sonner";
 
 export default async function MainLayout({
@@ -14,6 +15,7 @@ export default async function MainLayout({
   return (
     <body>
       <Toaster />
+      <RealtimeSyncListener />
       <Header isLoggedIn={isLoggedIn} />
       {children}
       <Footer />
