@@ -87,16 +87,18 @@ export default async function CollectionProductsPage({
         </div>
       </section>
 
-      <section className="app_container flex flex-wrap items-center justify-center gap-4 md:gap-10 mt-15">
-        {collectionFilters.map((filter) => (
-          <FilterDropdown
-            key={filter.label}
-            label={filter.label}
-            options={filter.options}
-          />
-        ))}
-      </section>
-      <section className="app_container grid md:grid-cols-2 lg:grid-cols-3 gap-x-11.75 gap-y-15">
+      {false && (
+        <section className="app_container flex flex-wrap items-center justify-center gap-4 md:gap-10 mt-15">
+          {collectionFilters.map((filter) => (
+            <FilterDropdown
+              key={filter.label}
+              label={filter.label}
+              options={filter.options}
+            />
+          ))}
+        </section>
+      )}
+      <section className="app_container grid md:grid-cols-2 lg:grid-cols-3 gap-x-11.75 gap-y-15 mt-15">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
             <ProductCard
