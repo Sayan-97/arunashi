@@ -101,6 +101,58 @@ export default function SignupPage() {
                 )}
               </div>
             </div>
+            <div className="grid md:grid-cols-2 gap-5.5">
+              <div className="space-y-1.5">
+                <Input
+                  name="city"
+                  placeholder="City*"
+                  className="w-full h-[57px] rounded-none border-0"
+                />
+                {state?.errors?.city && (
+                  <p className="text-xs text-red-500 font-medium pl-1">
+                    {state.errors.city[0]}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Input
+                  name="state"
+                  placeholder="State*"
+                  className="w-full h-[57px] rounded-none border-0"
+                />
+                {state?.errors?.state && (
+                  <p className="text-xs text-red-500 font-medium pl-1">
+                    {state.errors.state[0]}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="grid md:grid-cols-2 gap-5.5">
+              <div className="space-y-1.5">
+                <Input
+                  name="country"
+                  placeholder="Country*"
+                  className="w-full h-[57px] rounded-none border-0"
+                />
+                {state?.errors?.country && (
+                  <p className="text-xs text-red-500 font-medium pl-1">
+                    {state.errors.country[0]}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Input
+                  name="zipcode"
+                  placeholder="Zip Code*"
+                  className="w-full h-[57px] rounded-none border-0"
+                />
+                {state?.errors?.zipcode && (
+                  <p className="text-xs text-red-500 font-medium pl-1">
+                    {state.errors.zipcode[0]}
+                  </p>
+                )}
+              </div>
+            </div>
             {state?.errors?.form && (
               <p className="text-sm text-red-500 font-medium text-center">
                 {state.errors.form}

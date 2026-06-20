@@ -16,7 +16,7 @@ export default async function OnboardingLayout({
     <body className="flex flex-col">
       <Toaster />
       <Header isLoggedIn={isLoggedIn} />
-      <main className="flex-1 relative flex">
+      <main className="flex-1 relative flex py-10">
         <Image
           src={OnboardingBgImg}
           alt="Image"

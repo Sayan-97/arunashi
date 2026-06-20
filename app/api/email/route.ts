@@ -28,11 +28,25 @@ export async function POST(req: Request) {
       email,
       phone,
       address,
+      city,
+      state,
+      country,
+      zipcode,
       pressPublicationTitle,
     } = body;
 
     // Validate fields
-    if (!clientName || !company || !email || !phone || !address) {
+    if (
+      !clientName ||
+      !company ||
+      !email ||
+      !phone ||
+      !address ||
+      !city ||
+      !state ||
+      !country ||
+      !zipcode
+    ) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
@@ -77,6 +91,22 @@ export async function POST(req: Request) {
               <tr>
                 <td style="padding: 6px 0; color: #666; text-align: left;"><strong>Address:</strong></td>
                 <td style="padding: 6px 0; color: #111; text-align: left;">${address}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; color: #666; text-align: left;"><strong>City:</strong></td>
+                <td style="padding: 6px 0; color: #111; text-align: left;">${city}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; color: #666; text-align: left;"><strong>State:</strong></td>
+                <td style="padding: 6px 0; color: #111; text-align: left;">${state}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; color: #666; text-align: left;"><strong>Country:</strong></td>
+                <td style="padding: 6px 0; color: #111; text-align: left;">${country}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; color: #666; text-align: left;"><strong>Zip Code:</strong></td>
+                <td style="padding: 6px 0; color: #111; text-align: left;">${zipcode}</td>
               </tr>
               ${
                 pressPublicationTitle

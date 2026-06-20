@@ -24,7 +24,7 @@ export default async function Categories() {
 
   return (
     <section className="app_container">
-      <Carousel opts={{ loop: true }} className="space-y-15">
+      <Carousel opts={{ loop: true, align: "start" }} className="space-y-15">
         <div className="flex items-center justify-between">
           <h1>Browse by categories</h1>
           <div className="flex items-center gap-4">
@@ -47,7 +47,7 @@ export default async function Categories() {
             return (
               <CarouselItem
                 key={category.id}
-                className="md:basis-1/2 lg:basis-1/3 space-y-4 pl-11.75"
+                className="md:basis-1/2 lg:basis-1/2 space-y-4 pl-11.75"
               >
                 <ProductCard
                   image={imageUrl}

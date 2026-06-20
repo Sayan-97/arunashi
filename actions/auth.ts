@@ -20,6 +20,10 @@ export interface SignupActionState {
     email?: string[];
     phone?: string[];
     address?: string[];
+    city?: string[];
+    state?: string[];
+    country?: string[];
+    zipcode?: string[];
     pressPublicationTitle?: string[];
     form?: string;
   };
@@ -153,6 +157,10 @@ export async function signup(
   const email = formData.get("email") as string;
   const phone = formData.get("phone") as string;
   const address = formData.get("address") as string;
+  const city = formData.get("city") as string;
+  const state = formData.get("state") as string;
+  const country = formData.get("country") as string;
+  const zipcode = formData.get("zipcode") as string;
   const pressPublicationTitle = formData.get("pressPublicationTitle") as string;
 
   const errors: NonNullable<SignupActionState["errors"]> = {};
@@ -171,6 +179,18 @@ export async function signup(
   }
   if (!address || address.trim().length === 0) {
     errors.address = ["Address is required"];
+  }
+  if (!city || city.trim().length === 0) {
+    errors.city = ["City is required"];
+  }
+  if (!state || state.trim().length === 0) {
+    errors.state = ["State/Province is required"];
+  }
+  if (!country || country.trim().length === 0) {
+    errors.country = ["Country is required"];
+  }
+  if (!zipcode || zipcode.trim().length === 0) {
+    errors.zipcode = ["Zip/Postal Code is required"];
   }
   if (!pressPublicationTitle || pressPublicationTitle.trim().length === 0) {
     errors.pressPublicationTitle = ["Press publication title is required"];
@@ -195,6 +215,10 @@ export async function signup(
         company,
         phone,
         address,
+        city,
+        state,
+        country,
+        zipcode,
         pressTitle: pressPublicationTitle,
       }),
     });
@@ -210,6 +234,10 @@ export async function signup(
         if (backendErr.email) mappedErrors.email = backendErr.email;
         if (backendErr.phone) mappedErrors.phone = backendErr.phone;
         if (backendErr.address) mappedErrors.address = backendErr.address;
+        if (backendErr.city) mappedErrors.city = backendErr.city;
+        if (backendErr.state) mappedErrors.state = backendErr.state;
+        if (backendErr.country) mappedErrors.country = backendErr.country;
+        if (backendErr.zipcode) mappedErrors.zipcode = backendErr.zipcode;
         if (backendErr.pressTitle)
           mappedErrors.pressPublicationTitle = backendErr.pressTitle;
         return { errors: mappedErrors };
@@ -269,6 +297,22 @@ export async function signup(
                 <tr>
                   <td style="padding: 6px 0; color: #666; text-align: left;"><strong>Address:</strong></td>
                   <td style="padding: 6px 0; color: #111; text-align: left;">${address}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #666; text-align: left;"><strong>City:</strong></td>
+                  <td style="padding: 6px 0; color: #111; text-align: left;">${city}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #666; text-align: left;"><strong>State:</strong></td>
+                  <td style="padding: 6px 0; color: #111; text-align: left;">${state}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #666; text-align: left;"><strong>Country:</strong></td>
+                  <td style="padding: 6px 0; color: #111; text-align: left;">${country}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #666; text-align: left;"><strong>Zip Code:</strong></td>
+                  <td style="padding: 6px 0; color: #111; text-align: left;">${zipcode}</td>
                 </tr>
                 ${
                   pressPublicationTitle
