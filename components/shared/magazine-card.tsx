@@ -1,4 +1,4 @@
-import { Download } from "lucide-react";
+import { Download, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function MagazineCard({
@@ -22,6 +22,8 @@ export default function MagazineCard({
           year: "numeric",
         })
       : "");
+
+  const isExternalLink = link.includes("canva.com") || link.startsWith("http");
 
   return (
     <div className="space-y-4 group block relative">
@@ -53,14 +55,24 @@ export default function MagazineCard({
 
         {/* Clickable Overlay */}
         <a
-          href={`/api/download?url=${encodeURIComponent(link)}`}
-          download
+          href={
+            isExternalLink
+              ? link
+              : `/api/download?url=${encodeURIComponent(link)}`
+          }
+          download={isExternalLink ? undefined : ""}
           target="_blank"
           rel="noopener noreferrer"
           className="absolute inset-0 bg-transparent hover:bg-black/[0.82] transition-colors duration-300 flex flex-col items-center justify-center gap-3 text-white opacity-0 hover:opacity-100"
         >
-          <Download className="size-8" strokeWidth={1.5} />
-          <span className="text-xl font-normal tracking-wide">Download</span>
+          {isExternalLink ? (
+            <ExternalLink className="size-8" strokeWidth={1.5} />
+          ) : (
+            <Download className="size-8" strokeWidth={1.5} />
+          )}
+          <span className="text-xl font-normal tracking-wide">
+            {isExternalLink ? "View Magazine" : "Download"}
+          </span>
         </a>
       </div>
       {displayTitle && <p className="text-2xl text-center">{displayTitle}</p>}
