@@ -103,6 +103,7 @@ export default function RequestListPage() {
 
       // Clear localStorage
       localStorage.removeItem("request-list");
+      window.dispatchEvent(new Event("request-list-updated"));
       setRequestedItems([]);
       setIsSubmitDialogOpen(true);
       toast.success("Request submitted successfully", {
@@ -135,6 +136,7 @@ export default function RequestListPage() {
     const updated = requestedItems.filter((item) => item.id !== id);
     setRequestedItems(updated);
     localStorage.setItem("request-list", JSON.stringify(updated));
+    window.dispatchEvent(new Event("request-list-updated"));
     toast.success("Product removed from request list", {
       position: "top-right",
     });

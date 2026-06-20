@@ -80,6 +80,7 @@ export default function ProductDetailsClient({
 
       const updatedList = [...list, newItem];
       localStorage.setItem("request-list", JSON.stringify(updatedList));
+      window.dispatchEvent(new Event("request-list-updated"));
 
       toast.success("Added to request list", {
         position: "top-right",

@@ -18,7 +18,7 @@ import {
 } from "../ui/sheet";
 import Search from "./search";
 
-function HamburgerMenu() {
+function HamburgerMenu({ requestCount }: { requestCount: number }) {
   return (
     <div className="md:hidden">
       <Sheet>
@@ -36,9 +36,14 @@ function HamburgerMenu() {
               <SheetClose key={link.label} asChild>
                 <Link
                   href={link.href}
-                  className="text-4xl font-fleur font-medium hover:text-gray-600 transition-colors"
+                  className="text-4xl font-fleur font-medium hover:text-gray-600 transition-colors flex items-center gap-2"
                 >
-                  {link.label}
+                  <span>{link.label}</span>
+                  {link.label === "Request List" && requestCount > 0 && (
+                    <span className="bg-black text-white text-xs font-semibold h-5 w-5 rounded-full flex items-center justify-center">
+                      {requestCount}
+                    </span>
+                  )}
                 </Link>
               </SheetClose>
             ))}
@@ -58,6 +63,34 @@ export default function Header({
   const [user, setUser] = useState<{ name: string; email: string } | null>(
     null,
   );
+  const [requestCount, setRequestCount] = useState<number>(0);
+
+  useEffect(() => {
+    const updateCount = () => {
+      try {
+        const stored = localStorage.getItem("request-list");
+        if (stored) {
+          const list = JSON.parse(stored);
+          setRequestCount(Array.isArray(list) ? list.length : 0);
+        } else {
+          setRequestCount(0);
+        }
+      } catch (e) {
+        console.error("Failed to read request-list count", e);
+        setRequestCount(0);
+      }
+    };
+
+    updateCount();
+
+    window.addEventListener("request-list-updated", updateCount);
+    window.addEventListener("storage", updateCount);
+
+    return () => {
+      window.removeEventListener("request-list-updated", updateCount);
+      window.removeEventListener("storage", updateCount);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -79,7 +112,7 @@ export default function Header({
     <header>
       <div className="h-30.25 bg-secondary">
         <div className="app_container h-full flex items-center justify-between">
-          <HamburgerMenu />
+          <HamburgerMenu requestCount={requestCount} />
           {/* Spacer for desktop to keep logo centered */}
           <div className="hidden md:block w-10" />
           <Link href="/">
@@ -148,8 +181,17 @@ export default function Header({
         <div className="max-md:hidden bg-highlight h-12">
           <nav className="app_container h-full flex items-center justify-between gap-4">
             {navLinks.map((link) => (
-              <Link key={link.label} href={link.href}>
-                {link.label}
+              <Link
+                key={link.label}
+                href={link.href}
+                className="relative flex items-center gap-1.5"
+              >
+                <span>{link.label}</span>
+                {link.label === "Request List" && requestCount > 0 && (
+                  <span className="bg-black text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
+                    {requestCount}
+                  </span>
+                )}
               </Link>
             ))}
           </nav>
