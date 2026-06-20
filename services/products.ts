@@ -190,12 +190,15 @@ export async function getMyRequests(
   const backendUrl = getBackendUrl();
   if (!cookieHeader) return [];
   try {
-    const res = await fetch(`${backendUrl}/api/products/requests/my`, {
-      headers: {
-        Cookie: cookieHeader,
+    const res = await fetch(
+      `${backendUrl}/api/products/requests/my?t=${Date.now()}`,
+      {
+        headers: {
+          Cookie: cookieHeader,
+        },
+        cache: "no-store",
       },
-      cache: "no-store",
-    });
+    );
     if (!res.ok) {
       if (res.status === 401) {
         throw new Error("Unauthorized");

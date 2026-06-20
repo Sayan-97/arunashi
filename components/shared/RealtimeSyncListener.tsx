@@ -46,7 +46,8 @@ export default function RealtimeSyncListener() {
           payload.type === "gemstones:updated" ||
           payload.type === "diamonds:updated" ||
           payload.type === "banners:updated" ||
-          payload.type === "magazines:updated"
+          payload.type === "magazines:updated" ||
+          payload.type === "requests:updated"
         ) {
           router.refresh();
           const syncEvent = new CustomEvent("realtime-sync", {
