@@ -138,6 +138,8 @@ export async function login(
   }
 
   if (isPendingApproval) {
+    const cookieStore = await cookies();
+    cookieStore.set("signup_success", "true", { maxAge: 15, path: "/" });
     redirect("/submission");
   }
 
@@ -350,6 +352,8 @@ export async function signup(
   }
 
   if (isSuccess) {
+    const cookieStore = await cookies();
+    cookieStore.set("signup_success", "true", { maxAge: 15, path: "/" });
     redirect("/submission");
   }
 
@@ -438,6 +442,8 @@ export async function activate(
   }
 
   if (isSuccess) {
+    const cookieStore = await cookies();
+    cookieStore.set("activation_success", "true", { maxAge: 15, path: "/" });
     redirect("/activation-status");
   }
 

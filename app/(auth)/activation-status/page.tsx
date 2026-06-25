@@ -1,21 +1,14 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import ActivationStatusClient from "./ActivationStatusClient";
 
-export default function ActivationStatusPage() {
-  return (
-    <div className="app_container flex items-center justify-center">
-      <section className="w-full max-w-[829px] p-10 space-y-7 text-center bg-secondary">
-        <h1>Account Activated</h1>
-        <p className="text-secondary-foreground text-2xl mx-auto">
-          Your account has been successfully set up. You can now access the
-          Arunashi Retailer Portal.
-        </p>
-        <Link href="/login">
-          <Button variant="outline" size="lg" className="px-10">
-            Log In
-          </Button>
-        </Link>
-      </section>
-    </div>
-  );
+export default async function ActivationStatusPage() {
+  const cookieStore = await cookies();
+  const activationSuccess = cookieStore.has("activation_success");
+
+  if (!activationSuccess) {
+    redirect("/login");
+  }
+
+  return <ActivationStatusClient />;
 }

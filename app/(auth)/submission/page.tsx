@@ -1,22 +1,14 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import SubmissionClient from "./SubmissionClient";
 
-export default function SubmissionPage() {
-  return (
-    <div className="app_container flex items-center justify-center">
-      <section className="w-full max-w-[829px] p-10 space-y-7 text-center bg-secondary">
-        <h1>Application Submitted</h1>
-        <p className="text-secondary-foreground text-2xl mx-auto">
-          Your request to join the Arunashi Retailer Portal has been
-          successfully submitted. Our team will review your details and notify
-          you by email once your account is approved.
-        </p>
-        <Link href="/">
-          <Button variant="outline" size="lg" className="px-10">
-            Got It
-          </Button>
-        </Link>
-      </section>
-    </div>
-  );
+export default async function SubmissionPage() {
+  const cookieStore = await cookies();
+  const signupSuccess = cookieStore.has("signup_success");
+
+  if (!signupSuccess) {
+    redirect("/login");
+  }
+
+  return <SubmissionClient />;
 }
