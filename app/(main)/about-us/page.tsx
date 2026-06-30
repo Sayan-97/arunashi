@@ -75,7 +75,7 @@ export default function AboutPage() {
         elements.push(
           <p
             key={`p-${i}`}
-            className="text-[#555] text-lg leading-[1.95] mb-8 font-light tracking-wide align-justify"
+            className="text-[#333] text-lg leading-[1.95] mb-8 font-light tracking-wide align-justify"
           >
             {line}
           </p>,

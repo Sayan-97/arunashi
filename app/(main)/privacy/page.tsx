@@ -58,7 +58,7 @@ export default function PrivacyPage() {
         elements.push(
           <ul
             key={key}
-            className="list-disc pl-6 mb-8 space-y-3 text-[#868686] text-[17px] font-light tracking-wide"
+            className="list-disc pl-6 mb-8 space-y-3 text-[#333] text-[17px] font-light tracking-wide"
           >
             {listItems}
           </ul>,
@@ -104,7 +104,7 @@ export default function PrivacyPage() {
             elements.push(
               <p
                 key={`p-${i}`}
-                className="text-[#868686] text-[17px] leading-[1.85] mb-8 font-light tracking-wide animate-fade-in"
+                className="text-[#333] text-[17px] leading-[1.85] mb-8 font-light tracking-wide animate-fade-in"
               >
                 <strong className="font-bold text-foreground">
                   {boldMatch[1]}:
@@ -116,7 +116,7 @@ export default function PrivacyPage() {
             elements.push(
               <p
                 key={`p-${i}`}
-                className="text-[#868686] text-[17px] leading-[1.85] mb-8 font-light tracking-wide"
+                className="text-[#333] text-[17px] leading-[1.85] mb-8 font-light tracking-wide"
               >
                 {line}
               </p>,
