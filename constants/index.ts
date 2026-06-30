@@ -83,7 +83,7 @@ export const navLinks = [
     href: "/gemstones",
   },
   {
-    label: "Diamond Shapes & Colors",
+    label: "Shapes & Colors",
     href: "/diamonds",
   },
   {

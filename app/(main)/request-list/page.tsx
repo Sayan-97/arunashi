@@ -404,83 +404,74 @@ export default function RequestListPage() {
               >
                 {isSubmitting ? "Submitting..." : "Submit Request"}
               </Button>
-              <Dialog
-                open={isSubmitDialogOpen}
-                onOpenChange={setIsSubmitDialogOpen}
-              >
-                <DialogContent className="sm:max-w-[771px] p-10 md:p-16">
-                  <DialogHeader className="items-center text-center space-y-6">
-                    <div className="size-20 rounded-full border-2 border-primary flex items-center justify-center mb-2">
-                      <Check
-                        className="size-8 text-primary"
-                        strokeWidth={1.5}
-                      />
-                    </div>
-                    <DialogTitle className="text-2xl md:text-[32px] font-medium leading-snug text-gray-900 max-w-xl mx-auto">
-                      Your Request List has been successfully
-                      <br />
-                      submitted to our sales team.
-                    </DialogTitle>
-                    <DialogDescription className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">
-                      A request list has been emailed to the sales team. We will
-                      be in touch shortly with next steps.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <DialogFooter className="border-t-0 bg-transparent sm:justify-center pt-8">
-                    <DialogClose asChild>
-                      <Link href="/">
-                        <Button variant="outline" size="lg">
-                          Continue Browsing
-                        </Button>
-                      </Link>
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-              <Dialog
-                open={isSaveDialogOpen}
-                onOpenChange={setIsSaveDialogOpen}
-              >
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Save Request List</DialogTitle>
-                    <DialogDescription>
-                      Enter a name for this list to save it to your account.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="flex flex-col gap-2">
-                      <label
-                        htmlFor="save-list-name"
-                        className="text-sm font-medium"
-                      >
-                        List Name
-                      </label>
-                      <input
-                        id="save-list-name"
-                        type="text"
-                        value={listName}
-                        onChange={(e) => setListName(e.target.value)}
-                        className="flex h-10 w-full border border-input bg-input px-3 py-2 text-base transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                        placeholder="e.g. My Favorite Items"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter className="border-t-0 bg-transparent gap-2 sm:gap-0">
-                    <DialogClose asChild>
-                      <Button variant="outline" disabled={isSaving}>
-                        Cancel
-                      </Button>
-                    </DialogClose>
-                    <Button onClick={handleSaveList} disabled={isSaving}>
-                      {isSaving ? "Saving..." : "Save"}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
             </div>
           </section>
         )}
+
+        <Dialog open={isSubmitDialogOpen} onOpenChange={setIsSubmitDialogOpen}>
+          <DialogContent className="sm:max-w-[771px] p-10 md:p-16">
+            <DialogHeader className="items-center text-center space-y-6">
+              <div className="size-20 rounded-full border-2 border-primary flex items-center justify-center mb-2">
+                <Check className="size-8 text-primary" strokeWidth={1.5} />
+              </div>
+              <DialogTitle className="text-2xl md:text-[32px] font-medium leading-snug text-gray-900 max-w-xl mx-auto">
+                Your Request List has been successfully
+                <br />
+                submitted to our sales team.
+              </DialogTitle>
+              <DialogDescription className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">
+                A request list has been emailed to the sales team. We will be in
+                touch shortly with next steps.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="border-t-0 bg-transparent sm:justify-center pt-8">
+              <DialogClose asChild>
+                <Link href="/">
+                  <Button variant="outline" size="lg">
+                    Continue Browsing
+                  </Button>
+                </Link>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Save Request List</DialogTitle>
+              <DialogDescription>
+                Enter a name for this list to save it to your account.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="save-list-name" className="text-sm font-medium">
+                  List Name
+                </label>
+                <input
+                  id="save-list-name"
+                  type="text"
+                  value={listName}
+                  onChange={(e) => setListName(e.target.value)}
+                  className="flex h-10 w-full border border-input bg-input px-3 py-2 text-base transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                  placeholder="e.g. My Favorite Items"
+                />
+              </div>
+            </div>
+            <DialogFooter className="border-t-0 bg-transparent gap-2 sm:gap-0">
+              <DialogClose asChild>
+                <Button variant="outline" disabled={isSaving}>
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button onClick={handleSaveList} disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <ContactUs />
       </div>
     </main>
