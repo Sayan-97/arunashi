@@ -20,6 +20,13 @@ interface Diamond {
 function DiamondDialogBody({ name, link }: { name: string; link: string }) {
   const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    if (link.toLowerCase().endsWith(".pdf") || link.includes("/uploads/")) {
+      const timer = setTimeout(() => setIsLoading(false), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [link]);
+
   const getEmbedSrc = (url: string) => {
     if (url.includes("canva.com/design/")) {
       const baseUrl = url.split("?")[0];
@@ -27,6 +34,9 @@ function DiamondDialogBody({ name, link }: { name: string; link: string }) {
       if (parts.length >= 6) {
         return `https://www.canva.com/design/${parts[4]}/${parts[5]}/view?embed`;
       }
+    }
+    if (url.startsWith("/public/uploads/")) {
+      return encodeURI(url);
     }
     return url;
   };
