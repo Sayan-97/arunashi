@@ -1,9 +1,9 @@
 "use client";
 
-import JSZip from "jszip";
 import { Play } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import ContactUs from "@/components/layout/contact-us";
@@ -34,6 +34,8 @@ export default function ProductDetailsClient({
   product,
   allProducts,
 }: ProductDetailsClientProps) {
+  const searchParams = useSearchParams();
+  const showMsrp = searchParams.get("showMsrp") !== "false";
   const images =
     product.images || (product.featuredImage ? [product.featuredImage] : []);
   const videos = product.videos || [];
@@ -101,42 +103,37 @@ export default function ProductDetailsClient({
       return;
     }
 
-    const toastId = toast.loading("Preparing photos download...");
+    const toastId = toast.loading("Downloading photos...");
     try {
-      const zip = new JSZip();
-      const folderName = `${product.name.replace(/[^a-zA-Z0-9-_]/g, "_")}_photos`;
-      const photosFolder = zip.folder(folderName);
-
-      if (!photosFolder) throw new Error("Failed to create zip folder");
-
-      await Promise.all(
-        imageUrls.map(async (url, idx) => {
-          try {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-            const blob = await res.blob();
-
-            // Get file extension or default to png
-            const ext = url.split("?")[0].split(".").pop() || "png";
-            const fileName = `photo_${idx + 1}.${ext}`;
-
-            photosFolder.file(fileName, blob);
-          } catch (err) {
-            console.error(`Failed to download image from ${url}:`, err);
-          }
-        }),
-      );
-
-      const content = await zip.generateAsync({ type: "blob" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(content);
-      link.download = `${folderName}.zip`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.success("Photos downloaded successfully", { id: toastId });
+      const fetchPromises = imageUrls.map(async (url, idx) => {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const blob = await res.blob();
+        const ext = url.split("?")[0].split(".").pop() || "png";
+        const fileName = `${product.name.replace(/[^a-zA-Z0-9-_]/g, "_")}_photo_${idx + 1}.${ext}`;
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+        return true;
+      });
+      const results = await Promise.allSettled(fetchPromises);
+      const successCount = results.filter(
+        (r) => r.status === "fulfilled",
+      ).length;
+      if (successCount > 0) {
+        toast.success(`Downloaded ${successCount} photo(s) successfully`, {
+          id: toastId,
+        });
+      } else {
+        toast.error("Failed to download photos", { id: toastId });
+      }
     } catch (error) {
-      console.error("Error zipping photos:", error);
+      console.error("Error downloading photos:", error);
       toast.error("Failed to download photos", { id: toastId });
     }
   };
@@ -151,42 +148,37 @@ export default function ProductDetailsClient({
       return;
     }
 
-    const toastId = toast.loading("Preparing videos download...");
+    const toastId = toast.loading("Downloading videos...");
     try {
-      const zip = new JSZip();
-      const folderName = `${product.name.replace(/[^a-zA-Z0-9-_]/g, "_")}_videos`;
-      const videosFolder = zip.folder(folderName);
-
-      if (!videosFolder) throw new Error("Failed to create zip folder");
-
-      await Promise.all(
-        videoUrls.map(async (url, idx) => {
-          try {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-            const blob = await res.blob();
-
-            // Get file extension or default to mp4
-            const ext = url.split("?")[0].split(".").pop() || "mp4";
-            const fileName = `video_${idx + 1}.${ext}`;
-
-            videosFolder.file(fileName, blob);
-          } catch (err) {
-            console.error(`Failed to download video from ${url}:`, err);
-          }
-        }),
-      );
-
-      const content = await zip.generateAsync({ type: "blob" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(content);
-      link.download = `${folderName}.zip`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.success("Videos downloaded successfully", { id: toastId });
+      const fetchPromises = videoUrls.map(async (url, idx) => {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const blob = await res.blob();
+        const ext = url.split("?")[0].split(".").pop() || "mp4";
+        const fileName = `${product.name.replace(/[^a-zA-Z0-9-_]/g, "_")}_video_${idx + 1}.${ext}`;
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+        return true;
+      });
+      const results = await Promise.allSettled(fetchPromises);
+      const successCount = results.filter(
+        (r) => r.status === "fulfilled",
+      ).length;
+      if (successCount > 0) {
+        toast.success(`Downloaded ${successCount} video(s) successfully`, {
+          id: toastId,
+        });
+      } else {
+        toast.error("Failed to download videos", { id: toastId });
+      }
     } catch (error) {
-      console.error("Error zipping videos:", error);
+      console.error("Error downloading videos:", error);
       toast.error("Failed to download videos", { id: toastId });
     }
   };
@@ -281,9 +273,11 @@ export default function ProductDetailsClient({
         </div>
         <div className="space-y-8">
           <h1>{product.name}</h1>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-lg md:text-xl">
-            <p>MSRP - ${Number(product.msrp).toLocaleString()} USD</p>
-          </div>
+          {showMsrp && (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-lg md:text-xl">
+              <p>MSRP - ${Number(product.msrp).toLocaleString()} USD</p>
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 py-3 border-y border-black/10 gap-3 md:gap-0">
             <div className="md:border-r border-black/10">
               <p className="text-muted-foreground">Item Number</p>
@@ -405,14 +399,6 @@ export default function ProductDetailsClient({
                 </button>
               </li>
             )}
-            <li>
-              <Link
-                href=""
-                className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground"
-              >
-                Download diamond lab reports
-              </Link>
-            </li>
           </ul>
         </div>
       </section>

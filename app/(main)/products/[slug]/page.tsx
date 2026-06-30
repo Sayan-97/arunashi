@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getShopifyProducts } from "@/services/products";
 import ProductDetailsClient from "./ProductDetailsClient";
 
@@ -12,5 +13,9 @@ export default async function ProductDetailsPage({
   const products = await getShopifyProducts();
   const product = products.find((p) => p.id.toString() === slug) || products[0];
 
-  return <ProductDetailsClient product={product} allProducts={products} />;
+  return (
+    <Suspense fallback={null}>
+      <ProductDetailsClient product={product} allProducts={products} />
+    </Suspense>
+  );
 }

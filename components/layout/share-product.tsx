@@ -1,5 +1,7 @@
 import { Download, Link2, Mail } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -9,8 +11,165 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import type { Product } from "@/constants";
+import { cn } from "@/lib/utils";
 
 export default function ShareProduct({ product }: { product: Product }) {
+  const [showMsrp, setShowMsrp] = useState(true);
+  const [showEmailInput, setShowEmailInput] = useState(false);
+  const [emailRecipient, setEmailRecipient] = useState("");
+  const [sendingEmail, setSendingEmail] = useState(false);
+
+  const getSrc = (
+    assetSrc: string | { src: string } | undefined | null,
+  ): string => {
+    if (!assetSrc) return "";
+    let src =
+      typeof assetSrc === "string" ? assetSrc : (assetSrc as any).src || "";
+    if (src.startsWith("/public")) {
+      src = src.substring(7);
+    }
+    return src;
+  };
+
+  const handleCopyLink = () => {
+    const url = new URL(window.location.href);
+    if (showMsrp) {
+      url.searchParams.delete("showMsrp");
+    } else {
+      url.searchParams.set("showMsrp", "false");
+    }
+    navigator.clipboard.writeText(url.toString()).then(() => {
+      toast.success("Link copied");
+    });
+  };
+
+  const handleDownloadAll = async () => {
+    const images =
+      product.images || (product.featuredImage ? [product.featuredImage] : []);
+    const videos = product.videos || [];
+    const imageUrls = images
+      .map(getSrc)
+      .filter((src) => typeof src === "string" && src.length > 0);
+    const videoUrls = videos
+      .map(getSrc)
+      .filter((src) => typeof src === "string" && src.length > 0);
+    const allUrls = [...imageUrls, ...videoUrls];
+
+    if (allUrls.length === 0) {
+      toast.error("No media available to download");
+      return;
+    }
+
+    const toastId = toast.loading("Downloading photos & videos...");
+    try {
+      const fetchPromises = allUrls.map(async (url, idx) => {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const blob = await res.blob();
+
+        const isVideo =
+          url.toLowerCase().includes(".mp4") ||
+          url.toLowerCase().includes(".mov") ||
+          url.toLowerCase().includes(".webm");
+        const defaultExt = isVideo ? "mp4" : "png";
+        const ext = url.split("?")[0].split(".").pop() || defaultExt;
+
+        const typeLabel = isVideo ? "video" : "photo";
+        const fileName = `${product.name.replace(/[^a-zA-Z0-9-_]/g, "_")}_${typeLabel}_${idx + 1}.${ext}`;
+
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+        return true;
+      });
+
+      const results = await Promise.allSettled(fetchPromises);
+      const successCount = results.filter(
+        (r) => r.status === "fulfilled",
+      ).length;
+      if (successCount > 0) {
+        toast.success(`Downloaded ${successCount} file(s) successfully`, {
+          id: toastId,
+        });
+      } else {
+        toast.error("Failed to download media", { id: toastId });
+      }
+    } catch (error) {
+      console.error("Error downloading media:", error);
+      toast.error("Failed to download media", { id: toastId });
+    }
+  };
+
+  const handleSendEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailRecipient.trim()) {
+      toast.error("Please enter a recipient email address.");
+      return;
+    }
+
+    setSendingEmail(true);
+    const shareUrl = new URL(window.location.href);
+    if (!showMsrp) {
+      shareUrl.searchParams.set("showMsrp", "false");
+    } else {
+      shareUrl.searchParams.delete("showMsrp");
+    }
+
+    const firstImage = product.images?.[0] || product.featuredImage;
+    let imageUrl = "";
+    if (firstImage) {
+      const src = getSrc(firstImage);
+      if (src.startsWith("http://") || src.startsWith("https://")) {
+        imageUrl = src;
+      } else if (src.startsWith("//")) {
+        imageUrl = `https:${src}`;
+      } else {
+        imageUrl =
+          window.location.origin + (src.startsWith("/") ? src : `/${src}`);
+      }
+    }
+
+    try {
+      const response = await fetch("/api/email/share", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: emailRecipient.trim(),
+          showMsrp,
+          product: {
+            name: product.name,
+            collection: product.collection || "All",
+            des: product.des || "",
+            msrp: product.msrp,
+            itemNumber: product.itemNumber || "",
+            imageUrl,
+            shareUrl: shareUrl.toString(),
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send email");
+      }
+
+      toast.success("Email sent successfully");
+      setEmailRecipient("");
+      setShowEmailInput(false);
+    } catch (error) {
+      console.error("Error sharing product via email:", error);
+      toast.error("Failed to send email. Please try again.");
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -47,22 +206,51 @@ export default function ShareProduct({ product }: { product: Product }) {
               </p>
             </div>
             <p className="text-[#8e8e8e] text-[13px] md:text-[14px] leading-relaxed">
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry.
+              {product.des || "No description available for this product."}
             </p>
             <div className="flex items-center gap-6 pt-2">
-              <div className="flex items-center gap-3">
-                <div className="w-[18px] h-[18px] bg-[#e6e6e6]"></div>
-                <span className="text-[13px] md:text-[14px] font-medium text-foreground">
+              <button
+                type="button"
+                className="flex items-center gap-3 cursor-pointer bg-transparent border-0 p-0 font-sans"
+                onClick={() => setShowMsrp(true)}
+              >
+                <div
+                  className={cn(
+                    "w-[18px] h-[18px] border transition-all flex items-center justify-center rounded-[3px]",
+                    showMsrp
+                      ? "border-[#627426] bg-[#627426] text-white"
+                      : "border-gray-300 bg-white",
+                  )}
+                >
+                  {showMsrp && (
+                    <span className="text-[10px] leading-none">✓</span>
+                  )}
+                </div>
+                <span className="text-[13px] md:text-[14px] font-medium text-foreground select-none">
                   With MSRP
                 </span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-[18px] h-[18px] bg-[#e6e6e6]"></div>
-                <span className="text-[13px] md:text-[14px] font-medium text-foreground">
+              </button>
+              <button
+                type="button"
+                className="flex items-center gap-3 cursor-pointer bg-transparent border-0 p-0 font-sans"
+                onClick={() => setShowMsrp(false)}
+              >
+                <div
+                  className={cn(
+                    "w-[18px] h-[18px] border transition-all flex items-center justify-center rounded-[3px]",
+                    !showMsrp
+                      ? "border-[#627426] bg-[#627426] text-white"
+                      : "border-gray-300 bg-white",
+                  )}
+                >
+                  {!showMsrp && (
+                    <span className="text-[10px] leading-none">✓</span>
+                  )}
+                </div>
+                <span className="text-[13px] md:text-[14px] font-medium text-foreground select-none">
                   Without MSRP
                 </span>
-              </div>
+              </button>
             </div>
           </div>
         </div>
@@ -73,22 +261,68 @@ export default function ShareProduct({ product }: { product: Product }) {
             <Button
               variant="outline"
               size="lg"
+              onClick={handleCopyLink}
               className="w-full flex items-center justify-center gap-3 font-normal border-primary text-foreground hover:bg-primary/5"
             >
               <Link2 strokeWidth={1.5} className="w-5 h-5" />
               Copy share link
             </Button>
+
+            <div className="space-y-3">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowEmailInput(!showEmailInput)}
+                className="w-full flex items-center justify-center gap-3 font-normal border-primary text-foreground hover:bg-primary/5"
+              >
+                <Mail strokeWidth={1.5} className="w-5 h-5" />
+                Send via Email
+              </Button>
+
+              {showEmailInput && (
+                <form
+                  onSubmit={handleSendEmail}
+                  className="space-y-3 p-4 border border-black/10 rounded-lg bg-gray-50/50 animate-in fade-in slide-in-from-top-2 duration-200"
+                >
+                  <div className="space-y-1">
+                    <label
+                      htmlFor="share-email"
+                      className="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                    >
+                      Recipient Email
+                    </label>
+                    <input
+                      id="share-email"
+                      type="email"
+                      required
+                      placeholder="e.g. client@example.com"
+                      value={emailRecipient}
+                      onChange={(e) => setEmailRecipient(e.target.value)}
+                      className="w-full border border-black/10 px-4 py-3 rounded text-[14px] focus:outline-none focus:border-[#627426] transition-all bg-white"
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    disabled={sendingEmail}
+                    className="w-full bg-[#627426] text-white py-3 rounded text-[14px] font-medium hover:bg-[#627426]/90 transition-all flex items-center justify-center gap-2"
+                  >
+                    {sendingEmail ? (
+                      <>
+                        <span className="animate-spin border-2 border-white border-t-transparent rounded-full size-4" />
+                        Sending...
+                      </>
+                    ) : (
+                      "Send Share Email"
+                    )}
+                  </Button>
+                </form>
+              )}
+            </div>
+
             <Button
               variant="outline"
               size="lg"
-              className="w-full flex items-center justify-center gap-3 font-normal border-primary text-foreground hover:bg-primary/5"
-            >
-              <Mail strokeWidth={1.5} className="w-5 h-5" />
-              Send via Email
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
+              onClick={handleDownloadAll}
               className="w-full flex items-center justify-center gap-3 font-normal border-primary text-foreground hover:bg-primary/5"
             >
               <Download strokeWidth={1.5} className="w-5 h-5" />
