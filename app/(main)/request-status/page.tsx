@@ -125,9 +125,12 @@ export default async function RequestStatus() {
                             />
                           </div>
                           <div className="space-y-1 pt-1">
-                            <p className="text-gray-800 text-base max-w-48 leading-snug">
+                            <Link
+                              href={`/products/${product.id}`}
+                              className="text-gray-800 text-base max-w-48 leading-snug hover:text-[#45521a] transition-colors hover:underline block"
+                            >
                               {product.name}
-                            </p>
+                            </Link>
                             <p className="text-xs text-gray-400 pt-2">
                               Item no : {product.itemNo}
                             </p>
@@ -207,9 +210,12 @@ export default async function RequestStatus() {
                       />
                     </div>
                     <div className="space-y-2 pt-1">
-                      <p className="text-gray-900 text-lg font-medium leading-tight">
+                      <Link
+                        href={`/products/${product.id}`}
+                        className="text-gray-900 text-lg font-medium leading-tight hover:text-[#45521a] transition-colors hover:underline block"
+                      >
                         {product.name}
-                      </p>
+                      </Link>
                       <p className="text-xs text-gray-400">
                         Item no : {product.itemNo}
                       </p>
