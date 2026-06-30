@@ -1,14 +1,14 @@
 "use client";
 
 import { XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import {
   Dialog,
   DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 interface Diamond {
@@ -65,16 +65,28 @@ function DiamondDialogBody({ name, link }: { name: string; link: string }) {
   );
 }
 
-export default function DiamondsPage() {
+function DiamondsContent() {
   const [diamonds, setDiamonds] = useState<Diamond[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDiamond, setSelectedDiamond] = useState<Diamond | null>(null);
+  const searchParams = useSearchParams();
 
   const fetchDiamonds = async () => {
     try {
       const res = await fetch("/api/diamonds");
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
-      setDiamonds(data.data || []);
+      const list: Diamond[] = data.data || [];
+      setDiamonds(list);
+
+      // Check URL query param on initial load
+      const activeId = searchParams.get("id");
+      if (activeId) {
+        const diamond = list.find((d) => d.id === activeId);
+        if (diamond) {
+          setSelectedDiamond(diamond);
+        }
+      }
     } catch (error) {
       console.error("Failed to load diamonds:", error);
     } finally {
@@ -86,6 +98,21 @@ export default function DiamondsPage() {
   useEffect(() => {
     fetchDiamonds();
   }, []);
+
+  // Sync active diamond state when searchParams change
+  useEffect(() => {
+    if (diamonds.length > 0) {
+      const activeId = searchParams.get("id");
+      if (activeId) {
+        const diamond = diamonds.find((d) => d.id === activeId);
+        if (diamond) {
+          setSelectedDiamond(diamond);
+        }
+      } else {
+        setSelectedDiamond(null);
+      }
+    }
+  }, [searchParams, diamonds]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: fetchDiamonds only runs once to setup listener
   useEffect(() => {
@@ -100,6 +127,20 @@ export default function DiamondsPage() {
       window.removeEventListener("realtime-sync", handleRealtime);
     };
   }, []);
+
+  const handleOpen = (diamond: Diamond) => {
+    setSelectedDiamond(diamond);
+    const url = new URL(window.location.href);
+    url.searchParams.set("id", diamond.id);
+    window.history.replaceState(null, "", url.pathname + url.search);
+  };
+
+  const handleClose = () => {
+    setSelectedDiamond(null);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("id");
+    window.history.replaceState(null, "", url.pathname + url.search);
+  };
 
   if (loading) {
     return (
@@ -131,30 +172,58 @@ export default function DiamondsPage() {
         <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-8 md:gap-12 max-w-[1200px] mx-auto mt-16">
           {sortedDiamonds.map((diamond) => (
             <div key={diamond.id}>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <div className="flex items-start gap-3 mb-4 break-inside-avoid">
-                    <span className="size-1.5 mt-3 bg-foreground rounded-full shrink-0"></span>
-                    <span className="text-lg text-foreground font-medium tracking-wide hover:underline underline-offset-2 cursor-pointer">
-                      {diamond.name}
-                    </span>
-                  </div>
-                </DialogTrigger>
-                <DialogContent
-                  showCloseButton={false}
-                  className="sm:max-w-6xl w-[95vw] h-[95vh] flex flex-col p-0 overflow-hidden"
-                >
-                  <DialogHeader className="px-6 py-4 border-b hidden">
-                    <DialogTitle>{diamond.name}</DialogTitle>
-                  </DialogHeader>
-
-                  <DiamondDialogBody name={diamond.name} link={diamond.link} />
-                </DialogContent>
-              </Dialog>
+              {/* biome-ignore lint/a11y/useKeyWithClickEvents: click is handled on item */}
+              {/* biome-ignore lint/a11y/noStaticElementInteractions: click is handled on item */}
+              <div
+                onClick={() => handleOpen(diamond)}
+                className="flex items-start gap-3 mb-4 break-inside-avoid cursor-pointer"
+              >
+                <span className="size-1.5 mt-3 bg-foreground rounded-full shrink-0"></span>
+                <span className="text-lg text-foreground font-medium tracking-wide hover:underline underline-offset-2">
+                  {diamond.name}
+                </span>
+              </div>
             </div>
           ))}
         </div>
       </section>
+
+      <Dialog
+        open={selectedDiamond !== null}
+        onOpenChange={(open) => {
+          if (!open) handleClose();
+        }}
+      >
+        <DialogContent
+          showCloseButton={false}
+          className="sm:max-w-6xl w-[95vw] h-[95vh] flex flex-col p-0 overflow-hidden"
+        >
+          <DialogHeader className="px-6 py-4 border-b hidden">
+            <DialogTitle>{selectedDiamond?.name}</DialogTitle>
+          </DialogHeader>
+
+          {selectedDiamond && (
+            <DiamondDialogBody
+              name={selectedDiamond.name}
+              link={selectedDiamond.link}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </main>
+  );
+}
+
+export default function DiamondsPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="py-20 flex items-center justify-center min-h-[400px]">
+          <div className="w-8 h-8 border-2 border-[#627426] border-t-transparent rounded-full animate-spin"></div>
+        </main>
+      }
+    >
+      <DiamondsContent />
+    </Suspense>
   );
 }

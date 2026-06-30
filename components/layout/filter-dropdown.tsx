@@ -7,12 +7,14 @@ import { cn } from "@/lib/utils";
 
 interface FilterOption {
   label: string;
-  count: number;
+  count?: number;
 }
 
 interface FilterDropdownProps {
   label: string;
   options: FilterOption[];
+  selected?: string[];
+  onChange?: (selected: string[]) => void;
   variant?: "text" | "outline-button";
   icon?: React.ReactNode;
   align?: "left" | "right";
@@ -21,22 +23,37 @@ interface FilterDropdownProps {
 export default function FilterDropdown({
   label,
   options,
+  selected,
+  onChange,
   variant = "text",
   icon,
   align,
 }: FilterDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState<string[]>([]);
+  const [internalSelected, setInternalSelected] = useState<string[]>([]);
+
+  const isControlled = selected !== undefined && onChange !== undefined;
+  const currentSelected = isControlled ? selected : internalSelected;
 
   const toggleOption = (option: string) => {
-    setSelected((prev) =>
-      prev.includes(option)
-        ? prev.filter((item) => item !== option)
-        : [...prev, option],
-    );
+    const nextSelected = currentSelected.includes(option)
+      ? currentSelected.filter((item) => item !== option)
+      : [...currentSelected, option];
+
+    if (isControlled && onChange) {
+      onChange(nextSelected);
+    } else {
+      setInternalSelected(nextSelected);
+    }
   };
 
-  const reset = () => setSelected([]);
+  const reset = () => {
+    if (isControlled && onChange) {
+      onChange([]);
+    } else {
+      setInternalSelected([]);
+    }
+  };
 
   // Default alignment: right for buttons, left for text
   const currentAlign =
@@ -93,7 +110,7 @@ export default function FilterDropdown({
           >
             <div className="p-5 flex items-center justify-between">
               <span className="text-sm text-gray-500">
-                {selected.length} selected
+                {currentSelected.length} selected
               </span>
               <Button
                 type="button"
@@ -113,12 +130,13 @@ export default function FilterDropdown({
                 >
                   <input
                     type="checkbox"
-                    checked={selected.includes(option.label)}
+                    checked={currentSelected.includes(option.label)}
                     onChange={() => toggleOption(option.label)}
                     className="w-5 h-5 rounded-none border-gray-300 text-black focus:ring-0 accent-black"
                   />
                   <span className="text-[16px] flex-1 text-black transition-colors">
-                    {option.label} ({option.count})
+                    {option.label}
+                    {option.count !== undefined && ` (${option.count})`}
                   </span>
                 </label>
               ))}

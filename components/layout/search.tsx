@@ -3,31 +3,59 @@
 import { Search as SearchIcon, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Product } from "@/constants";
 import { mapShopifyProduct, type ShopifyProduct } from "@/services/products";
 import { Button } from "../ui/button";
 
+interface Gemstone {
+  id: string;
+  name: string;
+  link: string;
+}
+
+interface Diamond {
+  id: string;
+  name: string;
+  link: string;
+}
+
 export default function Search() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   const [products, setProducts] = useState<Product[]>([]);
+  const [gemstones, setGemstones] = useState<Gemstone[]>([]);
+  const [diamonds, setDiamonds] = useState<Diamond[]>([]);
+
   const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
   const [dynamicPages, setDynamicPages] = useState<
     { title: string; href: string }[]
   >([]);
 
+  const [activeIndex, setActiveIndex] = useState(-1);
+
   const onClose = useCallback(() => setIsOpen(false), []);
 
   useEffect(() => {
-    fetch("/api/products")
-      .then((res) => res.json())
-      .then((json) => {
-        const allProducts: ShopifyProduct[] = json.data || [];
+    Promise.all([
+      fetch("/api/products").then((res) => res.json()),
+      fetch("/api/gemstones").then((res) => res.json()),
+      fetch("/api/diamonds").then((res) => res.json()),
+    ])
+      .then(([productsJson, gemstonesJson, diamondsJson]) => {
+        const allProducts: ShopifyProduct[] = productsJson.data || [];
         const filtered = allProducts.map(mapShopifyProduct);
         setProducts(filtered);
+
+        const allGemstones: Gemstone[] = gemstonesJson.data || [];
+        setGemstones(allGemstones);
+
+        const allDiamonds: Diamond[] = diamondsJson.data || [];
+        setDiamonds(allDiamonds);
 
         // Generate dynamic suggestions and pages
         const uniqueCollections = new Map<
@@ -54,11 +82,17 @@ export default function Search() {
         const suggestions = [
           ...Array.from(uniqueCategories),
           ...Array.from(uniqueCollections.values()).map((c) => c.title),
+          ...allGemstones.map((g) => g.name),
+          ...allDiamonds.map((d) => d.name),
         ];
 
         setDynamicSuggestions(Array.from(new Set(suggestions)));
 
-        const pages: { title: string; href: string }[] = [];
+        const pages: { title: string; href: string }[] = [
+          { title: "Gemstones", href: "/gemstones" },
+          { title: "Diamond Shapes & Colors", href: "/diamonds" },
+          { title: "Latest Magazines", href: "/magazines" },
+        ];
 
         Array.from(uniqueCollections.values()).forEach((c) => {
           pages.push({
@@ -76,7 +110,7 @@ export default function Search() {
 
         setDynamicPages(pages);
       })
-      .catch((err) => console.error("Error fetching search products:", err));
+      .catch((err) => console.error("Error fetching search data:", err));
   }, []);
 
   useEffect(() => {
@@ -103,6 +137,12 @@ export default function Search() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, onClose]);
+
+  // Reset activeIndex when query changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset activeIndex on query changes
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [query]);
 
   const showDropdown = query.length > 0;
   const q = query.toLowerCase();
@@ -161,6 +201,98 @@ export default function Search() {
       return 0;
     });
 
+  const filteredGemstones = gemstones
+    .filter((gem) => gem.name.toLowerCase().includes(q))
+    .sort((a, b) => {
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+      const aStarts = aName.startsWith(q);
+      const bStarts = bName.startsWith(q);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      return aName.localeCompare(bName);
+    });
+
+  const filteredDiamonds = diamonds
+    .filter((dia) => dia.name.toLowerCase().includes(q))
+    .sort((a, b) => {
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+      const aStarts = aName.startsWith(q);
+      const bStarts = bName.startsWith(q);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      return aName.localeCompare(bName);
+    });
+
+  // Flat list of visible navigatable items for Arrow keyboard navigation
+  const visibleItems = [
+    ...filteredSuggestions.slice(0, 5).map((item) => ({
+      type: "suggestion" as const,
+      key: `suggestion-${item}`,
+      value: item,
+      href: null,
+    })),
+    ...filteredPages.slice(0, 5).map((item) => ({
+      type: "page" as const,
+      key: `page-${item.title}`,
+      value: item.title,
+      href: item.href,
+    })),
+    ...filteredProducts.slice(0, 5).map((item) => ({
+      type: "product" as const,
+      key: `product-${item.id}`,
+      value: item.name,
+      href: `/products/${item.id}`,
+    })),
+    ...filteredGemstones.slice(0, 5).map((item) => ({
+      type: "gemstone" as const,
+      key: `gemstone-${item.id}`,
+      value: item.name,
+      href: `/gemstones?id=${item.id}`,
+    })),
+    ...filteredDiamonds.slice(0, 5).map((item) => ({
+      type: "diamond" as const,
+      key: `diamond-${item.id}`,
+      value: item.name,
+      href: `/diamonds?id=${item.id}`,
+    })),
+  ];
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev < visibleItems.length - 1 ? prev + 1 : 0));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev > 0 ? prev - 1 : visibleItems.length - 1));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (activeIndex >= 0 && activeIndex < visibleItems.length) {
+        const item = visibleItems[activeIndex];
+        if (item.type === "suggestion") {
+          setQuery(item.value);
+          setActiveIndex(-1);
+          inputRef.current?.focus();
+        } else if (item.href) {
+          onClose();
+          router.push(item.href);
+        }
+      } else {
+        // Fallback: search/navigate to first matching link result if available
+        const firstLink = visibleItems.find(
+          (item) => item.type !== "suggestion",
+        );
+        if (firstLink?.href) {
+          onClose();
+          router.push(firstLink.href);
+        }
+      }
+    }
+  };
+
+  let itemCounter = 0;
+
   return (
     <>
       <Button
@@ -194,12 +326,22 @@ export default function Search() {
                     placeholder="Search"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     className="w-full h-full border border-[#e5e5e5] bg-white pl-4 pr-12 text-[#333] outline-none focus:border-[#d9df85] transition-colors"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
+                    onClick={() => {
+                      const firstLink = visibleItems.find(
+                        (item) => item.type !== "suggestion",
+                      );
+                      if (firstLink?.href) {
+                        onClose();
+                        router.push(firstLink.href);
+                      }
+                    }}
                     className="absolute right-0 top-0 h-full w-12 text-black hover:text-[#d9df85]"
                   >
                     <SearchIcon className="w-5 h-5" strokeWidth={1.5} />
@@ -224,7 +366,8 @@ export default function Search() {
           {showDropdown && (
             <div className="relative w-full bg-white shadow-xl z-10 border-t border-[#f0f0f0] max-h-[calc(100vh-121px)] overflow-y-auto">
               <div className="app_container py-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16">
+                  {/* Column 1: Suggestions and Pages */}
                   <div className="space-y-10">
                     <div>
                       <h3 className="text-[12px] font-medium tracking-widest text-[#a0a0a0] uppercase mb-6">
@@ -235,12 +378,14 @@ export default function Search() {
                           No matching suggestions
                         </p>
                       ) : (
-                        <ul className="space-y-5 text-[15px] text-[#333]">
+                        <ul className="space-y-3 text-[15px] text-[#333]">
                           {filteredSuggestions.slice(0, 5).map((suggestion) => {
                             const lowerQuery = query.toLowerCase();
                             const parts = suggestion.split(
                               new RegExp(`(${query})`, "gi"),
                             );
+                            const currentItemIndex = itemCounter++;
+                            const isActive = currentItemIndex === activeIndex;
 
                             return (
                               <li key={suggestion}>
@@ -250,7 +395,7 @@ export default function Search() {
                                     setQuery(suggestion);
                                     inputRef.current?.focus();
                                   }}
-                                  className="text-left w-full hover:text-[#627426] transition-colors cursor-pointer block"
+                                  className={`text-left w-full transition-colors cursor-pointer block p-2 rounded-sm ${isActive ? "bg-primary/20 text-[#627426] font-semibold animate-pulse" : "hover:text-[#627426]"}`}
                                 >
                                   {parts.map((part, i) => {
                                     const key = `${suggestion}-${i}`;
@@ -284,23 +429,29 @@ export default function Search() {
                           No matching pages
                         </p>
                       ) : (
-                        <ul className="space-y-5 text-[15px] text-[#333]">
-                          {filteredPages.slice(0, 5).map((page) => (
-                            <li key={page.title}>
-                              <Link
-                                href={page.href}
-                                onClick={onClose}
-                                className="hover:text-[#627426] transition-colors block font-medium"
-                              >
-                                {page.title}
-                              </Link>
-                            </li>
-                          ))}
+                        <ul className="space-y-3 text-[15px] text-[#333]">
+                          {filteredPages.slice(0, 5).map((page) => {
+                            const currentItemIndex = itemCounter++;
+                            const isActive = currentItemIndex === activeIndex;
+
+                            return (
+                              <li key={page.title}>
+                                <Link
+                                  href={page.href}
+                                  onClick={onClose}
+                                  className={`block font-medium p-2 rounded-sm transition-colors ${isActive ? "bg-primary/20 text-[#627426] font-semibold" : "hover:text-[#627426]"}`}
+                                >
+                                  {page.title}
+                                </Link>
+                              </li>
+                            );
+                          })}
                         </ul>
                       )}
                     </div>
                   </div>
 
+                  {/* Column 2: Products */}
                   <div>
                     <h3 className="text-[12px] font-medium tracking-widest text-[#a0a0a0] uppercase mb-6">
                       Products
@@ -310,36 +461,111 @@ export default function Search() {
                         No matching products
                       </p>
                     ) : (
-                      <ul className="space-y-6">
-                        {filteredProducts.slice(0, 5).map((product) => (
-                          <li key={product.id}>
-                            <Link
-                              href={`/products/${product.id}`}
-                              onClick={onClose}
-                              className="flex items-center gap-6 group"
-                            >
-                              <div className="size-15 bg-black flex items-center justify-center relative shrink-0 border border-gray-100 rounded-sm overflow-hidden">
-                                <Image
-                                  src={
-                                    product.images && product.images.length > 0
-                                      ? product.images[0]
-                                      : product.featuredImage
-                                        ? (product.featuredImage as string)
-                                        : ""
-                                  }
-                                  alt={product.name || "Product"}
-                                  fill
-                                  className="object-contain p-1"
-                                />
-                              </div>
-                              <span className="text-[15px] text-[#333] group-hover:text-[#627426] transition-colors font-medium">
-                                {product.name}
-                              </span>
-                            </Link>
-                          </li>
-                        ))}
+                      <ul className="space-y-4">
+                        {filteredProducts.slice(0, 5).map((product) => {
+                          const currentItemIndex = itemCounter++;
+                          const isActive = currentItemIndex === activeIndex;
+
+                          return (
+                            <li key={product.id}>
+                              <Link
+                                href={`/products/${product.id}`}
+                                onClick={onClose}
+                                className={`flex items-center gap-6 group p-2 rounded-sm transition-colors ${isActive ? "bg-primary/20 text-[#627426]" : ""}`}
+                              >
+                                <div className="size-15 bg-black flex items-center justify-center relative shrink-0 border border-gray-100 rounded-sm overflow-hidden animate-fade-in duration-300">
+                                  <Image
+                                    src={
+                                      product.images &&
+                                      product.images.length > 0
+                                        ? product.images[0]
+                                        : product.featuredImage
+                                          ? (product.featuredImage as string)
+                                          : ""
+                                    }
+                                    alt={product.name || "Product"}
+                                    fill
+                                    className="object-contain p-1"
+                                  />
+                                </div>
+                                <span className="text-[15px] text-[#333] group-hover:text-[#627426] transition-colors font-medium">
+                                  {product.name}
+                                </span>
+                              </Link>
+                            </li>
+                          );
+                        })}
                       </ul>
                     )}
+                  </div>
+
+                  {/* Column 3: Gemstones & Diamonds */}
+                  <div className="space-y-10">
+                    <div>
+                      <h3 className="text-[12px] font-medium tracking-widest text-[#a0a0a0] uppercase mb-6">
+                        Gemstones
+                      </h3>
+                      {filteredGemstones.length === 0 ? (
+                        <p className="text-[14px] text-gray-400 italic">
+                          No matching gemstones
+                        </p>
+                      ) : (
+                        <ul className="space-y-3">
+                          {filteredGemstones.slice(0, 5).map((gem) => {
+                            const currentItemIndex = itemCounter++;
+                            const isActive = currentItemIndex === activeIndex;
+
+                            return (
+                              <li key={gem.id}>
+                                <Link
+                                  href={`/gemstones?id=${gem.id}`}
+                                  onClick={onClose}
+                                  className={`flex items-center gap-3 p-2 rounded-sm transition-colors ${isActive ? "bg-primary/20 text-[#627426] font-semibold" : "hover:text-[#627426]"}`}
+                                >
+                                  <span className="size-1.5 bg-foreground rounded-full shrink-0" />
+                                  <span className="text-[15px] font-medium">
+                                    {gem.name}
+                                  </span>
+                                </Link>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </div>
+
+                    <div>
+                      <h3 className="text-[12px] font-medium tracking-widest text-[#a0a0a0] uppercase mb-6">
+                        Diamond Shapes
+                      </h3>
+                      {filteredDiamonds.length === 0 ? (
+                        <p className="text-[14px] text-gray-400 italic">
+                          No matching diamond shapes
+                        </p>
+                      ) : (
+                        <ul className="space-y-3">
+                          {filteredDiamonds.slice(0, 5).map((dia) => {
+                            const currentItemIndex = itemCounter++;
+                            const isActive = currentItemIndex === activeIndex;
+
+                            return (
+                              <li key={dia.id}>
+                                <Link
+                                  href={`/diamonds?id=${dia.id}`}
+                                  onClick={onClose}
+                                  className={`flex items-center gap-3 p-2 rounded-sm transition-colors ${isActive ? "bg-primary/20 text-[#627426] font-semibold" : "hover:text-[#627426]"}`}
+                                >
+                                  <span className="size-1.5 bg-foreground rounded-full shrink-0" />
+                                  <span className="text-[15px] font-medium">
+                                    {dia.name}
+                                  </span>
+                                </Link>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -349,7 +575,17 @@ export default function Search() {
                   <Button
                     type="button"
                     variant="ghost"
-                    onClick={() => inputRef.current?.focus()}
+                    onClick={() => {
+                      const firstLink = visibleItems.find(
+                        (item) => item.type !== "suggestion",
+                      );
+                      if (firstLink?.href) {
+                        onClose();
+                        router.push(firstLink.href);
+                      } else {
+                        inputRef.current?.focus();
+                      }
+                    }}
                     className="h-auto p-0 text-[15px] text-[#333] hover:text-[#627426] hover:bg-transparent cursor-pointer font-medium"
                   >
                     Search for &quot;{query}&quot;

@@ -1,14 +1,14 @@
 "use client";
 
 import { XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import {
   Dialog,
   DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 interface Gemstone {
@@ -65,16 +65,30 @@ function GemstoneDialogBody({ name, link }: { name: string; link: string }) {
   );
 }
 
-export default function GemstonesPage() {
+function GemstonesContent() {
   const [gemstones, setGemstones] = useState<Gemstone[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedGemstone, setSelectedGemstone] = useState<Gemstone | null>(
+    null,
+  );
+  const searchParams = useSearchParams();
 
   const fetchGemstones = async () => {
     try {
       const res = await fetch("/api/gemstones");
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
-      setGemstones(data.data || []);
+      const list: Gemstone[] = data.data || [];
+      setGemstones(list);
+
+      // Check URL query param on initial load
+      const activeId = searchParams.get("id");
+      if (activeId) {
+        const gem = list.find((g) => g.id === activeId);
+        if (gem) {
+          setSelectedGemstone(gem);
+        }
+      }
     } catch (error) {
       console.error("Failed to load gemstones:", error);
     } finally {
@@ -86,6 +100,21 @@ export default function GemstonesPage() {
   useEffect(() => {
     fetchGemstones();
   }, []);
+
+  // Sync active gemstone state when searchParams change
+  useEffect(() => {
+    if (gemstones.length > 0) {
+      const activeId = searchParams.get("id");
+      if (activeId) {
+        const gem = gemstones.find((g) => g.id === activeId);
+        if (gem) {
+          setSelectedGemstone(gem);
+        }
+      } else {
+        setSelectedGemstone(null);
+      }
+    }
+  }, [searchParams, gemstones]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: fetchGemstones only runs once to setup listener
   useEffect(() => {
@@ -100,6 +129,20 @@ export default function GemstonesPage() {
       window.removeEventListener("realtime-sync", handleRealtime);
     };
   }, []);
+
+  const handleOpen = (gem: Gemstone) => {
+    setSelectedGemstone(gem);
+    const url = new URL(window.location.href);
+    url.searchParams.set("id", gem.id);
+    window.history.replaceState(null, "", url.pathname + url.search);
+  };
+
+  const handleClose = () => {
+    setSelectedGemstone(null);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("id");
+    window.history.replaceState(null, "", url.pathname + url.search);
+  };
 
   if (loading) {
     return (
@@ -143,26 +186,17 @@ export default function GemstonesPage() {
       }
       elements.push(
         <div key={gem.id} className="break-inside-avoid">
-          <Dialog>
-            <DialogTrigger asChild>
-              <div className="flex items-start gap-3 mb-3 cursor-pointer group">
-                <span className="size-1.5 mt-3 bg-foreground rounded-full shrink-0 group-hover:bg-primary"></span>
-                <span className="text-lg text-foreground font-medium tracking-wide hover:underline underline-offset-2">
-                  {gem.name}
-                </span>
-              </div>
-            </DialogTrigger>
-            <DialogContent
-              showCloseButton={false}
-              className="sm:max-w-6xl w-[95vw] h-[95vh] flex flex-col p-0 overflow-hidden"
-            >
-              <DialogHeader className="px-6 py-4 border-b hidden">
-                <DialogTitle>{gem.name}</DialogTitle>
-              </DialogHeader>
-
-              <GemstoneDialogBody name={gem.name} link={gem.link} />
-            </DialogContent>
-          </Dialog>
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: click is handled on item */}
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: click is handled on item */}
+          <div
+            onClick={() => handleOpen(gem)}
+            className="flex items-start gap-3 mb-3 cursor-pointer group"
+          >
+            <span className="size-1.5 mt-3 bg-foreground rounded-full shrink-0 group-hover:bg-primary"></span>
+            <span className="text-lg text-foreground font-medium tracking-wide hover:underline underline-offset-2">
+              {gem.name}
+            </span>
+          </div>
         </div>,
       );
     });
@@ -178,6 +212,43 @@ export default function GemstonesPage() {
           {renderList()}
         </div>
       </section>
+
+      <Dialog
+        open={selectedGemstone !== null}
+        onOpenChange={(open) => {
+          if (!open) handleClose();
+        }}
+      >
+        <DialogContent
+          showCloseButton={false}
+          className="sm:max-w-6xl w-[95vw] h-[95vh] flex flex-col p-0 overflow-hidden"
+        >
+          <DialogHeader className="px-6 py-4 border-b hidden">
+            <DialogTitle>{selectedGemstone?.name}</DialogTitle>
+          </DialogHeader>
+
+          {selectedGemstone && (
+            <GemstoneDialogBody
+              name={selectedGemstone.name}
+              link={selectedGemstone.link}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </main>
+  );
+}
+
+export default function GemstonesPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="py-20 flex items-center justify-center min-h-[400px]">
+          <div className="w-8 h-8 border-2 border-[#627426] border-t-transparent rounded-full animate-spin"></div>
+        </main>
+      }
+    >
+      <GemstonesContent />
+    </Suspense>
   );
 }

@@ -25,9 +25,9 @@ export default async function CategoryProductsPage({
           label="Sort"
           align="right"
           options={[
-            { label: "Price: Low to High", count: 0 },
-            { label: "Price: High to Low", count: 0 },
-            { label: "Newest Arrivals", count: 0 },
+            { label: "Price: Low to High" },
+            { label: "Price: High to Low" },
+            { label: "Newest Arrivals" },
           ]}
         />
         <FilterDropdown

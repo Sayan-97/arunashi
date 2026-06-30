@@ -41,7 +41,7 @@ export default async function Banners() {
     }
 
     const content = (
-      <div className="relative w-full h-[381px]">
+      <div className="relative w-full h-[420px]">
         {/* biome-ignore lint/performance/noImgElement: Native img is used to bypass Next.js image domain config for local uploads */}
         <img
           src={resolvedImage}
