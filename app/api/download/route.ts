@@ -8,8 +8,20 @@ export async function GET(request: Request) {
     return new NextResponse("Missing url parameter", { status: 400 });
   }
 
+  let targetUrl = fileUrl;
+  if (fileUrl.startsWith("/")) {
+    const backendUrl = process.env.API_URL || "http://localhost:8000";
+    targetUrl = `${backendUrl}${fileUrl}`;
+  }
+
   try {
-    const response = await fetch(fileUrl);
+    targetUrl = new URL(targetUrl).href;
+  } catch (err) {
+    console.error("URL encoding error in download route:", err);
+  }
+
+  try {
+    const response = await fetch(targetUrl);
     if (!response.ok) {
       return new NextResponse("Failed to fetch file", {
         status: response.status,
@@ -18,9 +30,16 @@ export async function GET(request: Request) {
 
     const contentType =
       response.headers.get("content-type") || "application/octet-stream";
-    const contentDisposition = `attachment; filename="${fileUrl.split("/").pop() || "download"}"`;
 
-    return new NextResponse(response.body as unknown as BodyInit, {
+    // Extract original filename from the path
+    const filename = decodeURIComponent(
+      fileUrl.split("/").pop() || "download.pdf",
+    );
+    const contentDisposition = `attachment; filename="${filename}"`;
+
+    const dataBuffer = await response.arrayBuffer();
+
+    return new NextResponse(dataBuffer, {
       headers: {
         "Content-Type": contentType,
         "Content-Disposition": contentDisposition,

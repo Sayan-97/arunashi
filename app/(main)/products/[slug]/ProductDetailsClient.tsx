@@ -368,15 +368,13 @@ export default function ProductDetailsClient({
           <ul className="list-disc list-inside space-y-1.5 text-gray-400 marker:text-gray-400">
             {product.linesheetLink && (
               <li>
-                <Link
-                  href={product.linesheetLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <a
+                  href={`/api/download?url=${encodeURIComponent(product.linesheetLink)}`}
                   download
-                  className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground"
+                  className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground cursor-pointer"
                 >
                   Download Linesheet
-                </Link>
+                </a>
               </li>
             )}
             <li>
