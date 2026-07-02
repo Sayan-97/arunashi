@@ -6,21 +6,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { getShopifyCollections } from "@/services/products";
+import { getShopifyCategories } from "@/services/products";
 
 export default async function Categories() {
-  const allCollections = await getShopifyCollections();
+  const allCategories = await getShopifyCategories();
 
-  const collectionsList = Array.isArray(allCollections) ? allCollections : [];
-
-  const categories = collectionsList.filter((c) => {
-    const title = c.title?.toLowerCase().trim() || "";
-    return !(
-      title.endsWith("collection") ||
-      title.endsWith("collections") ||
-      title === "collectible art"
-    );
-  });
+  const categories = Array.isArray(allCategories) ? allCategories : [];
 
   return (
     <section className="app_container">
@@ -52,7 +43,7 @@ export default async function Categories() {
                 <ProductCard
                   image={imageUrl}
                   name={category.title}
-                  link={`/collections/${category.handle}`}
+                  link={`/categories/${category.handle}`}
                 />
               </CarouselItem>
             );
