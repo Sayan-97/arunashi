@@ -173,7 +173,11 @@ export default function Search() {
       return (
         product.name?.toLowerCase().includes(q) ||
         product.category?.toLowerCase().includes(q) ||
-        product.collection?.toLowerCase().includes(q)
+        product.collection?.toLowerCase().includes(q) ||
+        (product.gemstoneDetails &&
+          product.gemstoneDetails.toLowerCase().includes(q)) ||
+        (product.diamondShapeDetails &&
+          product.diamondShapeDetails.toLowerCase().includes(q))
       );
     })
     .sort((a, b) => {

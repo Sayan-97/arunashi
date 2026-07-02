@@ -40,6 +40,9 @@ export interface ShopifyProduct {
     handle: string;
   }[];
   linesheetLink?: string | null;
+  gemstoneDetails?: string | null;
+  diamondShapeDetails?: string | null;
+  certificates?: string | null;
 }
 
 export function mapShopifyProduct(p: ShopifyProduct): Product {
@@ -114,6 +117,9 @@ export function mapShopifyProduct(p: ShopifyProduct): Product {
         }))
       : [],
     linesheetLink: p.linesheetLink || null,
+    gemstoneDetails: p.gemstoneDetails || null,
+    diamondShapeDetails: p.diamondShapeDetails || null,
+    certificates: p.certificates || null,
   };
 }
 

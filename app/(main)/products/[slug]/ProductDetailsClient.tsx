@@ -4,7 +4,7 @@ import { Play } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ContactUs from "@/components/layout/contact-us";
 import RelatedProducts from "@/components/layout/related-products";
@@ -48,6 +48,66 @@ export default function ProductDetailsClient({
   const [activeTab, setActiveTab] = useState("Description");
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
   const [isZoomed, setIsZoomed] = useState(false);
+  const [matchedGemstones, setMatchedGemstones] = useState<
+    { name: string; link: string }[]
+  >([]);
+  const [matchedDiamonds, setMatchedDiamonds] = useState<
+    { name: string; link: string }[]
+  >([]);
+
+  useEffect(() => {
+    const normalizeShapeName = (name: string): string => {
+      const norm = name
+        .toLowerCase()
+        .replace(/\b(cut|shape|shaped|diamond|diamonds)\b/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      return norm || "diamond";
+    };
+
+    Promise.all([
+      fetch("/api/gemstones").then((res) => res.json()),
+      fetch("/api/diamonds").then((res) => res.json()),
+    ])
+      .then(([gemsJson, diasJson]) => {
+        const gemList = gemsJson.data || [];
+        const matchedGems = gemList.filter((gem: any) => {
+          const gemName = gem.name.toLowerCase();
+          if (
+            product.gemstoneDetails &&
+            product.gemstoneDetails.toLowerCase().includes(gemName)
+          ) {
+            return true;
+          }
+          if (
+            product.variant2 &&
+            product.variant2.toLowerCase().includes(gemName)
+          ) {
+            return true;
+          }
+          if (product.name && product.name.toLowerCase().includes(gemName)) {
+            return true;
+          }
+          return false;
+        });
+        setMatchedGemstones(matchedGems);
+
+        const diaList = diasJson.data || [];
+        const matchedDias = diaList.filter((dia: any) => {
+          if (!product.diamondShapeDetails) return false;
+          const prodShapeNorm = normalizeShapeName(product.diamondShapeDetails);
+          const targetShapeNorm = normalizeShapeName(dia.name);
+          return (
+            prodShapeNorm.includes(targetShapeNorm) ||
+            targetShapeNorm.includes(prodShapeNorm)
+          );
+        });
+        setMatchedDiamonds(matchedDias);
+      })
+      .catch((err) =>
+        console.error("Error loading gemstones/diamonds for product:", err),
+      );
+  }, [product]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } =
@@ -373,10 +433,32 @@ export default function ProductDetailsClient({
                   download
                   className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground cursor-pointer"
                 >
-                  Download Linesheet
+                  Download Product Linesheet
                 </a>
               </li>
             )}
+            {matchedGemstones.map((gem) => (
+              <li key={gem.name}>
+                <a
+                  href={`/api/download?url=${encodeURIComponent(gem.link)}`}
+                  download
+                  className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground cursor-pointer"
+                >
+                  Download Gemstone Linesheet ({gem.name})
+                </a>
+              </li>
+            ))}
+            {matchedDiamonds.map((dia) => (
+              <li key={dia.name}>
+                <a
+                  href={`/api/download?url=${encodeURIComponent(dia.link)}`}
+                  download
+                  className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground cursor-pointer"
+                >
+                  Download Shapes & Colors Linesheet ({dia.name})
+                </a>
+              </li>
+            ))}
             <li>
               <button
                 type="button"

@@ -67,6 +67,9 @@ export interface Product {
   weight?: number;
   weightUnit?: string;
   linesheetLink?: string | null;
+  gemstoneDetails?: string | null;
+  diamondShapeDetails?: string | null;
+  certificates?: string | null;
 }
 
 export const navLinks = [
