@@ -14,6 +14,14 @@ export default async function CategoryProductsPage({
 
   const filteredProducts = products.filter((product) => {
     const s = slug.toLowerCase();
+
+    if (product.categories && product.categories.length > 0) {
+      const hasCat = product.categories.some(
+        (c) => c.handle.toLowerCase() === s,
+      );
+      if (hasCat) return true;
+    }
+
     const t = product.category.toLowerCase();
     return t === s || t === `${s}s` || s === `${t}s`;
   });

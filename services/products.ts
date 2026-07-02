@@ -39,6 +39,11 @@ export interface ShopifyProduct {
     title: string;
     handle: string;
   }[];
+  categories?: {
+    id: string;
+    title: string;
+    handle: string;
+  }[];
   linesheetLink?: string | null;
   gemstoneDetails?: string | null;
   diamondShapeDetails?: string | null;
@@ -116,6 +121,13 @@ export function mapShopifyProduct(p: ShopifyProduct): Product {
           handle: c.handle,
         }))
       : [],
+    categories: p.categories
+      ? p.categories.map((c) => ({
+          id: c.id,
+          title: c.title,
+          handle: c.handle,
+        }))
+      : [],
     linesheetLink: p.linesheetLink || null,
     gemstoneDetails: p.gemstoneDetails || null,
     diamondShapeDetails: p.diamondShapeDetails || null,
@@ -166,9 +178,60 @@ export async function getShopifyCollections(): Promise<ShopifyCollection[]> {
       return [];
     }
     const json = await res.json();
-    return (json.data || []) as ShopifyCollection[];
+    const rawList = (json.data || []) as ShopifyCollection[];
+    return rawList.map((col) => {
+      let imageUrl = col.image?.url || "";
+      if (
+        imageUrl &&
+        (imageUrl.startsWith("/") || imageUrl.startsWith("public"))
+      ) {
+        if (imageUrl.startsWith("public")) {
+          imageUrl = `/${imageUrl}`;
+        }
+        imageUrl = encodeURI(`${backendUrl}${imageUrl}`);
+      }
+      return {
+        ...col,
+        image: imageUrl ? { url: imageUrl } : null,
+      };
+    });
   } catch (error) {
     console.error("Error fetching collections from backend:", error);
+    return [];
+  }
+}
+
+export async function getShopifyCategories(): Promise<ShopifyCollection[]> {
+  const backendUrl = getBackendUrl();
+  try {
+    const res = await fetch(`${backendUrl}/api/products/categories`, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch categories: ${res.statusText}`);
+    }
+
+    const json = await res.json();
+    const rawList = (json.data || []) as ShopifyCollection[];
+    return rawList.map((col) => {
+      let imageUrl = col.image?.url || "";
+      if (
+        imageUrl &&
+        (imageUrl.startsWith("/") || imageUrl.startsWith("public"))
+      ) {
+        if (imageUrl.startsWith("public")) {
+          imageUrl = `/${imageUrl}`;
+        }
+        imageUrl = encodeURI(`${backendUrl}${imageUrl}`);
+      }
+      return {
+        ...col,
+        image: imageUrl ? { url: imageUrl } : null,
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching categories from backend:", error);
     return [];
   }
 }

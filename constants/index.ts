@@ -56,6 +56,7 @@ export interface Product {
   videos?: string[];
   collection: string;
   collections?: { id: string; title: string; handle: string }[];
+  categories?: { id: string; title: string; handle: string }[];
   itemNumber?: string;
   des?: string;
   specifications?: string[];

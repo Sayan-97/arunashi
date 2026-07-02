@@ -1,19 +1,10 @@
 import ProductCard from "@/components/shared/product-card";
-import { getShopifyCollections } from "@/services/products";
+import { getShopifyCategories } from "@/services/products";
 
 export default async function CategoriesPage() {
-  const allCollections = await getShopifyCollections();
+  const allCategories = await getShopifyCategories();
 
-  const collectionsList = Array.isArray(allCollections) ? allCollections : [];
-
-  const categories = collectionsList.filter((c) => {
-    const title = c.title?.toLowerCase().trim() || "";
-    return !(
-      title.endsWith("collection") ||
-      title.endsWith("collections") ||
-      title === "collectible art"
-    );
-  });
+  const categories = Array.isArray(allCategories) ? allCategories : [];
 
   const jewelryTitles = [
     "all",
