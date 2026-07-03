@@ -171,7 +171,7 @@ export default function RequestListPage() {
       <div className="app_container space-y-10">
         <section className="space-y-6 md:space-y-10">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <h1 className="uppercase">Request List</h1>
+            <h1 className="capitalize">Request List</h1>
             <div className="flex gap-4 md:gap-6">
               <Link href="/request-status">
                 <Button variant="outline" size="lg">

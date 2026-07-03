@@ -45,6 +45,7 @@ export interface ShopifyProduct {
     handle: string;
   }[];
   linesheetLink?: string | null;
+  certificatesLink?: string | null;
   gemstoneDetails?: string | null;
   diamondShapeDetails?: string | null;
   certificates?: string | null;
@@ -130,7 +131,16 @@ export function mapShopifyProduct(p: ShopifyProduct): Product {
           handle: c.handle,
         }))
       : [],
-    linesheetLink: p.linesheetLink || null,
+    linesheetLink: p.linesheetLink?.startsWith("/public/uploads/")
+      ? p.linesheetLink
+      : p.linesheetLink
+        ? `/public/uploads/linesheets/${p.title}.pdf`
+        : null,
+    certificatesLink: p.certificatesLink?.startsWith("/public/uploads/")
+      ? p.certificatesLink
+      : p.certificatesLink
+        ? `/public/uploads/certificates/${p.title}.pdf`
+        : null,
     gemstoneDetails: p.gemstoneDetails || null,
     diamondShapeDetails: p.diamondShapeDetails || null,
     certificates: p.certificates || null,

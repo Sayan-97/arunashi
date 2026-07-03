@@ -136,7 +136,7 @@ export default function ProductDetailsClient({
         id: product.id,
         name: product.name,
         itemNo: product.itemNumber || "",
-        msrp: `$${Number(product.msrp || 0).toLocaleString()}`,
+        msrp: `$${Number(product.msrp || 0).toLocaleString("en-US")}`,
         stockStatus: "In Stock",
         image: getSrc(product.images?.[0] || product.featuredImage),
         notes: "",
@@ -341,7 +341,7 @@ export default function ProductDetailsClient({
                 MSRP - $
                 {Number(
                   String(product.msrp).replace(/[$,]/g, ""),
-                ).toLocaleString()}{" "}
+                ).toLocaleString("en-US")}{" "}
                 USD
               </p>
               {product.wholesalePrice && (
@@ -349,7 +349,7 @@ export default function ProductDetailsClient({
                   Wholesale - $
                   {Number(
                     String(product.wholesalePrice).replace(/[$,]/g, ""),
-                  ).toLocaleString()}{" "}
+                  ).toLocaleString("en-US")}{" "}
                   USD
                 </p>
               )}
@@ -487,6 +487,17 @@ export default function ProductDetailsClient({
                 >
                   Download Videos
                 </button>
+              </li>
+            )}
+            {product.certificatesLink && (
+              <li>
+                <a
+                  href={`/api/download?url=${encodeURIComponent(product.certificatesLink)}`}
+                  download
+                  className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground cursor-pointer"
+                >
+                  Download Lab Reports
+                </a>
               </li>
             )}
           </ul>

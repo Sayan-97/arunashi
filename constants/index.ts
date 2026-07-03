@@ -68,6 +68,7 @@ export interface Product {
   weight?: number;
   weightUnit?: string;
   linesheetLink?: string | null;
+  certificatesLink?: string | null;
   gemstoneDetails?: string | null;
   diamondShapeDetails?: string | null;
   certificates?: string | null;

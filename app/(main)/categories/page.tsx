@@ -49,7 +49,7 @@ export default async function CategoriesPage() {
                   <ProductCard
                     name={category.title}
                     image={imageUrl}
-                    link={`/collections/${category.handle}`}
+                    link={`/categories/${category.handle}`}
                   />
                 </div>
               );
@@ -73,7 +73,7 @@ export default async function CategoriesPage() {
                   <ProductCard
                     name={category.title}
                     image={imageUrl}
-                    link={`/collections/${category.handle}`}
+                    link={`/categories/${category.handle}`}
                   />
                 </div>
               );
