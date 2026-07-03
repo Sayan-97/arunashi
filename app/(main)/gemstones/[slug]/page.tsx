@@ -61,16 +61,13 @@ export default async function GemstoneDetailPage({
   const gemName = gemstone.name.toLowerCase();
 
   const gemstoneProducts = products.filter((product) => {
-    if (
-      product.gemstoneDetails &&
-      product.gemstoneDetails.toLowerCase().includes(gemName)
-    ) {
+    if (product.gemstoneDetails?.toLowerCase().includes(gemName)) {
       return true;
     }
-    if (product.variant2 && product.variant2.toLowerCase().includes(gemName)) {
+    if (product.variant2?.toLowerCase().includes(gemName)) {
       return true;
     }
-    if (product.name && product.name.toLowerCase().includes(gemName)) {
+    if (product.name?.toLowerCase().includes(gemName)) {
       return true;
     }
     return false;

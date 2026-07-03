@@ -2,7 +2,6 @@
 
 import { Play } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -13,16 +12,25 @@ import { Button } from "@/components/ui/button";
 import type { Product } from "@/constants";
 import { cn } from "@/lib/utils";
 
-// Helper to resolve the source URL of an asset safely
+// Helper to resolve the source URL of an asset safely (for next/image — strips /public prefix)
 const getSrc = (
   assetSrc: string | { src: string } | undefined | null,
 ): string => {
   if (!assetSrc) return "";
   let src = typeof assetSrc === "string" ? assetSrc : assetSrc.src || "";
-  if (src.startsWith("/public")) {
+  if (src.startsWith("/public") && !src.startsWith("/public/uploads")) {
     src = src.substring(7);
   }
   return src;
+};
+
+// Helper for <video> src — keeps /public prefix because the Next.js proxy
+// forwards /public/uploads/... to the backend server
+const getVideoSrc = (
+  assetSrc: string | { src: string } | undefined | null,
+): string => {
+  if (!assetSrc) return "";
+  return typeof assetSrc === "string" ? assetSrc : assetSrc.src || "";
 };
 
 interface ProductDetailsClientProps {
@@ -73,19 +81,13 @@ export default function ProductDetailsClient({
         const gemList = gemsJson.data || [];
         const matchedGems = gemList.filter((gem: any) => {
           const gemName = gem.name.toLowerCase();
-          if (
-            product.gemstoneDetails &&
-            product.gemstoneDetails.toLowerCase().includes(gemName)
-          ) {
+          if (product.gemstoneDetails?.toLowerCase().includes(gemName)) {
             return true;
           }
-          if (
-            product.variant2 &&
-            product.variant2.toLowerCase().includes(gemName)
-          ) {
+          if (product.variant2?.toLowerCase().includes(gemName)) {
             return true;
           }
-          if (product.name && product.name.toLowerCase().includes(gemName)) {
+          if (product.name?.toLowerCase().includes(gemName)) {
             return true;
           }
           return false;
@@ -200,7 +202,7 @@ export default function ProductDetailsClient({
 
   const downloadVideos = async () => {
     const videoUrls = videos
-      .map((vid) => getSrc(vid))
+      .map((vid) => getVideoSrc(vid))
       .filter((src) => typeof src === "string" && src.length > 0);
 
     if (videoUrls.length === 0) {
@@ -260,7 +262,7 @@ export default function ProductDetailsClient({
           >
             {assets[selectedIndex]?.type === "video" ? (
               <video
-                src={getSrc(assets[selectedIndex].src)}
+                src={getVideoSrc(assets[selectedIndex].src)}
                 className="w-full h-full object-cover"
                 controls
                 autoPlay
@@ -308,7 +310,7 @@ export default function ProductDetailsClient({
                   {asset.type === "video" ? (
                     <div className="relative w-full h-full flex items-center justify-center">
                       <video
-                        src={getSrc(asset.src)}
+                        src={getVideoSrc(asset.src)}
                         className="w-full h-full object-cover"
                         muted
                         playsInline

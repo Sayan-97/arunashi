@@ -53,19 +53,13 @@ export default function GemstonesAndDiamonds({
         for (const gem of gemList) {
           const gemName = gem.name.toLowerCase();
           const matchedProducts = displayProducts.filter((product) => {
-            if (
-              product.gemstoneDetails &&
-              product.gemstoneDetails.toLowerCase().includes(gemName)
-            ) {
+            if (product.gemstoneDetails?.toLowerCase().includes(gemName)) {
               return true;
             }
-            if (
-              product.variant2 &&
-              product.variant2.toLowerCase().includes(gemName)
-            ) {
+            if (product.variant2?.toLowerCase().includes(gemName)) {
               return true;
             }
-            if (product.name && product.name.toLowerCase().includes(gemName)) {
+            if (product.name?.toLowerCase().includes(gemName)) {
               return true;
             }
             return false;
@@ -80,10 +74,9 @@ export default function GemstonesAndDiamonds({
               image: firstProduct.images
                 ? firstProduct.images[0]
                 : firstProduct.featuredImage,
-              hoverImage:
-                firstProduct.images && firstProduct.images[1]
-                  ? firstProduct.images[1]
-                  : undefined,
+              hoverImage: firstProduct.images?.[1]
+                ? firstProduct.images[1]
+                : undefined,
               link: `/gemstones/${slug}`,
             });
           }
@@ -112,10 +105,9 @@ export default function GemstonesAndDiamonds({
               image: firstProduct.images
                 ? firstProduct.images[0]
                 : firstProduct.featuredImage,
-              hoverImage:
-                firstProduct.images && firstProduct.images[1]
-                  ? firstProduct.images[1]
-                  : undefined,
+              hoverImage: firstProduct.images?.[1]
+                ? firstProduct.images[1]
+                : undefined,
               link: `/diamonds/${slug}`,
             });
           }

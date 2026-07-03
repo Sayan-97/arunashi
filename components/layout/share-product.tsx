@@ -25,10 +25,20 @@ export default function ShareProduct({ product }: { product: Product }) {
     if (!assetSrc) return "";
     let src =
       typeof assetSrc === "string" ? assetSrc : (assetSrc as any).src || "";
-    if (src.startsWith("/public")) {
+    if (src.startsWith("/public") && !src.startsWith("/public/uploads")) {
       src = src.substring(7);
     }
     return src;
+  };
+
+  // Videos keep /public prefix — the proxy forwards /public/uploads to the server
+  const getVideoSrc = (
+    assetSrc: string | { src: string } | undefined | null,
+  ): string => {
+    if (!assetSrc) return "";
+    return typeof assetSrc === "string"
+      ? assetSrc
+      : (assetSrc as any).src || "";
   };
 
   const handleCopyLink = () => {
@@ -51,7 +61,7 @@ export default function ShareProduct({ product }: { product: Product }) {
       .map(getSrc)
       .filter((src) => typeof src === "string" && src.length > 0);
     const videoUrls = videos
-      .map(getSrc)
+      .map(getVideoSrc)
       .filter((src) => typeof src === "string" && src.length > 0);
     const allUrls = [...imageUrls, ...videoUrls];
 
