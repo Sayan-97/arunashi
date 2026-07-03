@@ -336,8 +336,23 @@ export default function ProductDetailsClient({
         <div className="space-y-8">
           <h1>{product.name}</h1>
           {showMsrp && (
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-lg md:text-xl">
-              <p>MSRP - ${Number(product.msrp).toLocaleString()} USD</p>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-lg md:text-xl text-[#3a3a3a]">
+              <p>
+                MSRP - $
+                {Number(
+                  String(product.msrp).replace(/[$,]/g, ""),
+                ).toLocaleString()}{" "}
+                USD
+              </p>
+              {product.wholesalePrice && (
+                <p>
+                  Wholesale - $
+                  {Number(
+                    String(product.wholesalePrice).replace(/[$,]/g, ""),
+                  ).toLocaleString()}{" "}
+                  USD
+                </p>
+              )}
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 py-3 border-y border-black/10 gap-3 md:gap-0">
@@ -392,16 +407,9 @@ export default function ProductDetailsClient({
                     "Lorem Ipsum is simply dummy text of the printing and typesetting industry."}
                 </p>
               ) : activeTab === "Specifications" ? (
-                <div className="grid grid-cols-2 gap-y-2 max-w-sm">
-                  <p>Product Type</p>
-                  <p className="text-gray-900">
-                    {product.category || "Jewelry"}
-                  </p>
-                  <p>Weight</p>
-                  <p className="text-gray-900">
-                    {product.weight ?? 0} {product.weightUnit || "lb"}
-                  </p>
-                </div>
+                <p className="whitespace-pre-line text-gray-700 leading-relaxed">
+                  {product.gemstoneDetails || "No specifications available."}
+                </p>
               ) : (
                 <div className="grid grid-cols-2 gap-y-2 max-w-sm">
                   <p>Material</p>
