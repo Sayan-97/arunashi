@@ -1,19 +1,30 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
+const gmailUser = process.env.GMAIL_USER?.replace(/^["']|["']$/g, "").trim();
+const gmailPass = process.env.GMAIL_APP_PASSWORD?.replace(
+  /^["']|["']$/g,
+  "",
+).trim();
+
 // Initialize the Nodemailer transport system using Gmail settings
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    user: gmailUser,
+    pass: gmailPass,
+  },
+  tls: {
+    rejectUnauthorized: false,
   },
 });
 
 export async function POST(req: Request) {
   try {
     // Ensure environment variables are loaded securely
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    if (!gmailUser || !gmailPass) {
       console.error("Missing Gmail SMTP environment variables.");
       return NextResponse.json(
         { error: "Server email configuration missing" },
@@ -57,7 +68,7 @@ export async function POST(req: Request) {
     const targetAdminEmail = "sales@arunashi.com";
 
     const mailOptions = {
-      from: `"Arunashi System" <${process.env.GMAIL_USER}>`,
+      from: `"Arunashi System" <${gmailUser}>`,
       to: targetAdminEmail,
       subject: `New Onboarding Request from ${clientName}`,
       html: `

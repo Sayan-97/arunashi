@@ -253,11 +253,25 @@ export async function signup(
 
     // Attempt to send email notification to the admin
     try {
+      const gmailUser = process.env.GMAIL_USER?.replace(
+        /^["']|["']$/g,
+        "",
+      ).trim();
+      const gmailPass = process.env.GMAIL_APP_PASSWORD?.replace(
+        /^["']|["']$/g,
+        "",
+      ).trim();
+
       const transporter = nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
         auth: {
-          user: process.env.GMAIL_USER,
-          pass: process.env.GMAIL_APP_PASSWORD,
+          user: gmailUser,
+          pass: gmailPass,
+        },
+        tls: {
+          rejectUnauthorized: false,
         },
       });
 
@@ -265,7 +279,7 @@ export async function signup(
         process.env.ADMIN_EMAIL || "sayandey4232@gmail.com";
 
       const mailOptions = {
-        from: `"Arunashi System" <${process.env.GMAIL_USER}>`,
+        from: `"Arunashi System" <${gmailUser}>`,
         to: targetAdminEmail,
         subject: `New Onboarding Request from ${clientName}`,
         html: `

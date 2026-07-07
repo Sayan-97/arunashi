@@ -13,11 +13,22 @@ export async function sendContactEmail(data: {
     return { success: false, error: "All fields are required" };
   }
 
+  const gmailUser = process.env.GMAIL_USER?.replace(/^["']|["']$/g, "").trim();
+  const gmailPass = process.env.GMAIL_APP_PASSWORD?.replace(
+    /^["']|["']$/g,
+    "",
+  ).trim();
+
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
+      user: gmailUser,
+      pass: gmailPass,
+    },
+    tls: {
+      rejectUnauthorized: false,
     },
   });
 
@@ -58,7 +69,7 @@ export async function sendContactEmail(data: {
 
   try {
     await transporter.sendMail({
-      from: `"Arunashi Storefront" <${process.env.GMAIL_USER}>`,
+      from: `"Arunashi Storefront" <${gmailUser}>`,
       to: process.env.ADMIN_EMAIL,
       subject: `New Contact Form Submission from ${name}`,
       html: emailHtml,
