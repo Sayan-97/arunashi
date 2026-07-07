@@ -19,18 +19,48 @@ export async function sendContactEmail(data: {
     "",
   ).trim();
 
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: gmailUser,
-      pass: gmailPass,
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
+  const sendMailWithFallback = async (options: nodemailer.SendMailOptions) => {
+    // First try Port 465 (SSL)
+    try {
+      const sslTransporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: gmailUser,
+          pass: gmailPass,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+        connectionTimeout: 2000,
+        greetingTimeout: 2000,
+      });
+      return await sslTransporter.sendMail(options);
+    } catch (sslError) {
+      console.warn(
+        "SMTP Port 465 failed, attempting Port 587 STARTTLS fallback...",
+        sslError,
+      );
+
+      // Fall back to Port 587 (STARTTLS)
+      const tlsTransporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: {
+          user: gmailUser,
+          pass: gmailPass,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+        connectionTimeout: 3000,
+        greetingTimeout: 3000,
+      });
+      return await tlsTransporter.sendMail(options);
+    }
+  };
 
   const emailHtml = `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; padding: 25px; border: 1px solid #eee; border-radius: 8px; background-color: #ffffff;">
@@ -68,7 +98,7 @@ export async function sendContactEmail(data: {
   `;
 
   try {
-    await transporter.sendMail({
+    await sendMailWithFallback({
       from: `"Arunashi Storefront" <${gmailUser}>`,
       to: process.env.ADMIN_EMAIL,
       subject: `New Contact Form Submission from ${name}`,

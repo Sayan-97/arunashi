@@ -8,18 +8,48 @@ const gmailPass = process.env.GMAIL_APP_PASSWORD?.replace(
 ).trim();
 
 // Initialize the Nodemailer transport system using Gmail settings
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: gmailUser,
-    pass: gmailPass,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
+async function sendMailWithFallback(options: nodemailer.SendMailOptions) {
+  // First try Port 465 (SSL)
+  try {
+    const sslTransporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: gmailUser,
+        pass: gmailPass,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+      connectionTimeout: 2000,
+      greetingTimeout: 2000,
+    });
+    return await sslTransporter.sendMail(options);
+  } catch (sslError) {
+    console.warn(
+      "SMTP Port 465 failed, attempting Port 587 STARTTLS fallback...",
+      sslError,
+    );
+
+    // Fall back to Port 587 (STARTTLS)
+    const tlsTransporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: gmailUser,
+        pass: gmailPass,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+      connectionTimeout: 3000,
+      greetingTimeout: 3000,
+    });
+    return await tlsTransporter.sendMail(options);
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -140,7 +170,7 @@ export async function POST(req: Request) {
     };
 
     // Trigger the email dispatch
-    const info = await transporter.sendMail(mailOptions);
+    const info = await sendMailWithFallback(mailOptions);
 
     return NextResponse.json({ success: true, messageId: info.messageId });
   } catch (error) {

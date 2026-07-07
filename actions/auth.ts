@@ -262,18 +262,50 @@ export async function signup(
         "",
       ).trim();
 
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        auth: {
-          user: gmailUser,
-          pass: gmailPass,
-        },
-        tls: {
-          rejectUnauthorized: false,
-        },
-      });
+      const sendMailWithFallback = async (
+        options: nodemailer.SendMailOptions,
+      ) => {
+        // First try Port 465 (SSL)
+        try {
+          const sslTransporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 465,
+            secure: true,
+            auth: {
+              user: gmailUser,
+              pass: gmailPass,
+            },
+            tls: {
+              rejectUnauthorized: false,
+            },
+            connectionTimeout: 2000,
+            greetingTimeout: 2000,
+          });
+          return await sslTransporter.sendMail(options);
+        } catch (sslError) {
+          console.warn(
+            "SMTP Port 465 failed, attempting Port 587 STARTTLS fallback...",
+            sslError,
+          );
+
+          // Fall back to Port 587 (STARTTLS)
+          const tlsTransporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
+            auth: {
+              user: gmailUser,
+              pass: gmailPass,
+            },
+            tls: {
+              rejectUnauthorized: false,
+            },
+            connectionTimeout: 3000,
+            greetingTimeout: 3000,
+          });
+          return await tlsTransporter.sendMail(options);
+        }
+      };
 
       const targetAdminEmail =
         process.env.ADMIN_EMAIL || "sayandey4232@gmail.com";
@@ -350,7 +382,7 @@ export async function signup(
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await sendMailWithFallback(mailOptions);
     } catch (emailErr) {
       console.error("Nodemailer Error in Server Action:", emailErr);
     }
