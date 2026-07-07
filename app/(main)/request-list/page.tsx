@@ -73,6 +73,11 @@ export default function RequestListPage() {
         position: "top-right",
       });
       setIsSaveDialogOpen(false);
+
+      // Clear active list after saving
+      localStorage.removeItem("request-list");
+      window.dispatchEvent(new Event("request-list-updated"));
+      setRequestedItems([]);
     } catch (e: unknown) {
       console.error(e);
       const err = e as { message?: string } | null;
@@ -178,9 +183,11 @@ export default function RequestListPage() {
                   Request Status
                 </Button>
               </Link>
-              <Button variant="outline" size="lg">
-                Saved Lists
-              </Button>
+              <Link href="/saved-lists">
+                <Button variant="outline" size="lg">
+                  Saved Lists
+                </Button>
+              </Link>
             </div>
           </div>
           {requestedItems.length > 0 && (
