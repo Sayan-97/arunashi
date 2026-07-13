@@ -190,6 +190,13 @@ export default function RequestListPage() {
               </Link>
             </div>
           </div>
+          <p className="text-gray-400 text-base md:text-lg max-w-4xl font-light leading-relaxed">
+            Your Request List allows you to compile items of interest.
+            Submitting this list notifies the Arunashi sales team to coordinate
+            pricing details, verify real-time physical availability, request
+            memo/consignment options, or schedule an in-person viewing of the
+            selected pieces.
+          </p>
           {requestedItems.length > 0 && (
             <div className="space-y-3">
               <p className="text-xl md:text-2xl font-medium">
@@ -231,7 +238,7 @@ export default function RequestListPage() {
                       Stock Status
                     </th>
                     <th className="font-normal text-sm text-gray-400 py-4 px-6">
-                      Notes
+                      Note for Arunashi
                     </th>
                     <th className="py-4 px-6"></th>
                   </tr>
@@ -378,7 +385,7 @@ export default function RequestListPage() {
                     {product.notes ? (
                       <div className="space-y-1">
                         <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap break-words">
-                          Notes: {product.notes}
+                          Note for Arunashi: {product.notes}
                         </p>
                         <NoteDialog
                           product={product}
@@ -472,7 +479,7 @@ export default function RequestListPage() {
                 />
               </div>
             </div>
-            <DialogFooter className="border-t-0 bg-transparent gap-2 sm:gap-0">
+            <DialogFooter className="border-t-0 bg-transparent gap-3 sm:gap-3">
               <DialogClose asChild>
                 <Button variant="outline" disabled={isSaving}>
                   Cancel
@@ -523,7 +530,7 @@ function NoteDialog({
             variant="link"
             className="text-highlight p-0 h-auto text-xs underline mt-1 font-light hover:text-black/80 inline-flex items-center"
           >
-            Edit Note
+            Edit Note for Arunashi
           </Button>
         ) : (
           <Button
@@ -538,14 +545,16 @@ function NoteDialog({
               strokeWidth={1.5}
             />
             <span className={cn(isMobile ? "text-base" : "text-sm")}>
-              Add Notes
+              Add Note for Arunashi
             </span>
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit Note" : "Add Note"}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "Edit Note for Arunashi" : "Add Note for Arunashi"}
+          </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="flex flex-col gap-2">
@@ -553,18 +562,18 @@ function NoteDialog({
               htmlFor={`note-${product.id}`}
               className="text-sm font-medium"
             >
-              Note
+              Note for Arunashi
             </label>
             <textarea
               id={`note-${product.id}`}
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
-              className="min-h-[100px] w-full min-w-0 border border-input bg-input px-3 py-2 text-base transition-colors outline-none placeholder:text-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-              placeholder="Enter your note here..."
+              className="min-h-[100px] w-full min-w-0 border border-input bg-input px-3 py-2 text-base transition-colors outline-none placeholder:text-gray-400 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+              placeholder="Add any questions, viewing requests, or memo instructions for Arunashi..."
             />
           </div>
         </div>
-        <DialogFooter className="border-t-0 bg-transparent gap-2 sm:gap-0">
+        <DialogFooter className="border-t-0 bg-transparent gap-3 sm:gap-3">
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
