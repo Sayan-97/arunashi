@@ -95,7 +95,7 @@ export default function ContactUsPage() {
             <p className="cursor-pointer hover:text-primary transition-colors">
               Book an Appointment
             </p>
-            <p>Email : hello@arunashi.com</p>
+            <p>Email : sales@arunashi.com</p>
             <p>Phone : +1 310-888-0123</p>
             <div className="flex items-center gap-6 pt-1">
               <span className="text-lg font-normal">Social</span>

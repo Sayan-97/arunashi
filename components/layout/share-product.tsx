@@ -84,8 +84,27 @@ export default function ShareProduct({ product }: { product: Product }) {
         const defaultExt = isVideo ? "mp4" : "png";
         const ext = url.split("?")[0].split(".").pop() || defaultExt;
 
-        const typeLabel = isVideo ? "video" : "photo";
-        const fileName = `${product.name.replace(/[^a-zA-Z0-9-_]/g, "_")}_${typeLabel}_${idx + 1}.${ext}`;
+        let fileName = "";
+        try {
+          const urlObj = new URL(url, window.location.origin);
+          const pathname = urlObj.pathname;
+          const decodedPath = decodeURIComponent(pathname);
+          const baseName = decodedPath.substring(
+            decodedPath.lastIndexOf("/") + 1,
+          );
+          if (baseName?.includes(".") && !baseName.startsWith("__")) {
+            fileName = baseName;
+          }
+        } catch {}
+
+        if (!fileName) {
+          const cleanItemNo = product.itemNumber
+            ? product.itemNumber.replace(/[^a-zA-Z0-9-_]/g, "_")
+            : "";
+          fileName = cleanItemNo
+            ? `${cleanItemNo}_${idx + 1}.${ext}`
+            : `${idx + 1}.${ext}`;
+        }
 
         const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -237,7 +256,7 @@ export default function ShareProduct({ product }: { product: Product }) {
                   )}
                 </div>
                 <span className="text-[13px] md:text-[14px] font-medium text-foreground select-none">
-                  With MSRP
+                  With Price
                 </span>
               </button>
               <button
@@ -258,7 +277,7 @@ export default function ShareProduct({ product }: { product: Product }) {
                   )}
                 </div>
                 <span className="text-[13px] md:text-[14px] font-medium text-foreground select-none">
-                  Without MSRP
+                  Without Price
                 </span>
               </button>
             </div>

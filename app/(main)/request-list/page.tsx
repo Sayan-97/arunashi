@@ -225,7 +225,7 @@ export default function RequestListPage() {
                       Product Name
                     </th>
                     <th className="font-normal text-sm text-gray-400 py-4 px-6">
-                      MSRP
+                      Retail Price
                     </th>
                     <th className="font-normal text-sm text-gray-400 py-4 px-6">
                       Stock Status
@@ -360,7 +360,7 @@ export default function RequestListPage() {
                         Item no : {product.itemNo}
                       </p>
                       <p className="text-base text-gray-900 font-medium pt-1">
-                        MSRP : {product.msrp}
+                        Retail Price : {product.msrp}
                       </p>
                       <p
                         className={`text-sm ${

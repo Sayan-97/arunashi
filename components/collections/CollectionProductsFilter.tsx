@@ -224,6 +224,12 @@ export default function CollectionProductsFilter({
     } else if (sortBy === "Newest") {
       // Assumes higher IDs are newer, or fallback to default
       result.sort((a, b) => Number(b.id) - Number(a.id));
+    } else if (sortBy === "Gemstone: A to Z") {
+      result.sort((a, b) => {
+        const gemA = (getGemstones(a)[0] || a.variant2 || "").toLowerCase();
+        const gemB = (getGemstones(b)[0] || b.variant2 || "").toLowerCase();
+        return gemA.localeCompare(gemB);
+      });
     }
 
     return result;
@@ -278,6 +284,7 @@ export default function CollectionProductsFilter({
             { label: "Newest" },
             { label: "Price: Low to High" },
             { label: "Price: High to Low" },
+            { label: "Gemstone: A to Z" },
           ]}
           selected={sortSelection}
           onChange={(val) => {

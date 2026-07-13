@@ -75,7 +75,7 @@ export async function POST(req: Request) {
 
     const msrpSection =
       showMsrp && product.msrp
-        ? `<p style="font-size: 16px; font-weight: bold; color: #111; margin: 5px 0 0 0;">MSRP: $${Number(product.msrp).toLocaleString()} USD</p>`
+        ? `<p style="font-size: 16px; font-weight: bold; color: #111; margin: 5px 0 0 0;">Retail Price: $${Number(product.msrp).toLocaleString()} USD</p>`
         : "";
 
     const itemNoSection = product.itemNumber

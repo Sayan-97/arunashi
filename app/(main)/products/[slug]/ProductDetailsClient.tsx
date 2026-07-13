@@ -1,9 +1,10 @@
 "use client";
 
+import JSZip from "jszip";
 import { Play } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import ContactUs from "@/components/layout/contact-us";
 import RelatedProducts from "@/components/layout/related-products";
@@ -111,6 +112,46 @@ export default function ProductDetailsClient({
       );
   }, [product]);
 
+  const relatedProducts = useMemo(() => {
+    const candidates = allProducts.filter((p) => p.id !== product.id);
+    const inStock = candidates.filter(
+      (p) => p.inventory !== undefined && p.inventory >= 1,
+    );
+    const outOfStock = candidates.filter(
+      (p) => p.inventory === undefined || p.inventory < 1,
+    );
+    const getScore = (p: Product) => {
+      let score = 0;
+      if (
+        p.collection &&
+        product.collection &&
+        p.collection === product.collection
+      ) {
+        score += 10;
+      }
+      if (p.category && product.category && p.category === product.category) {
+        score += 5;
+      }
+      if (p.variant1 && product.variant1 && p.variant1 === product.variant1) {
+        score += 2;
+      }
+      if (p.variant2 && product.variant2 && p.variant2 === product.variant2) {
+        score += 2;
+      }
+      return score;
+    };
+    const sortCandidates = (list: Product[]) => {
+      return list
+        .map((p) => ({ item: p, score: getScore(p) }))
+        .sort((a, b) => b.score - a.score)
+        .map((x) => x.item);
+    };
+    return [...sortCandidates(inStock), ...sortCandidates(outOfStock)].slice(
+      0,
+      3,
+    );
+  }, [product, allProducts]);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } =
       e.currentTarget.getBoundingClientRect();
@@ -165,38 +206,59 @@ export default function ProductDetailsClient({
       return;
     }
 
-    const toastId = toast.loading("Downloading photos...");
+    const toastId = toast.loading("Preparing zip file...");
     try {
+      const zip = new JSZip();
+
       const fetchPromises = imageUrls.map(async (url, idx) => {
         const res = await fetch(url);
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const blob = await res.blob();
         const ext = url.split("?")[0].split(".").pop() || "png";
-        const fileName = `${product.name.replace(/[^a-zA-Z0-9-_]/g, "_")}_photo_${idx + 1}.${ext}`;
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
+
+        let fileName = "";
+        try {
+          const urlObj = new URL(url, window.location.origin);
+          const pathname = urlObj.pathname;
+          const decodedPath = decodeURIComponent(pathname);
+          const baseName = decodedPath.substring(
+            decodedPath.lastIndexOf("/") + 1,
+          );
+          if (baseName?.includes(".") && !baseName.startsWith("__")) {
+            fileName = baseName;
+          }
+        } catch {}
+
+        if (!fileName) {
+          const cleanItemNo = product.itemNumber
+            ? product.itemNumber.replace(/[^a-zA-Z0-9-_]/g, "_")
+            : "";
+          fileName = cleanItemNo
+            ? `${cleanItemNo}_${idx + 1}.${ext}`
+            : `${idx + 1}.${ext}`;
+        }
+
+        zip.file(fileName, blob);
         return true;
       });
-      const results = await Promise.allSettled(fetchPromises);
-      const successCount = results.filter(
-        (r) => r.status === "fulfilled",
-      ).length;
-      if (successCount > 0) {
-        toast.success(`Downloaded ${successCount} photo(s) successfully`, {
-          id: toastId,
-        });
-      } else {
-        toast.error("Failed to download photos", { id: toastId });
-      }
+
+      await Promise.all(fetchPromises);
+      const zipContent = await zip.generateAsync({ type: "blob" });
+      const zipName = `${(product.itemNumber || product.name || "product").replace(/[^a-zA-Z0-9-_]/g, "_")}_photos.zip`;
+
+      const blobUrl = URL.createObjectURL(zipContent);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = zipName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+
+      toast.success("Photos downloaded successfully as ZIP", { id: toastId });
     } catch (error) {
-      console.error("Error downloading photos:", error);
-      toast.error("Failed to download photos", { id: toastId });
+      console.error("Error creating ZIP:", error);
+      toast.error("Failed to download photos as ZIP", { id: toastId });
     }
   };
 
@@ -217,7 +279,29 @@ export default function ProductDetailsClient({
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const blob = await res.blob();
         const ext = url.split("?")[0].split(".").pop() || "mp4";
-        const fileName = `${product.name.replace(/[^a-zA-Z0-9-_]/g, "_")}_video_${idx + 1}.${ext}`;
+
+        let fileName = "";
+        try {
+          const urlObj = new URL(url, window.location.origin);
+          const pathname = urlObj.pathname;
+          const decodedPath = decodeURIComponent(pathname);
+          const baseName = decodedPath.substring(
+            decodedPath.lastIndexOf("/") + 1,
+          );
+          if (baseName?.includes(".") && !baseName.startsWith("__")) {
+            fileName = baseName;
+          }
+        } catch {}
+
+        if (!fileName) {
+          const cleanItemNo = product.itemNumber
+            ? product.itemNumber.replace(/[^a-zA-Z0-9-_]/g, "_")
+            : "";
+          fileName = cleanItemNo
+            ? `${cleanItemNo}_video_${idx + 1}.${ext}`
+            : `video_${idx + 1}.${ext}`;
+        }
+
         const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = blobUrl;
@@ -338,21 +422,12 @@ export default function ProductDetailsClient({
           {showMsrp && (
             <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-lg md:text-xl text-[#3a3a3a]">
               <p>
-                MSRP - $
+                Retail Price - $
                 {Number(
                   String(product.msrp).replace(/[$,]/g, ""),
                 ).toLocaleString("en-US")}{" "}
                 USD
               </p>
-              {product.wholesalePrice && (
-                <p>
-                  Wholesale - $
-                  {Number(
-                    String(product.wholesalePrice).replace(/[$,]/g, ""),
-                  ).toLocaleString("en-US")}{" "}
-                  USD
-                </p>
-              )}
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 py-3 border-y border-black/10 gap-3 md:gap-0">
@@ -381,24 +456,26 @@ export default function ProductDetailsClient({
           </div>
           <div className="space-y-6">
             <div className="flex items-center gap-5 sm:gap-8 border-b border-black/10 overflow-x-auto scrollbar-none">
-              {["Description", "Specifications", "Details"].map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setActiveTab(tab)}
-                  className={cn(
-                    "pb-2 transition-all relative text-base sm:text-lg whitespace-nowrap",
-                    activeTab === tab
-                      ? "text-foreground font-medium"
-                      : "text-gray-400",
-                  )}
-                >
-                  {tab}
-                  {activeTab === tab && (
-                    <div className="absolute -bottom-px left-0 w-full h-0.5 bg-highlight" />
-                  )}
-                </button>
-              ))}
+              {["Description", "Details & Specifications", "Jewelry Card"].map(
+                (tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setActiveTab(tab)}
+                    className={cn(
+                      "pb-2 transition-all relative text-base sm:text-lg whitespace-nowrap",
+                      activeTab === tab
+                        ? "text-foreground font-medium"
+                        : "text-gray-400",
+                    )}
+                  >
+                    {tab}
+                    {activeTab === tab && (
+                      <div className="absolute -bottom-px left-0 w-full h-0.5 bg-highlight" />
+                    )}
+                  </button>
+                ),
+              )}
             </div>
             <div className="text-gray-500 text-base sm:text-lg leading-relaxed">
               {activeTab === "Description" ? (
@@ -406,20 +483,169 @@ export default function ProductDetailsClient({
                   {product.des ||
                     "Lorem Ipsum is simply dummy text of the printing and typesetting industry."}
                 </p>
-              ) : activeTab === "Specifications" ? (
-                <p className="whitespace-pre-line text-gray-700 leading-relaxed">
-                  {product.gemstoneDetails || "No specifications available."}
-                </p>
+              ) : activeTab === "Details & Specifications" ? (
+                <div className="space-y-6">
+                  {(product.variant1 || product.variant2) && (
+                    <div className="grid grid-cols-2 gap-y-2 max-w-sm border-b border-black/5 pb-4">
+                      {product.variant1 && (
+                        <>
+                          <p className="text-gray-400">Material</p>
+                          <p className="text-gray-900 font-medium">
+                            {product.variant1}
+                          </p>
+                        </>
+                      )}
+                      {product.variant2 && (
+                        <>
+                          <p className="text-gray-400">Gemstone</p>
+                          <p className="text-gray-900 font-medium">
+                            {product.variant2}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  {product.gemstoneDetails ? (
+                    <p className="whitespace-pre-line text-gray-700 leading-relaxed">
+                      {product.gemstoneDetails}
+                    </p>
+                  ) : (
+                    <p className="text-gray-400">
+                      No specifications available.
+                    </p>
+                  )}
+                </div>
               ) : (
-                <div className="grid grid-cols-2 gap-y-2 max-w-sm">
-                  <p>Material</p>
-                  <p className="text-gray-900">
-                    {product.variant1 || "18K Yellow Gold"}
-                  </p>
-                  <p>Gemstone</p>
-                  <p className="text-gray-900">
-                    {product.variant2 || "Emerald"}
-                  </p>
+                <div className="space-y-4">
+                  <div className="flex justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.print()}
+                      className="border-primary text-foreground hover:bg-primary/5 cursor-pointer"
+                    >
+                      Print / Save as PDF
+                    </Button>
+                  </div>
+
+                  {/* Jewelry Card Preview */}
+                  <div
+                    id="jewelry-card-print-area"
+                    className="bg-white border border-black/10 p-8 max-w-xl mx-auto rounded-lg shadow-sm font-sans text-black"
+                  >
+                    {/* Print CSS Inject */}
+                    <style>{`
+                      @media print {
+                        body * {
+                          visibility: hidden !important;
+                        }
+                        #jewelry-card-print-area, #jewelry-card-print-area * {
+                          visibility: visible !important;
+                        }
+                        #jewelry-card-print-area {
+                          position: absolute !important;
+                          left: 0 !important;
+                          top: 0 !important;
+                          width: 100% !important;
+                          background: white !important;
+                          color: black !important;
+                          padding: 20px !important;
+                          box-shadow: none !important;
+                          border: none !important;
+                        }
+                      }
+                    `}</style>
+
+                    {/* Header */}
+                    <div className="text-center border-b border-black/5 pb-4 mb-6">
+                      <h2 className="font-fleur text-3xl uppercase tracking-widest text-[#45521a]">
+                        Arunashi
+                      </h2>
+                      <p className="text-[10px] text-gray-400 tracking-widest uppercase mt-1">
+                        Beverly Hills
+                      </p>
+                    </div>
+
+                    {/* Image */}
+                    <div className="relative w-full h-[260px] bg-white flex items-center justify-center mb-6">
+                      {assets[0]?.src && (
+                        <Image
+                          src={assets[0].src}
+                          alt={product.name}
+                          fill
+                          priority
+                          className="object-contain"
+                        />
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-baseline border-b border-black/5 pb-2">
+                        <h3 className="text-xl font-medium text-gray-900 leading-tight">
+                          {product.name}
+                        </h3>
+                        <p className="text-lg font-semibold text-gray-900 shrink-0">
+                          $
+                          {Number(
+                            String(product.msrp).replace(/[$,]/g, ""),
+                          ).toLocaleString("en-US")}{" "}
+                          USD
+                        </p>
+                      </div>
+
+                      {product.itemNumber && (
+                        <p className="text-xs text-gray-400">
+                          Item Number: {product.itemNumber}
+                        </p>
+                      )}
+
+                      <div className="text-sm text-gray-600 leading-relaxed font-light">
+                        {product.des || "No description available."}
+                      </div>
+
+                      {/* Details & Specs */}
+                      <div className="bg-[#fcfcfc] p-4 border border-black/5 rounded text-xs space-y-2">
+                        {product.variant1 && (
+                          <div className="grid grid-cols-3">
+                            <span className="text-gray-400">Material:</span>
+                            <span className="col-span-2 font-medium text-gray-800">
+                              {product.variant1}
+                            </span>
+                          </div>
+                        )}
+                        {product.variant2 && (
+                          <div className="grid grid-cols-3">
+                            <span className="text-gray-400">Gemstone:</span>
+                            <span className="col-span-2 font-medium text-gray-800">
+                              {product.variant2}
+                            </span>
+                          </div>
+                        )}
+                        {product.gemstoneDetails && (
+                          <div className="grid grid-cols-3 pt-1 border-t border-black/5">
+                            <span className="text-gray-400">Details:</span>
+                            <span className="col-span-2 font-light text-gray-600 whitespace-pre-line leading-relaxed">
+                              {product.gemstoneDetails}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Footer / Website Link */}
+                    <div className="text-center pt-6 mt-8 border-t border-black/5 text-[11px] text-gray-400 font-light">
+                      <p>For inquiries, contact sales@arunashi.com</p>
+                      <a
+                        href={`https://arunashi.com/products/${product.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#45521a] hover:underline font-medium block mt-1 tracking-wider"
+                      >
+                        www.arunashi.com
+                      </a>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -443,7 +669,7 @@ export default function ProductDetailsClient({
                   download
                   className="text-base sm:text-lg md:text-xl underline underline-offset-2 hover:text-foreground cursor-pointer"
                 >
-                  Download Product Linesheet
+                  Download linesheet
                 </a>
               </li>
             )}
@@ -503,8 +729,8 @@ export default function ProductDetailsClient({
           </ul>
         </div>
       </section>
+      <RelatedProducts products={relatedProducts} />
       <ContactUs />
-      <RelatedProducts products={allProducts} />
     </main>
   );
 }
