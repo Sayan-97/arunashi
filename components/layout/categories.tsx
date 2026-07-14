@@ -11,7 +11,28 @@ import { getShopifyCategories } from "@/services/products";
 export default async function Categories() {
   const allCategories = await getShopifyCategories();
 
-  const categories = Array.isArray(allCategories) ? allCategories : [];
+  const rawCategories = Array.isArray(allCategories) ? allCategories : [];
+
+  const jewelryTitles = [
+    "all",
+    "rings",
+    "ring",
+    "necklaces",
+    "necklace",
+    "bracelets",
+    "bracelet",
+    "pendants",
+    "pendant",
+    "earrings",
+    "earring",
+    "others",
+    "other",
+  ];
+
+  const categories = rawCategories.filter((c) => {
+    const title = c.title?.toLowerCase().trim() || "";
+    return jewelryTitles.includes(title);
+  });
 
   return (
     <section className="app_container">
