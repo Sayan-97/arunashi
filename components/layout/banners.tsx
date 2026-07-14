@@ -1,9 +1,14 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+
+// Tiny shimmer used as a blur placeholder for remote banner images
+const SHIMMER_BASE64 =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI0MjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iNDIwIiBmaWxsPSIjZjVmNWY1Ii8+PC9zdmc+";
 
 interface Banner {
   id: string;
@@ -18,7 +23,7 @@ export default async function Banners() {
   try {
     const res = await fetch(
       `${process.env.API_URL || "http://localhost:8000"}/api/banners`,
-      { cache: "no-store" }, // Use no-store to ensure we always get latest active banners
+      { cache: "no-store" },
     );
     const data = await res.json();
     if (data.success) {
@@ -29,24 +34,31 @@ export default async function Banners() {
   }
 
   if (activeBanners.length === 0) {
-    return null; // Return nothing if no active banners
+    return null;
   }
+
+  const resolveUrl = (image: string) => {
+    if (!image) return "";
+    if (image.startsWith("http")) return image;
+    return `${process.env.API_URL || "http://localhost:8000"}${image}`;
+  };
 
   // Single Banner Display
   if (activeBanners.length === 1) {
     const banner = activeBanners[0];
-    let resolvedImage = banner.image;
-    if (resolvedImage && !resolvedImage.startsWith("http")) {
-      resolvedImage = `${process.env.API_URL || "http://localhost:8000"}${resolvedImage}`;
-    }
+    const resolvedImage = resolveUrl(banner.image);
 
     const content = (
       <div className="relative w-full h-[420px]">
-        {/* biome-ignore lint/performance/noImgElement: Native img is used to bypass Next.js image domain config for local uploads */}
-        <img
+        <Image
           src={resolvedImage}
           alt="Banner"
-          className="w-full h-full object-cover object-top-left -z-10 absolute inset-0"
+          fill
+          priority
+          placeholder="blur"
+          blurDataURL={SHIMMER_BASE64}
+          sizes="100vw"
+          className="object-cover object-top-left -z-10"
         />
       </div>
     );
@@ -72,25 +84,23 @@ export default async function Banners() {
           align: "start",
           loop: true,
         }}
-        // Autoplay requires client component wrapper or plugin config passed to Carousel wrapper if implemented
-        // Since we are using standard shadcn/embla setup, we can use the plugin if needed,
-        // but for now, we'll just loop. The `plugins` prop could be passed if `Autoplay` was imported.
         className="w-full"
       >
         <CarouselContent>
-          {activeBanners.map((banner) => {
-            let resolvedImage = banner.image;
-            if (resolvedImage && !resolvedImage.startsWith("http")) {
-              resolvedImage = `${process.env.API_URL || "http://localhost:8000"}${resolvedImage}`;
-            }
+          {activeBanners.map((banner, index) => {
+            const resolvedImage = resolveUrl(banner.image);
 
             const content = (
               <div className="relative w-full h-[381px]">
-                {/* biome-ignore lint/performance/noImgElement: Native img is used to bypass Next.js image domain config for local uploads */}
-                <img
+                <Image
                   src={resolvedImage}
                   alt="Banner"
-                  className="w-full h-full object-cover object-top-left -z-10 absolute inset-0"
+                  fill
+                  priority={index === 0}
+                  placeholder="blur"
+                  blurDataURL={SHIMMER_BASE64}
+                  sizes="100vw"
+                  className="object-cover object-top-left -z-10"
                 />
               </div>
             );

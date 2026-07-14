@@ -1,9 +1,12 @@
 import Image from "next/image";
 import { Suspense } from "react";
 import CollectionProductsFilter from "@/components/collections/CollectionProductsFilter";
-import { productCollections } from "@/constants";
 import HeroImg from "@/public/collection-hero-bg.png";
 import { getShopifyCollections, getShopifyProducts } from "@/services/products";
+
+// Shimmer placeholder for remote hero images
+const SHIMMER_BASE64 =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI0MjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iNDIwIiBmaWxsPSIjZjVmNWY1Ii8+PC9zdmc+";
 
 export const dynamic = "force-dynamic";
 
@@ -13,75 +16,60 @@ export default async function CollectionProductsPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
   const [products, allCollections] = await Promise.all([
     getShopifyProducts(),
     getShopifyCollections(),
   ]);
 
-  // Resolve the collection object from slug (handling both string slug and numeric ID)
-  const isNumeric = /^\\d+$/.test(slug);
-  const colObj = isNumeric
-    ? productCollections.find((c) => c.id === parseInt(slug, 10))
-    : productCollections.find((c) => {
-        const decodedSlug = decodeURIComponent(slug)
-          .toLowerCase()
-          .replaceAll("-", " ");
-        return (
-          c.name.toLowerCase() === decodedSlug ||
-          c.name.toLowerCase().replace(" collection", "") === decodedSlug
-        );
-      });
-
-  const shopifyCol = Array.isArray(allCollections)
+  // Find the collection from the API by its handle (the URL slug)
+  const collection = Array.isArray(allCollections)
     ? allCollections.find((c) => c.handle === slug)
     : undefined;
 
-  const targetCollectionName =
-    shopifyCol?.title ||
-    (colObj ? colObj.name : decodeURIComponent(slug).replaceAll("-", " "));
+  const collectionName = collection?.title
+    ? collection.title
+    : decodeURIComponent(slug).replaceAll("-", " ");
 
-  const filteredProducts = products.filter((product) => {
-    const tCol = targetCollectionName.toLowerCase();
-    const tColClean = tCol.replace(" collection", "");
+  // Filter products that belong to this collection by handle match
+  const filteredProducts = products.filter((product) =>
+    product.collections?.some((col) => col.handle === slug),
+  );
 
-    if (product.collections && product.collections.length > 0) {
-      return product.collections.some((col) => {
-        const colId = col.id.split("/").pop();
-        const cTitle = col.title.toLowerCase();
-        return (
-          col.handle === slug ||
-          colId === slug ||
-          cTitle === tCol ||
-          cTitle.replace(" collection", "") === tColClean
-        );
-      });
-    }
-
-    if (!product.collection) return false;
-    const pCol = product.collection.toLowerCase();
-    return pCol === tCol || pCol.replace(" collection", "") === tColClean;
-  });
-
-  const heroImage = shopifyCol?.image?.url || colObj?.bgImage || HeroImg;
-  const collectionDescription = shopifyCol?.description || colObj?.description;
+  // Hero image: use the collection's image from API, fall back to static default
+  const heroImageUrl = collection?.image?.url || null;
 
   return (
     <main className="pb-15">
       <section className="relative w-full h-103 flex flex-col items-center justify-center text-center px-4">
-        <Image
-          src={heroImage}
-          alt={targetCollectionName}
-          priority
-          placeholder={heroImage === HeroImg ? "blur" : undefined}
-          fill
-          className="object-cover object-center -z-10"
-        />
+        {heroImageUrl ? (
+          <Image
+            src={heroImageUrl}
+            alt={collectionName}
+            priority
+            placeholder="blur"
+            blurDataURL={SHIMMER_BASE64}
+            fill
+            sizes="100vw"
+            className="object-cover object-center -z-10"
+          />
+        ) : (
+          <Image
+            src={HeroImg}
+            alt={collectionName}
+            priority
+            placeholder="blur"
+            fill
+            sizes="100vw"
+            className="object-cover object-center -z-10"
+          />
+        )}
         <div className="absolute inset-0 bg-black/40 -z-10" />
         <div className="space-y-4 max-w-3xl">
-          <h1 className="text-white capitalize">{targetCollectionName}</h1>
-          {collectionDescription && collectionDescription.trim() !== "" && (
-            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto font-medium leading-relaxed animate-fade-in">
-              {collectionDescription}
+          <h1 className="text-white capitalize">{collectionName}</h1>
+          {collection?.description && collection.description.trim() !== "" && (
+            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto font-medium leading-relaxed">
+              {collection.description}
             </p>
           )}
         </div>

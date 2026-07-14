@@ -42,7 +42,7 @@ export default async function Collections() {
           </div>
         </div>
         <CarouselContent className="-ml-11.75">
-          {collections.map((collection) => {
+          {collections.map((collection, index) => {
             // Shopify Collection GraphQL mapping gives us: id, title, handle, image { url, altText }
             const imageUrl =
               collection.image?.url || "/placeholder-collection.jpg";
@@ -55,6 +55,7 @@ export default async function Collections() {
                   image={imageUrl}
                   name={collection.title}
                   link={`/collections/${collection.handle}`}
+                  priority={index < 2}
                 />
               </CarouselItem>
             );

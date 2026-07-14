@@ -4,6 +4,10 @@ import CollectionProductsFilter from "@/components/collections/CollectionProduct
 import HeroImg from "@/public/collection-hero-bg.png";
 import { getShopifyCategories, getShopifyProducts } from "@/services/products";
 
+// Shimmer placeholder for remote hero images
+const SHIMMER_BASE64 =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI0MjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iNDIwIiBmaWxsPSIjZjVmNWY1Ii8+PC9zdmc+";
+
 export const dynamic = "force-dynamic";
 
 export default async function CategoryProductsPage({
@@ -12,59 +16,73 @@ export default async function CategoryProductsPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
   const [products, allCategories] = await Promise.all([
     getShopifyProducts(),
     getShopifyCategories(),
   ]);
 
-  const categoryObj = Array.isArray(allCategories)
+  // Find the category from the API by its handle (the URL slug)
+  const category = Array.isArray(allCategories)
     ? allCategories.find((c) => c.handle?.toLowerCase() === slug.toLowerCase())
     : undefined;
 
-  const targetCategoryName =
-    categoryObj?.title || decodeURIComponent(slug).replaceAll("-", " ");
+  const categoryName = category?.title
+    ? category.title
+    : decodeURIComponent(slug).replaceAll("-", " ");
 
+  // Filter products that belong to this category by handle match
   const filteredProducts = products.filter((product) => {
     const s = slug.toLowerCase();
 
     if (product.categories && product.categories.length > 0) {
-      const hasCat = product.categories.some(
-        (c) => c.handle.toLowerCase() === s,
-      );
-      if (hasCat) return true;
+      return product.categories.some((c) => c.handle.toLowerCase() === s);
     }
 
+    // Fallback: match on product_type field (e.g. "ring" vs "rings")
     const t = product.category.toLowerCase();
     return t === s || t === `${s}s` || s === `${t}s`;
   });
 
-  const heroImage = categoryObj?.image?.url || HeroImg;
-  const categoryDescription = categoryObj?.description;
+  // Hero image: use the category's image from API, fall back to static default
+  const heroImageUrl = category?.image?.url || null;
 
   return (
     <main className="pb-15">
-      {/* Banner Section */}
       <section className="relative w-full h-103 flex flex-col items-center justify-center text-center px-4 mb-15">
-        <Image
-          src={heroImage}
-          alt={targetCategoryName}
-          priority
-          placeholder={heroImage === HeroImg ? "blur" : undefined}
-          fill
-          className="object-cover object-center -z-10"
-        />
+        {heroImageUrl ? (
+          <Image
+            src={heroImageUrl}
+            alt={categoryName}
+            priority
+            placeholder="blur"
+            blurDataURL={SHIMMER_BASE64}
+            fill
+            sizes="100vw"
+            className="object-cover object-center -z-10"
+          />
+        ) : (
+          <Image
+            src={HeroImg}
+            alt={categoryName}
+            priority
+            placeholder="blur"
+            fill
+            sizes="100vw"
+            className="object-cover object-center -z-10"
+          />
+        )}
         <div className="absolute inset-0 bg-black/40 -z-10" />
         <div className="space-y-4 max-w-3xl">
-          <h1 className="text-white capitalize">{targetCategoryName}</h1>
-          {categoryDescription && categoryDescription.trim() !== "" && (
-            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto font-medium leading-relaxed animate-fade-in">
-              {categoryDescription}
+          <h1 className="text-white capitalize">{categoryName}</h1>
+          {category?.description && category.description.trim() !== "" && (
+            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto font-medium leading-relaxed">
+              {category.description}
             </p>
           )}
         </div>
       </section>
 
-      {/* Products & Filters Section */}
       {filteredProducts.length > 0 ? (
         <Suspense
           fallback={

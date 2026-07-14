@@ -53,7 +53,7 @@ export default async function Categories() {
           </div>
         </div>
         <CarouselContent className="-ml-11.75">
-          {categories.map((category) => {
+          {categories.map((category, index) => {
             const imageUrl =
               category.image?.url || "/placeholder-collection.jpg";
             return (
@@ -65,6 +65,7 @@ export default async function Categories() {
                   image={imageUrl}
                   name={category.title}
                   link={`/categories/${category.handle}`}
+                  priority={index < 2}
                 />
               </CarouselItem>
             );

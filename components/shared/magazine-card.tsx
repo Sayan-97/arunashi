@@ -1,5 +1,10 @@
 import { Download, ExternalLink } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
+
+// Shimmer placeholder for remote magazine images
+const SHIMMER_BASE64 =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjUzMyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjUzMyIgZmlsbD0iI2Y1ZjVmNSIvPjwvc3ZnPg==";
 
 const getFormattedIssue = (issue: string | null | undefined) => {
   if (!issue) return "";
@@ -47,11 +52,14 @@ export default function MagazineCard({
       >
         {typeof image === "string" && image.trim() !== "" ? (
           <>
-            {/* biome-ignore lint/performance/noImgElement: Native img is used to bypass Next.js image domain config for local uploads */}
-            <img
+            <Image
               src={image}
               alt="Magazine Cover"
-              className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
+              fill
+              placeholder="blur"
+              blurDataURL={SHIMMER_BASE64}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
             />
           </>
         ) : (

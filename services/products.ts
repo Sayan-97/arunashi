@@ -193,10 +193,8 @@ export async function getShopifyCollections(): Promise<ShopifyCollection[]> {
     const rawList = (json.data || []) as ShopifyCollection[];
     return rawList.map((col) => {
       let imageUrl = col.image?.url || "";
-      if (
-        imageUrl &&
-        (imageUrl.startsWith("/") || imageUrl.startsWith("public"))
-      ) {
+      // Only prepend backend URL for relative paths (not S3 or other absolute URLs)
+      if (imageUrl && !imageUrl.startsWith("http")) {
         if (imageUrl.startsWith("public")) {
           imageUrl = `/${imageUrl}`;
         }
@@ -228,10 +226,8 @@ export async function getShopifyCategories(): Promise<ShopifyCollection[]> {
     const rawList = (json.data || []) as ShopifyCollection[];
     return rawList.map((col) => {
       let imageUrl = col.image?.url || "";
-      if (
-        imageUrl &&
-        (imageUrl.startsWith("/") || imageUrl.startsWith("public"))
-      ) {
+      // Only prepend backend URL for relative paths (not S3 or other absolute URLs)
+      if (imageUrl && !imageUrl.startsWith("http")) {
         if (imageUrl.startsWith("public")) {
           imageUrl = `/${imageUrl}`;
         }
