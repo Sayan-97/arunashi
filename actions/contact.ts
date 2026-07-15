@@ -62,8 +62,14 @@ export async function sendContactEmail(data: {
     }
   };
 
+  const path = require("node:path");
+
   const emailHtml = `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; padding: 25px; border: 1px solid #eee; border-radius: 8px; background-color: #ffffff;">
+        <div style="text-align: center; margin-bottom: 25px;">
+          <img src="cid:arunashi-logo" alt="Arunashi" style="height: 45px; object-fit: contain; display: inline-block;" />
+        </div>
+
         <div style="text-align: center; border-bottom: 2px solid #627426; padding-bottom: 15px; margin-bottom: 20px;">
           <h2 style="color: #627426; margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 1px;">New Contact Inquiry</h2>
         </div>
@@ -103,6 +109,13 @@ export async function sendContactEmail(data: {
       to: process.env.ADMIN_EMAIL,
       subject: `New Contact Form Submission from ${name}`,
       html: emailHtml,
+      attachments: [
+        {
+          filename: "app-logo.png",
+          path: path.join(process.cwd(), "public", "app-logo.png"),
+          cid: "arunashi-logo",
+        },
+      ],
     });
     return { success: true };
   } catch (error) {

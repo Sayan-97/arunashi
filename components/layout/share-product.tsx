@@ -19,6 +19,13 @@ export default function ShareProduct({ product }: { product: Product }) {
   const [emailRecipient, setEmailRecipient] = useState("");
   const [sendingEmail, setSendingEmail] = useState(false);
 
+  // New state variables for the client/sales team sharing form
+  const [showClientSalesEmailInput, setShowClientSalesEmailInput] =
+    useState(false);
+  const [clientSalesEmailRecipient, setClientSalesEmailRecipient] =
+    useState("");
+  const [sendingClientSalesEmail, setSendingClientSalesEmail] = useState(false);
+
   const getSrc = (
     assetSrc: string | { src: string } | undefined | null,
   ): string => {
@@ -199,6 +206,69 @@ export default function ShareProduct({ product }: { product: Product }) {
     }
   };
 
+  // Handles sending the email link to the client/sales team
+  const handleSendClientSalesEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!clientSalesEmailRecipient.trim()) {
+      toast.error("Please enter a recipient email address.");
+      return;
+    }
+
+    setSendingClientSalesEmail(true);
+    // Absolute link of the current retailer portal product page
+    const shareUrl = window.location.origin + "/products/" + product.id;
+
+    const firstImage = product.images?.[0] || product.featuredImage;
+    let imageUrl = "";
+    if (firstImage) {
+      const src = getSrc(firstImage);
+      if (src.startsWith("http://") || src.startsWith("https://")) {
+        imageUrl = src;
+      } else if (src.startsWith("//")) {
+        imageUrl = `https:${src}`;
+      } else {
+        imageUrl =
+          window.location.origin + (src.startsWith("/") ? src : `/${src}`);
+      }
+    }
+
+    try {
+      const response = await fetch("/api/email/share", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: clientSalesEmailRecipient.trim(),
+          showMsrp,
+          subject: `Shared with Client / Sales Team: ${product.name}`,
+          product: {
+            name: product.name,
+            collection: product.collection || "All",
+            des: product.des || "",
+            msrp: product.msrp,
+            itemNumber: product.itemNumber || "",
+            imageUrl,
+            shareUrl,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send email");
+      }
+
+      toast.success("Link shared successfully");
+      setClientSalesEmailRecipient("");
+      setShowClientSalesEmailInput(false);
+    } catch (error) {
+      console.error("Error sharing product with client/sales team:", error);
+      toast.error("Failed to send email. Please try again.");
+    } finally {
+      setSendingClientSalesEmail(false);
+    }
+  };
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -287,6 +357,62 @@ export default function ShareProduct({ product }: { product: Product }) {
         <div className="space-y-5">
           <h4 className="text-lg font-medium text-foreground">Share Via</h4>
           <div className="space-y-4">
+            {/* Share with Client / Sales Team button at the very top */}
+            <div className="space-y-3">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() =>
+                  setShowClientSalesEmailInput(!showClientSalesEmailInput)
+                }
+                className="w-full flex items-center justify-center gap-3 font-normal border-primary text-foreground hover:bg-primary/5"
+              >
+                <Mail strokeWidth={1.5} className="w-5 h-5" />
+                Share with Client / Sales Team
+              </Button>
+
+              {showClientSalesEmailInput && (
+                <form
+                  onSubmit={handleSendClientSalesEmail}
+                  className="space-y-3 p-4 border border-black/10 rounded-lg bg-gray-50/50 animate-in fade-in slide-in-from-top-2 duration-200"
+                >
+                  <div className="space-y-1">
+                    <label
+                      htmlFor="client-sales-email"
+                      className="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                    >
+                      Client / Sales Team Email
+                    </label>
+                    <input
+                      id="client-sales-email"
+                      type="email"
+                      required
+                      placeholder="e.g. sales@example.com"
+                      value={clientSalesEmailRecipient}
+                      onChange={(e) =>
+                        setClientSalesEmailRecipient(e.target.value)
+                      }
+                      className="w-full border border-black/10 px-4 py-3 rounded text-[14px] focus:outline-none focus:border-[#627426] transition-all bg-white"
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    disabled={sendingClientSalesEmail}
+                    className="w-full bg-[#627426] text-white py-3 rounded text-[14px] font-medium hover:bg-[#627426]/90 transition-all flex items-center justify-center gap-2"
+                  >
+                    {sendingClientSalesEmail ? (
+                      <>
+                        <span className="animate-spin border-2 border-white border-t-transparent rounded-full size-4" />
+                        Sharing...
+                      </>
+                    ) : (
+                      "Share Link"
+                    )}
+                  </Button>
+                </form>
+              )}
+            </div>
+
             <Button
               variant="outline"
               size="lg"

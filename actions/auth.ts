@@ -310,12 +310,18 @@ export async function signup(
       const targetAdminEmail =
         process.env.ADMIN_EMAIL || "sayandey4232@gmail.com";
 
+      const path = require("node:path");
+
       const mailOptions = {
         from: `"Arunashi System" <${gmailUser}>`,
         to: targetAdminEmail,
         subject: `New Onboarding Request from ${clientName}`,
         html: `
           <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; padding: 25px; border: 1px solid #eee; border-radius: 8px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 25px;">
+              <img src="cid:arunashi-logo" alt="Arunashi" style="height: 45px; object-fit: contain; display: inline-block;" />
+            </div>
+
             <div style="text-align: center; border-bottom: 2px solid #627426; padding-bottom: 15px; margin-bottom: 20px;">
               <h2 style="color: #627426; margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 1px;">New Onboarding Request</h2>
             </div>
@@ -380,6 +386,13 @@ export async function signup(
             <p style="font-size: 12px; color: #999; text-align: center; margin-top: 15px;">Best Regards,<br/><strong>Arunashi System</strong></p>
           </div>
         `,
+        attachments: [
+          {
+            filename: "app-logo.png",
+            path: path.join(process.cwd(), "public", "app-logo.png"),
+            cid: "arunashi-logo",
+          },
+        ],
       };
 
       await sendMailWithFallback(mailOptions);
