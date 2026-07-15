@@ -121,11 +121,16 @@ export async function POST(req: Request) {
             ${descSection}
           </div>
 
+          ${
+            product.shareUrl
+              ? `
           <div style="text-align: center; margin: 30px 0;">
             <a href="${product.shareUrl}" style="background-color: #627426; color: #ffffff; padding: 12px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; display: inline-block; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
               View Product Details
             </a>
-          </div>
+          </div>`
+              : ""
+          }
 
           <hr style="border: 0; border-top: 1px solid #eee; margin-top: 30px;" />
           <p style="font-size: 12px; color: #999; text-align: center; margin-top: 15px;">Best Regards,<br/><strong>Arunashi System</strong></p>

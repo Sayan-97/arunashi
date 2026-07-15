@@ -26,6 +26,7 @@ export interface Product {
   gemstoneDetails?: string | null;
   diamondShapeDetails?: string | null;
   certificates?: string | null;
+  ecommerceUrl?: string | null;
 }
 
 export const navLinks = [

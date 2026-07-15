@@ -50,6 +50,7 @@ export interface ShopifyProduct {
   diamondShapeDetails?: string | null;
   certificates?: string | null;
   wholesalePrice?: string | null;
+  ecommerceUrl?: string | null;
 }
 
 export function mapShopifyProduct(p: ShopifyProduct): Product {
@@ -144,6 +145,7 @@ export function mapShopifyProduct(p: ShopifyProduct): Product {
     gemstoneDetails: p.gemstoneDetails || null,
     diamondShapeDetails: p.diamondShapeDetails || null,
     certificates: p.certificates || null,
+    ecommerceUrl: p.ecommerceUrl || null,
   };
 }
 

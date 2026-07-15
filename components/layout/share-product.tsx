@@ -49,15 +49,21 @@ export default function ShareProduct({ product }: { product: Product }) {
   };
 
   const handleCopyLink = () => {
-    const url = new URL(window.location.href);
-    if (showMsrp) {
-      url.searchParams.delete("showMsrp");
+    if (product.ecommerceUrl) {
+      navigator.clipboard.writeText(product.ecommerceUrl).then(() => {
+        toast.success("E-commerce link copied");
+      });
     } else {
-      url.searchParams.set("showMsrp", "false");
+      const url = new URL(window.location.href);
+      if (showMsrp) {
+        url.searchParams.delete("showMsrp");
+      } else {
+        url.searchParams.set("showMsrp", "false");
+      }
+      navigator.clipboard.writeText(url.toString()).then(() => {
+        toast.success("Link copied");
+      });
     }
-    navigator.clipboard.writeText(url.toString()).then(() => {
-      toast.success("Link copied");
-    });
   };
 
   const handleDownloadAll = async () => {
@@ -149,11 +155,9 @@ export default function ShareProduct({ product }: { product: Product }) {
     }
 
     setSendingEmail(true);
-    const shareUrl = new URL(window.location.href);
-    if (!showMsrp) {
-      shareUrl.searchParams.set("showMsrp", "false");
-    } else {
-      shareUrl.searchParams.delete("showMsrp");
+    let shareUrl = "";
+    if (product.ecommerceUrl) {
+      shareUrl = product.ecommerceUrl;
     }
 
     const firstImage = product.images?.[0] || product.featuredImage;
@@ -186,7 +190,7 @@ export default function ShareProduct({ product }: { product: Product }) {
             msrp: product.msrp,
             itemNumber: product.itemNumber || "",
             imageUrl,
-            shareUrl: shareUrl.toString(),
+            shareUrl,
           },
         }),
       });
