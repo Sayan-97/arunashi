@@ -17,6 +17,14 @@ const nextConfig: NextConfig = {
         hostname: "arunashi-storefront-media.s3.us-east-1.amazonaws.com",
       },
       {
+        protocol: "https",
+        hostname: "arunashi-backend.onrender.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.onrender.com",
+      },
+      {
         protocol: "http",
         hostname: "localhost",
         port: "8000",
