@@ -219,8 +219,10 @@ export default function ShareProduct({ product }: { product: Product }) {
     }
 
     setSendingClientSalesEmail(true);
-    // Absolute link of the current retailer portal product page
-    const shareUrl = window.location.origin + "/products/" + product.id;
+
+    // For client-facing email: use the Arunashi.com ecommerce URL as the CTA.
+    // Fall back to the Arunashi.com homepage if no product-specific URL is set.
+    const shareUrl = product.ecommerceUrl || "https://arunashi.com";
 
     const firstImage = product.images?.[0] || product.featuredImage;
     let imageUrl = "";
@@ -244,14 +246,10 @@ export default function ShareProduct({ product }: { product: Product }) {
         },
         body: JSON.stringify({
           to: clientSalesEmailRecipient.trim(),
-          showMsrp,
-          subject: `Shared with Client / Sales Team: ${product.name}`,
+          type: "client", // triggers the clean, brand-first Arunashi email template
+          subject: `${product.name} — Arunashi`,
           product: {
             name: product.name,
-            collection: product.collection || "All",
-            des: product.des || "",
-            msrp: product.msrp,
-            itemNumber: product.itemNumber || "",
             imageUrl,
             shareUrl,
           },

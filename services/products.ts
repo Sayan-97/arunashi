@@ -49,15 +49,12 @@ export interface ShopifyProduct {
   gemstoneDetails?: string | null;
   diamondShapeDetails?: string | null;
   certificates?: string | null;
-  wholesalePrice?: string | null;
   ecommerceUrl?: string | null;
 }
 
 export function mapShopifyProduct(p: ShopifyProduct): Product {
   const primaryVariant = p.variants?.[0] || {};
   const msrpVal = primaryVariant.price || "0";
-  const wholesaleVal =
-    p.wholesalePrice || (Number.parseFloat(msrpVal) * 0.6).toFixed(0);
   const totalInventory =
     p.variants?.reduce((sum, v) => sum + (v.inventory_quantity || 0), 0) ?? 0;
 
@@ -108,7 +105,6 @@ export function mapShopifyProduct(p: ShopifyProduct): Product {
     variant1: primaryVariant.option1 || undefined,
     variant2: primaryVariant.option2 || undefined,
     msrp: msrpVal,
-    wholesalePrice: wholesaleVal,
     inventory: totalInventory,
     grams: primaryVariant.grams ?? 0,
     weight: primaryVariant.weight ?? 0,

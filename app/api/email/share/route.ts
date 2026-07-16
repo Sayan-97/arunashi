@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { to, product, showMsrp, subject } = body;
+    const { to, product, showMsrp, subject, type } = body;
 
     // Validate fields
     if (!to || !product || !product.name) {
@@ -74,39 +74,95 @@ export async function POST(req: Request) {
       );
     }
 
-    const msrpSection =
-      showMsrp && product.msrp
-        ? `<p style="font-size: 16px; font-weight: bold; color: #111; margin: 5px 0 0 0;">Retail Price: $${Number(product.msrp).toLocaleString()} USD</p>`
+    let emailHtml: string;
+
+    if (type === "client") {
+      // ── CLIENT EMAIL ────────────────────────────────────────────────────────
+      // Clean, brand-first Arunashi email. Shows logo, product name, and a
+      // single CTA button linking to Arunashi.com. No prices, no item numbers,
+      // no internal details — this email is intended for the end client.
+      const arunashiUrl =
+        product.shareUrl && product.shareUrl.includes("arunashi.com")
+          ? product.shareUrl
+          : "https://arunashi.com";
+
+      const imgSection = product.imageUrl
+        ? `<div style="text-align: center; background-color: #fbfbfb; border: 1px solid #f0f0f0; border-radius: 6px; padding: 20px; margin-bottom: 28px;">
+             <img src="${product.imageUrl}" alt="${product.name}" style="max-width: 100%; max-height: 280px; object-fit: contain; display: inline-block;" />
+           </div>`
         : "";
 
-    const itemNoSection = product.itemNumber
-      ? `<p style="font-size: 13px; color: #666; margin: 4px 0 0 0;">Item No: ${product.itemNumber}</p>`
-      : "";
+      emailHtml = `
+        <div style="font-family: 'Georgia', serif; line-height: 1.7; color: #333; max-width: 580px; margin: auto; padding: 40px 30px; background-color: #ffffff;">
+          <!-- Logo -->
+          <div style="text-align: center; margin-bottom: 36px;">
+            <img src="cid:arunashi-logo" alt="Arunashi" style="height: 50px; object-fit: contain; display: inline-block;" />
+          </div>
 
-    const collectionSection = product.collection
-      ? `<p style="font-size: 13px; color: #627426; font-weight: 600; text-transform: uppercase; margin: 0 0 4px 0; letter-spacing: 0.5px;">${product.collection}</p>`
-      : "";
+          <!-- Divider -->
+          <div style="border-top: 1px solid #d4c89a; margin-bottom: 36px;"></div>
 
-    const descSection = product.des
-      ? `<p style="font-size: 14px; color: #555; line-height: 1.5; margin: 15px 0 0 0; text-align: left;">${product.des}</p>`
-      : `<p style="font-size: 14px; color: #777; line-height: 1.5; margin: 15px 0 0 0; font-style: italic; text-align: left;">No description available.</p>`;
+          <!-- Product Image -->
+          ${imgSection}
 
-    const imgSection = product.imageUrl
-      ? `<div style="text-align: center; background-color: #fbfbfb; border: 1px solid #eee; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
-          <img src="${product.imageUrl}" alt="${product.name}" style="max-width: 100%; max-height: 250px; object-fit: contain; display: inline-block;" />
-         </div>`
-      : "";
+          <!-- Product Name -->
+          <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="font-family: 'Georgia', serif; font-weight: normal; font-size: 22px; color: #111; letter-spacing: 2px; text-transform: uppercase; margin: 0;">${product.name}</h2>
+          </div>
 
-    const mailOptions = {
-      from: `"Arunashi System" <${gmailUser}>`,
-      to,
-      subject: subject || `Shared Product: ${product.name}`,
-      html: `
+          <!-- Message -->
+          <p style="text-align: center; font-size: 15px; color: #666; font-style: italic; margin: 0 0 32px 0; line-height: 1.8;">
+            We thought you might love this piece from Arunashi.
+          </p>
+
+          <!-- CTA Button -->
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${arunashiUrl}" style="background-color: #111111; color: #ffffff; padding: 14px 36px; text-decoration: none; font-family: Arial, sans-serif; font-size: 13px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; display: inline-block; border-radius: 2px;">
+              View on Arunashi.com
+            </a>
+          </div>
+
+          <!-- Divider -->
+          <div style="border-top: 1px solid #eeeeee; margin-top: 40px;"></div>
+
+          <!-- Footer -->
+          <p style="font-size: 11px; color: #aaa; text-align: center; margin-top: 20px; font-family: Arial, sans-serif; letter-spacing: 0.5px;">
+            Beverly Hills &nbsp;&middot;&nbsp; <a href="https://arunashi.com" style="color: #aaa; text-decoration: none;">arunashi.com</a>
+          </p>
+        </div>
+      `;
+    } else {
+      // ── INTERNAL / SALES EMAIL ──────────────────────────────────────────────
+      // Full product detail email for internal sharing (sales team, colleagues).
+      const msrpSection =
+        showMsrp && product.msrp
+          ? `<p style="font-size: 16px; font-weight: bold; color: #111; margin: 5px 0 0 0;">Retail Price: $${Number(product.msrp).toLocaleString()} USD</p>`
+          : "";
+
+      const itemNoSection = product.itemNumber
+        ? `<p style="font-size: 13px; color: #666; margin: 4px 0 0 0;">Item No: ${product.itemNumber}</p>`
+        : "";
+
+      const collectionSection = product.collection
+        ? `<p style="font-size: 13px; color: #627426; font-weight: 600; text-transform: uppercase; margin: 0 0 4px 0; letter-spacing: 0.5px;">${product.collection}</p>`
+        : "";
+
+      const descSection = product.des
+        ? `<p style="font-size: 14px; color: #555; line-height: 1.5; margin: 15px 0 0 0; text-align: left;">${product.des}</p>`
+        : `<p style="font-size: 14px; color: #777; line-height: 1.5; margin: 15px 0 0 0; font-style: italic; text-align: left;">No description available.</p>`;
+
+      const imgSection = product.imageUrl
+        ? `<div style="text-align: center; background-color: #fbfbfb; border: 1px solid #eee; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
+             <img src="${product.imageUrl}" alt="${product.name}" style="max-width: 100%; max-height: 250px; object-fit: contain; display: inline-block;" />
+           </div>`
+        : "";
+
+      emailHtml = `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; padding: 25px; border: 1px solid #eee; border-radius: 8px; background-color: #ffffff;">
           <div style="text-align: center; margin-bottom: 25px;">
             <img src="cid:arunashi-logo" alt="Arunashi" style="height: 45px; object-fit: contain; display: inline-block;" />
           </div>
-          
+
           <div style="text-align: center; border-bottom: 2px solid #627426; padding-bottom: 15px; margin-bottom: 25px;">
             <h2 style="color: #627426; margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 1px;">Product Details</h2>
           </div>
@@ -123,19 +179,25 @@ export async function POST(req: Request) {
 
           ${
             product.shareUrl
-              ? `
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${product.shareUrl}" style="background-color: #627426; color: #ffffff; padding: 12px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; display: inline-block; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-              View Product Details
-            </a>
-          </div>`
+              ? `<div style="text-align: center; margin: 30px 0;">
+                   <a href="${product.shareUrl}" style="background-color: #627426; color: #ffffff; padding: 12px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; display: inline-block; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                     View Product Details
+                   </a>
+                 </div>`
               : ""
           }
 
           <hr style="border: 0; border-top: 1px solid #eee; margin-top: 30px;" />
           <p style="font-size: 12px; color: #999; text-align: center; margin-top: 15px;">Best Regards,<br/><strong>Arunashi System</strong></p>
         </div>
-      `,
+      `;
+    }
+
+    const mailOptions = {
+      from: `"Arunashi" <${gmailUser}>`,
+      to,
+      subject: subject || `${product.name} — Arunashi`,
+      html: emailHtml,
       attachments: [
         {
           filename: "app-logo.png",

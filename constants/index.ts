@@ -16,7 +16,6 @@ export interface Product {
   specifications?: string[];
   variant1?: string;
   variant2?: string;
-  wholesalePrice?: string;
   inventory?: number;
   grams?: number;
   weight?: number;
