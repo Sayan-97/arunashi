@@ -24,7 +24,6 @@ export interface Product {
   certificatesLink?: string | null;
   gemstoneDetails?: string | null;
   diamondShapeDetails?: string | null;
-  certificates?: string | null;
   ecommerceUrl?: string | null;
 }
 

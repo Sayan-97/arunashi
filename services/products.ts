@@ -48,7 +48,6 @@ export interface ShopifyProduct {
   certificatesLink?: string | null;
   gemstoneDetails?: string | null;
   diamondShapeDetails?: string | null;
-  certificates?: string | null;
   ecommerceUrl?: string | null;
 }
 
@@ -128,19 +127,20 @@ export function mapShopifyProduct(p: ShopifyProduct): Product {
           handle: c.handle,
         }))
       : [],
-    linesheetLink: p.linesheetLink?.startsWith("/public/uploads/")
-      ? p.linesheetLink
-      : p.linesheetLink
-        ? `/public/uploads/linesheets/${p.title}.pdf`
-        : null,
-    certificatesLink: p.certificatesLink?.startsWith("/public/uploads/")
-      ? p.certificatesLink
-      : p.certificatesLink
-        ? `/public/uploads/certificates/${p.title}.pdf`
-        : null,
+    linesheetLink: p.linesheetLink
+      ? p.linesheetLink.startsWith("http") ||
+        p.linesheetLink.startsWith("/public/uploads/")
+        ? p.linesheetLink
+        : `/public/uploads/linesheets/${p.title}.pdf`
+      : null,
+    certificatesLink: p.certificatesLink
+      ? p.certificatesLink.startsWith("http") ||
+        p.certificatesLink.startsWith("/public/uploads/")
+        ? p.certificatesLink
+        : `/public/uploads/certificates/${p.title}.pdf`
+      : null,
     gemstoneDetails: p.gemstoneDetails || null,
     diamondShapeDetails: p.diamondShapeDetails || null,
-    certificates: p.certificates || null,
     ecommerceUrl: p.ecommerceUrl || null,
   };
 }
