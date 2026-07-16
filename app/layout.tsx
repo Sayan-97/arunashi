@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 import localFont from "next/font/local";
-import "@flaticon/flaticon-uicons/css/all/all.css";
+import "@flaticon/flaticon-uicons/css/brands/all.css";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 

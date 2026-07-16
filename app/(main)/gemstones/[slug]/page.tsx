@@ -1,32 +1,8 @@
 import Link from "next/link";
 import ProductCard from "@/components/shared/product-card";
+import { matchProductsForGemstone } from "@/lib/catalog-match";
+import { getGemstones } from "@/services/catalog";
 import { getShopifyProducts } from "@/services/products";
-
-interface Gemstone {
-  id: string;
-  name: string;
-  link: string;
-}
-
-const getBackendUrl = () => process.env.API_URL || "http://localhost:8000";
-
-async function getGemstoneBySlug(slug: string): Promise<Gemstone | null> {
-  try {
-    const res = await fetch(`${getBackendUrl()}/api/gemstones`, {
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error("Failed to fetch gemstones");
-    const json = await res.json();
-    const list: Gemstone[] = json.data || [];
-    const matched = list.find(
-      (g) => g.name.toLowerCase().replace(/\s+/g, "-") === slug,
-    );
-    return matched || null;
-  } catch (error) {
-    console.error("Error matching gemstone slug:", error);
-    return null;
-  }
-}
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +12,10 @@ export default async function GemstoneDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const gemstone = await getGemstoneBySlug(slug);
+  const gemstones = await getGemstones();
+  const gemstone =
+    gemstones.find((g) => g.name.toLowerCase().replace(/\s+/g, "-") === slug) ||
+    null;
 
   if (!gemstone) {
     return (
@@ -58,20 +37,7 @@ export default async function GemstoneDetailPage({
   }
 
   const products = await getShopifyProducts();
-  const gemName = gemstone.name.toLowerCase();
-
-  const gemstoneProducts = products.filter((product) => {
-    if (product.gemstoneDetails?.toLowerCase().includes(gemName)) {
-      return true;
-    }
-    if (product.variant2?.toLowerCase().includes(gemName)) {
-      return true;
-    }
-    if (product.name?.toLowerCase().includes(gemName)) {
-      return true;
-    }
-    return false;
-  });
+  const gemstoneProducts = matchProductsForGemstone(products, gemstone.name);
 
   return (
     <main className="py-15 space-y-12 animate-in fade-in duration-500">

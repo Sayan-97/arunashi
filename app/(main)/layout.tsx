@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import NextTopLoader from "nextjs-toploader";
 import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import RealtimeSyncListener from "@/components/shared/RealtimeSyncListener";
@@ -14,6 +15,7 @@ export default async function MainLayout({
 
   return (
     <body>
+      <NextTopLoader color="#627426" showSpinner={false} height={3} />
       <Toaster />
       <RealtimeSyncListener />
       <Header isLoggedIn={isLoggedIn} />

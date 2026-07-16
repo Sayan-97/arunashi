@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { revalidateForEvent } from "@/actions/revalidate";
 
 export default function RealtimeSyncListener() {
   const router = useRouter();
@@ -52,7 +53,11 @@ export default function RealtimeSyncListener() {
           payload.type === "privacy:updated" ||
           payload.type === "about:updated"
         ) {
-          router.refresh();
+          revalidateForEvent(payload.type)
+            .catch((err) =>
+              console.error("Failed to revalidate cache tag:", err),
+            )
+            .finally(() => router.refresh());
           const syncEvent = new CustomEvent("realtime-sync", {
             detail: payload,
           });

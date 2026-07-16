@@ -1,10 +1,9 @@
 "use client";
 
-import JSZip from "jszip";
 import { Play } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import ContactUs from "@/components/layout/contact-us";
 import RelatedProducts from "@/components/layout/related-products";
@@ -36,12 +35,16 @@ const getVideoSrc = (
 
 interface ProductDetailsClientProps {
   product: Product;
-  allProducts: Product[];
+  relatedProducts: Product[];
+  matchedGemstones: { name: string; link: string }[];
+  matchedDiamonds: { name: string; link: string }[];
 }
 
 export default function ProductDetailsClient({
   product,
-  allProducts,
+  relatedProducts,
+  matchedGemstones,
+  matchedDiamonds,
 }: ProductDetailsClientProps) {
   const searchParams = useSearchParams();
   const showMsrp = searchParams.get("showMsrp") !== "false";
@@ -57,100 +60,6 @@ export default function ProductDetailsClient({
   const [activeTab, setActiveTab] = useState("Description");
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
   const [isZoomed, setIsZoomed] = useState(false);
-  const [matchedGemstones, setMatchedGemstones] = useState<
-    { name: string; link: string }[]
-  >([]);
-  const [matchedDiamonds, setMatchedDiamonds] = useState<
-    { name: string; link: string }[]
-  >([]);
-
-  useEffect(() => {
-    const normalizeShapeName = (name: string): string => {
-      const norm = name
-        .toLowerCase()
-        .replace(/\b(cut|shape|shaped|diamond|diamonds)\b/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
-      return norm || "diamond";
-    };
-
-    Promise.all([
-      fetch("/api/gemstones").then((res) => res.json()),
-      fetch("/api/diamonds").then((res) => res.json()),
-    ])
-      .then(([gemsJson, diasJson]) => {
-        const gemList = gemsJson.data || [];
-        const matchedGems = gemList.filter((gem: any) => {
-          const gemName = gem.name.toLowerCase();
-          if (product.gemstoneDetails?.toLowerCase().includes(gemName)) {
-            return true;
-          }
-          if (product.variant2?.toLowerCase().includes(gemName)) {
-            return true;
-          }
-          if (product.name?.toLowerCase().includes(gemName)) {
-            return true;
-          }
-          return false;
-        });
-        setMatchedGemstones(matchedGems);
-
-        const diaList = diasJson.data || [];
-        const matchedDias = diaList.filter((dia: any) => {
-          if (!product.diamondShapeDetails) return false;
-          const prodShapeNorm = normalizeShapeName(product.diamondShapeDetails);
-          const targetShapeNorm = normalizeShapeName(dia.name);
-          return (
-            prodShapeNorm.includes(targetShapeNorm) ||
-            targetShapeNorm.includes(prodShapeNorm)
-          );
-        });
-        setMatchedDiamonds(matchedDias);
-      })
-      .catch((err) =>
-        console.error("Error loading gemstones/diamonds for product:", err),
-      );
-  }, [product]);
-
-  const relatedProducts = useMemo(() => {
-    const candidates = allProducts.filter((p) => p.id !== product.id);
-    const inStock = candidates.filter(
-      (p) => p.inventory !== undefined && p.inventory >= 1,
-    );
-    const outOfStock = candidates.filter(
-      (p) => p.inventory === undefined || p.inventory < 1,
-    );
-    const getScore = (p: Product) => {
-      let score = 0;
-      if (
-        p.collection &&
-        product.collection &&
-        p.collection === product.collection
-      ) {
-        score += 10;
-      }
-      if (p.category && product.category && p.category === product.category) {
-        score += 5;
-      }
-      if (p.variant1 && product.variant1 && p.variant1 === product.variant1) {
-        score += 2;
-      }
-      if (p.variant2 && product.variant2 && p.variant2 === product.variant2) {
-        score += 2;
-      }
-      return score;
-    };
-    const sortCandidates = (list: Product[]) => {
-      return list
-        .map((p) => ({ item: p, score: getScore(p) }))
-        .sort((a, b) => b.score - a.score)
-        .map((x) => x.item);
-    };
-    return [...sortCandidates(inStock), ...sortCandidates(outOfStock)].slice(
-      0,
-      3,
-    );
-  }, [product, allProducts]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } =
@@ -208,6 +117,7 @@ export default function ProductDetailsClient({
 
     const toastId = toast.loading("Preparing zip file...");
     try {
+      const { default: JSZip } = await import("jszip");
       const zip = new JSZip();
 
       const fetchPromises = imageUrls.map(async (url, idx) => {
@@ -347,6 +257,7 @@ export default function ProductDetailsClient({
             {assets[selectedIndex]?.type === "video" ? (
               <video
                 src={getVideoSrc(assets[selectedIndex].src)}
+                poster={getSrc(images[0] || product.featuredImage)}
                 className="w-full h-full object-cover"
                 controls
                 autoPlay
@@ -371,6 +282,7 @@ export default function ProductDetailsClient({
                     alt="Product Images"
                     fill
                     priority
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                     className="object-cover"
                   />
                 )}
@@ -398,6 +310,7 @@ export default function ProductDetailsClient({
                         className="w-full h-full object-cover"
                         muted
                         playsInline
+                        preload="none"
                       />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                         <Play className="size-5 text-white" />
@@ -573,7 +486,6 @@ export default function ProductDetailsClient({
                           src={assets[0].src}
                           alt={product.name}
                           fill
-                          priority
                           className="object-contain"
                         />
                       )}

@@ -1,10 +1,7 @@
 import { Download, ExternalLink } from "lucide-react";
 import Image from "next/image";
+import { SHIMMER_PORTRAIT as SHIMMER_BASE64 } from "@/lib/shimmer";
 import { cn } from "@/lib/utils";
-
-// Shimmer placeholder for remote magazine images
-const SHIMMER_BASE64 =
-  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjUzMyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjUzMyIgZmlsbD0iI2Y1ZjVmNSIvPjwvc3ZnPg==";
 
 const getFormattedIssue = (issue: string | null | undefined) => {
   if (!issue) return "";

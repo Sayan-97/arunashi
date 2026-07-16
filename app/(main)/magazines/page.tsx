@@ -13,7 +13,7 @@ export default async function MagazinesPage() {
   try {
     const res = await fetch(
       `${process.env.API_URL || "http://localhost:8000"}/api/magazines`,
-      { cache: "no-store" },
+      { next: { revalidate: 60, tags: ["magazines"] } },
     );
     const data = await res.json();
     if (data.success) {

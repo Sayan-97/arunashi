@@ -5,10 +5,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-
-// Tiny shimmer used as a blur placeholder for remote banner images
-const SHIMMER_BASE64 =
-  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI0MjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iNDIwIiBmaWxsPSIjZjVmNWY1Ii8+PC9zdmc+";
+import { SHIMMER_WIDE as SHIMMER_BASE64 } from "@/lib/shimmer";
 
 interface Banner {
   id: string;
@@ -23,7 +20,7 @@ export default async function Banners() {
   try {
     const res = await fetch(
       `${process.env.API_URL || "http://localhost:8000"}/api/banners`,
-      { cache: "no-store" },
+      { next: { revalidate: 60, tags: ["banners"] } },
     );
     const data = await res.json();
     if (data.success) {

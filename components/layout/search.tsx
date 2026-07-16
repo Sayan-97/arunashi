@@ -37,10 +37,14 @@ export default function Search() {
   >([]);
 
   const [activeIndex, setActiveIndex] = useState(-1);
+  const hasFetchedRef = useRef(false);
 
   const onClose = useCallback(() => setIsOpen(false), []);
 
   useEffect(() => {
+    if (!isOpen || hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+
     Promise.all([
       fetch("/api/products").then((res) => res.json()),
       fetch("/api/gemstones").then((res) => res.json()),
@@ -111,7 +115,7 @@ export default function Search() {
         setDynamicPages(pages);
       })
       .catch((err) => console.error("Error fetching search data:", err));
-  }, []);
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {

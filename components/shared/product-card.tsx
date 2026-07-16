@@ -1,9 +1,6 @@
 import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
-
-// Tiny inline shimmer used as placeholder for remote images that don't have blurDataURL
-const SHIMMER_BASE64 =
-  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAwIiBoZWlnaHQ9IjcwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNzAwIiBoZWlnaHQ9IjcwMCIgZmlsbD0iI2Y1ZjVmNSIvPjwvc3ZnPg==";
+import { SHIMMER_SQUARE as SHIMMER_BASE64 } from "@/lib/shimmer";
 
 export default function ProductCard({
   image,

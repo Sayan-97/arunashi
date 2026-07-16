@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import Image from "next/image";
+import NextTopLoader from "nextjs-toploader";
 import Header from "@/components/layout/header";
 import { Toaster } from "@/components/ui/sonner";
 import OnboardingBgImg from "@/public/onboarding-bg.png";
@@ -14,6 +15,7 @@ export default async function OnboardingLayout({
 
   return (
     <body className="flex flex-col">
+      <NextTopLoader color="#627426" showSpinner={false} height={3} />
       <Toaster />
       <Header isLoggedIn={isLoggedIn} />
       <main className="flex-1 relative flex py-10">

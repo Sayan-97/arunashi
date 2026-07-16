@@ -1,26 +1,5 @@
 import Link from "next/link";
-
-interface Gemstone {
-  id: string;
-  name: string;
-  link: string;
-}
-
-const getBackendUrl = () => process.env.API_URL || "http://localhost:8000";
-
-async function getGemstones(): Promise<Gemstone[]> {
-  try {
-    const res = await fetch(`${getBackendUrl()}/api/gemstones`, {
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error("Failed to fetch gemstones");
-    const json = await res.json();
-    return json.data || [];
-  } catch (error) {
-    console.error("Error loading gemstones:", error);
-    return [];
-  }
-}
+import { getGemstones } from "@/services/catalog";
 
 export const dynamic = "force-dynamic";
 

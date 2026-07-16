@@ -1,12 +1,9 @@
 import Image from "next/image";
 import { Suspense } from "react";
 import CollectionProductsFilter from "@/components/collections/CollectionProductsFilter";
+import { SHIMMER_WIDE as SHIMMER_BASE64 } from "@/lib/shimmer";
 import HeroImg from "@/public/collection-hero-bg.png";
 import { getShopifyCollections, getShopifyProducts } from "@/services/products";
-
-// Shimmer placeholder for remote hero images
-const SHIMMER_BASE64 =
-  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI0MjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iNDIwIiBmaWxsPSIjZjVmNWY1Ii8+PC9zdmc+";
 
 export const dynamic = "force-dynamic";
 

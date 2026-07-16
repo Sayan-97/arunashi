@@ -1,41 +1,8 @@
 import Link from "next/link";
 import ProductCard from "@/components/shared/product-card";
+import { matchProductsForDiamondShape } from "@/lib/catalog-match";
+import { getDiamonds } from "@/services/catalog";
 import { getShopifyProducts } from "@/services/products";
-
-interface Diamond {
-  id: string;
-  name: string;
-  link: string;
-}
-
-const getBackendUrl = () => process.env.API_URL || "http://localhost:8000";
-
-async function getDiamondBySlug(slug: string): Promise<Diamond | null> {
-  try {
-    const res = await fetch(`${getBackendUrl()}/api/diamonds`, {
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error("Failed to fetch diamonds");
-    const json = await res.json();
-    const list: Diamond[] = json.data || [];
-    const matched = list.find(
-      (d) => d.name.toLowerCase().replace(/\s+/g, "-") === slug,
-    );
-    return matched || null;
-  } catch (error) {
-    console.error("Error matching diamond slug:", error);
-    return null;
-  }
-}
-
-const normalizeShapeName = (name: string): string => {
-  const norm = name
-    .toLowerCase()
-    .replace(/\b(cut|shape|shaped|diamond|diamonds)\b/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-  return norm || "diamond";
-};
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +12,10 @@ export default async function DiamondDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const diamond = await getDiamondBySlug(slug);
+  const diamonds = await getDiamonds();
+  const diamond =
+    diamonds.find((d) => d.name.toLowerCase().replace(/\s+/g, "-") === slug) ||
+    null;
 
   if (!diamond) {
     return (
@@ -65,16 +35,7 @@ export default async function DiamondDetailPage({
   }
 
   const products = await getShopifyProducts();
-  const targetShapeNorm = normalizeShapeName(diamond.name);
-
-  const diamondProducts = products.filter((product) => {
-    if (!product.diamondShapeDetails) return false;
-    const prodShapeNorm = normalizeShapeName(product.diamondShapeDetails);
-    return (
-      prodShapeNorm.includes(targetShapeNorm) ||
-      targetShapeNorm.includes(prodShapeNorm)
-    );
-  });
+  const diamondProducts = matchProductsForDiamondShape(products, diamond.name);
 
   return (
     <main className="py-15 space-y-12 animate-in fade-in duration-500">

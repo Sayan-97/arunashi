@@ -149,7 +149,7 @@ export async function getShopifyProducts(): Promise<Product[]> {
   const backendUrl = getBackendUrl();
   try {
     const res = await fetch(`${backendUrl}/api/products`, {
-      cache: "no-store",
+      next: { revalidate: 60, tags: ["products"] },
     });
     if (!res.ok) {
       console.error("Failed to fetch products from backend:", res.status);
