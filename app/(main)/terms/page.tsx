@@ -90,8 +90,6 @@ function renderMarkdown(markdown: string) {
   return elements;
 }
 
-export const dynamic = "force-dynamic";
-
 export default async function TermsPage() {
   const content = await getTermsContent();
 

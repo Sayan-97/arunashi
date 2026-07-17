@@ -8,8 +8,6 @@ import { getDiamonds, getGemstones } from "@/services/catalog";
 import { getShopifyProducts } from "@/services/products";
 import ProductDetailsClient from "./ProductDetailsClient";
 
-export const dynamic = "force-dynamic";
-
 export default async function ProductDetailsPage({
   params,
 }: {

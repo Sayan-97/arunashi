@@ -5,8 +5,6 @@ import { SHIMMER_WIDE as SHIMMER_BASE64 } from "@/lib/shimmer";
 import HeroImg from "@/public/collection-hero-bg.png";
 import { getShopifyCategories, getShopifyProducts } from "@/services/products";
 
-export const dynamic = "force-dynamic";
-
 export default async function CategoryProductsPage({
   params,
 }: {

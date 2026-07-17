@@ -1,23 +1,21 @@
-import { cookies } from "next/headers";
 import Image from "next/image";
 import NextTopLoader from "nextjs-toploader";
 import Header from "@/components/layout/header";
 import { Toaster } from "@/components/ui/sonner";
 import OnboardingBgImg from "@/public/onboarding-bg.png";
 
-export default async function OnboardingLayout({
+export default function OnboardingLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const isLoggedIn = cookieStore.has("arunashiAccessToken");
-
+  // proxy.ts redirects any already-authenticated request away from these routes
+  // (back to /), so (auth) routes are only ever rendered for a logged-out user.
   return (
     <body className="flex flex-col">
       <NextTopLoader color="#627426" showSpinner={false} height={3} />
       <Toaster />
-      <Header isLoggedIn={isLoggedIn} />
+      <Header />
       <main className="flex-1 relative flex py-10">
         <Image
           src={OnboardingBgImg}

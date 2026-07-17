@@ -6,8 +6,6 @@ import GemstonesAndDiamonds from "@/components/layout/gemstones-and-diamonds";
 import Magazines from "@/components/layout/magazines";
 import SectionLoading from "@/components/shared/section-loading";
 
-export const dynamic = "force-dynamic";
-
 export default function HomePage() {
   return (
     <main className="pt-10 pb-15 space-y-25">

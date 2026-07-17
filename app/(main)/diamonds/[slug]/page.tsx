@@ -4,8 +4,6 @@ import { matchProductsForDiamondShape } from "@/lib/catalog-match";
 import { getDiamonds } from "@/services/catalog";
 import { getShopifyProducts } from "@/services/products";
 
-export const dynamic = "force-dynamic";
-
 export default async function DiamondDetailPage({
   params,
 }: {

@@ -4,8 +4,6 @@ import { matchProductsForGemstone } from "@/lib/catalog-match";
 import { getGemstones } from "@/services/catalog";
 import { getShopifyProducts } from "@/services/products";
 
-export const dynamic = "force-dynamic";
-
 export default async function GemstoneDetailPage({
   params,
 }: {

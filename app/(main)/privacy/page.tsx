@@ -106,8 +106,6 @@ function renderMarkdown(markdown: string) {
   return elements;
 }
 
-export const dynamic = "force-dynamic";
-
 export default async function PrivacyPage() {
   const content = await getPrivacyContent();
 

@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { getDiamonds } from "@/services/catalog";
 
-export const dynamic = "force-dynamic";
-
 export default async function DiamondsPage() {
   const diamonds = await getDiamonds();
 
